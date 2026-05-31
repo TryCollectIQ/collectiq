@@ -1,31 +1,39 @@
 const https = require('https');
 
 exports.handler = async function(event, context) {
-  if (event.httpMethod === 'OPTIONS') {
-    return {
-      statusCode: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS'
-      },
-      body: ''
-    };
-  }
-
-  if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, body: 'Method Not Allowed' };
-  }
-
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
     'Content-Type': 'application/json'
   };
 
+  if (event.httpMethod === 'OPTIONS') {
+    return { statusCode: 200, headers, body: '' };
+  }
+
+  if (event.httpMethod !== 'POST') {
+    return { statusCode: 405, headers, body: 'Method Not Allowed' };
+  }
+
   try {
-    const body = JSON.parse(event.body);
-    const payload = JSON.stringify(body);
+    const body = event.body;
+    const parsed = JSON.parse(body);
+
+    // Add required anthropic version if not present
+    if (!parsed.model) parsed.model = 'claude-sonnet-4-20250514';
+    if (!parsed.max_tokens) parsed.max_tokens = 1000;
+
+    const payload = JSON.stringify(parsed);
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+
+    if (!apiKey) {
+      return {
+        statusCode: 500,
+        headers,
+        body: JSON.stringify({ error: 'ANTHROPIC_API_KEY not set' })
+      };
+    }
 
     const result = await new Promise((resolve, reject) => {
       const req = https.request({
@@ -33,17 +41,17 @@ exports.handler = async function(event, context) {
         path: '/v1/messages',
         method: 'POST',
         headers: {
-          'x-api-key': process.env.ANTHROPIC_API_KEY,
+          'x-api-key': apiKey,
           'anthropic-version': '2023-06-01',
-          'Content-Type': 'application/json',
-          'Content-Length': Buffer.byteLength(payload)
+          'content-type': 'application/json',
+          'content-length': Buffer.byteLength(payload)
         }
       }, (res) => {
         let data = '';
         res.on('data', chunk => data += chunk);
         res.on('end', () => resolve({ status: res.statusCode, data }));
       });
-      req.on('error', reject);
+      req.on('error', (e) => reject(e));
       req.write(payload);
       req.end();
     });
@@ -58,7 +66,7 @@ exports.handler = async function(event, context) {
     return {
       statusCode: 500,
       headers,
-      body: JSON.stringify({ error: err.message })
+      body: JSON.stringify({ error: err.message, stack: err.stack })
     };
   }
 };
