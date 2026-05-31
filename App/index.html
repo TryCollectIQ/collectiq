@@ -775,6 +775,16 @@ const SUPABASE_URL = 'https://cnpcefikmgjxlykbjfpl.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_4Tk-EQ6by99WSKtBZMX6nA_2y66lrTq';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+// Fallback: show login form after 3 seconds if Supabase hasn't responded
+setTimeout(() => {
+  const loading = document.getElementById('authLoading');
+  const loginF = document.getElementById('loginF');
+  if (loading && loading.style.display !== 'none') {
+    loading.style.display = 'none';
+    if (loginF) loginF.style.display = '';
+  }
+}, 3000);
+
 let CU=null,billMode='annual';
 let dChats=[{r:'ai',t:"Hi! I'm your AI collections assistant. I've scored all accounts — your highest priorities are at the top of the queue. Want me to draft outreach or model a payment plan?"}];
 let nChats=[{r:'ai',t:"I'm CollectIQ AI. I can prioritize accounts, draft outreach, configure payment plans, analyze disputes, and build recovery strategies. What would you like to work on?"}];
