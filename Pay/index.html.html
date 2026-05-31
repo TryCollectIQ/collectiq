@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Payment Portal — CollectIQ</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Outfit:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --white: #ffffff;
+  --off: #faf9f7;
+  --soft: #f3f1ed;
+  --border: rgba(28,24,20,0.1);
+  --border2: rgba(28,24,20,0.06);
+  --ink: #1c1814;
+  --ink2: #3d3830;
+  --muted: #7c7469;
+  --muted2: #b0a99f;
+  --ghost: #dedad4;
+  --accent: #b5380a;
+  --accent-bg: #fef5f1;
+  --accent-border: rgba(181,56,10,0.18);
+  --green: #0f6b3e;
+  --green-bg: #f0faf5;
+  --green-border: rgba(15,107,62,0.18);
+  --amber: #92590a;
+  --amber-bg: #fefaf0;
+  --amber-border: rgba(146,89,10,0.18);
+  --blue: #1444a0;
+  --blue-bg: #f0f4fe;
+  --blue-border: rgba(20,68,160,0.15);
+  --ff-serif: 'Cormorant Garamond', Georgia, serif;
+  --ff-body: 'Outfit', system-ui, sans-serif;
+  --ff-mono: 'JetBrains Mono', monospace;
+  --r: 8px; --r-lg: 14px; --r-xl: 20px;
+  --shadow: 0 1px 4px rgba(28,24,20,0.07),0 1px 2px rgba(28,24,20,0.04);
+  --shadow-lg: 0 8px 32px rgba(28,24,20,0.1),0 2px 8px rgba(28,24,20,0.06);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 14px; }
+body { font-family: var(--ff-body); background: var(--soft); color: var(--ink); line-height: 1.5; min-height: 100vh; }
+
+/* ── HEADER ── */
+.portal-header {
+  background: var(--white); border-bottom: 1px solid var(--border);
+  padding: 14px 24px; display: flex; align-items: center; gap: 12px;
+  position: sticky; top: 0; z-index: 50; box-shadow: var(--shadow);
+}
+.portal-logo { font-family: var(--ff-serif); font-size: 20px; font-weight: 400; letter-spacing: -.3px; color: var(--ink); flex: 1; }
+.portal-logo em { font-style: italic; color: var(--accent); }
+.portal-secure { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted); font-family: var(--ff-mono); }
+.portal-secure svg { width: 12px; height: 12px; stroke: var(--muted); fill: none; stroke-width: 1.8; }
+.portal-badge { font-family: var(--ff-mono); font-size: 10px; padding: 3px 9px; border-radius: 99px; background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue-border); }
+
+/* ── LAYOUT ── */
+.portal-wrap { max-width: 560px; margin: 0 auto; padding: 32px 20px 60px; }
+
+/* ── COMPANY INTRO ── */
+.sender-card {
+  background: var(--white); border: 1px solid var(--border); border-radius: var(--r-xl);
+  padding: 28px; margin-bottom: 18px; box-shadow: var(--shadow);
+  display: flex; gap: 18px; align-items: flex-start;
+  animation: fadeUp .4s ease both;
+}
+@keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
+.sender-logo {
+  width: 52px; height: 52px; border-radius: 12px; background: var(--ink);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--ff-serif); font-size: 20px; font-weight: 400; color: #fff;
+  flex-shrink: 0; font-style: italic;
+}
+.sender-name { font-size: 15px; font-weight: 600; color: var(--ink); margin-bottom: 3px; }
+.sender-msg { font-size: 13px; color: var(--muted); line-height: 1.6; font-weight: 300; }
+.sender-contact { display: flex; align-items: center; gap: 5px; margin-top: 8px; font-size: 12px; color: var(--blue); text-decoration: none; }
+.sender-contact svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+
+/* ── INVOICE CARD ── */
+.invoice-card {
+  background: var(--white); border: 1px solid var(--border); border-radius: var(--r-xl);
+  overflow: hidden; margin-bottom: 18px; box-shadow: var(--shadow);
+  animation: fadeUp .4s .1s ease both;
+}
+.invoice-top {
+  padding: 22px 28px; border-bottom: 1px solid var(--border2);
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+}
+.invoice-label { font-family: var(--ff-mono); font-size: 10px; color: var(--muted2); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 6px; }
+.invoice-number { font-family: var(--ff-serif); font-size: 22px; font-weight: 400; color: var(--ink); letter-spacing: -.3px; }
+.invoice-amount-wrap { text-align: right; }
+.invoice-amount { font-family: var(--ff-serif); font-size: 40px; font-weight: 300; color: var(--ink); letter-spacing: -1.5px; line-height: 1; }
+.invoice-amount sup { font-size: 20px; vertical-align: top; margin-top: 8px; display: inline-block; font-weight: 300; opacity: .6; }
+.invoice-overdue { font-family: var(--ff-mono); font-size: 10px; color: var(--accent); margin-top: 4px; }
+.invoice-details { padding: 18px 28px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; border-bottom: 1px solid var(--border2); }
+.inv-detail-label { font-size: 11px; color: var(--muted2); font-family: var(--ff-mono); margin-bottom: 3px; text-transform: uppercase; letter-spacing: .06em; }
+.inv-detail-value { font-size: 13px; font-weight: 500; color: var(--ink); }
+.inv-detail-value.overdue { color: var(--accent); }
+.invoice-items { padding: 18px 28px; }
+.item-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border2); font-size: 13px; }
+.item-row:last-child { border: none; }
+.item-name { color: var(--ink2); }
+.item-amount { font-family: var(--ff-mono); font-weight: 500; color: var(--ink); }
+.item-total-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 28px; background: var(--soft); border-top: 1px solid var(--border); }
+.item-total-label { font-size: 13px; font-weight: 600; color: var(--ink); }
+.item-total-amount { font-family: var(--ff-serif); font-size: 22px; font-weight: 400; color: var(--ink); }
+
+/* ── STEPS ── */
+.steps-wrap { animation: fadeUp .4s .2s ease both; }
+.step-tabs { display: flex; gap: 0; background: var(--white); border: 1px solid var(--border); border-radius: var(--r-xl); overflow: hidden; margin-bottom: 18px; box-shadow: var(--shadow); }
+.step-tab { flex: 1; padding: 14px; text-align: center; font-size: 12px; color: var(--muted); border-right: 1px solid var(--border); cursor: pointer; transition: all .2s; position: relative; }
+.step-tab:last-child { border-right: none; }
+.step-tab.active { background: var(--ink); color: #fff; }
+.step-tab.done { background: var(--green-bg); color: var(--green); }
+.step-tab-num { font-family: var(--ff-mono); font-size: 10px; display: block; margin-bottom: 3px; opacity: .6; }
+.step-tab-label { font-size: 11px; font-weight: 500; }
+
+/* ── PAYMENT OPTIONS ── */
+.options-card {
+  background: var(--white); border: 1px solid var(--border); border-radius: var(--r-xl);
+  overflow: hidden; margin-bottom: 18px; box-shadow: var(--shadow);
+}
+.options-head { padding: 20px 24px; border-bottom: 1px solid var(--border2); }
+.options-title { font-family: var(--ff-serif); font-size: 20px; font-weight: 400; letter-spacing: -.3px; margin-bottom: 3px; }
+.options-sub { font-size: 12px; color: var(--muted); font-weight: 300; }
+.option-list { padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.option {
+  border: 2px solid var(--border); border-radius: var(--r-lg); padding: 16px 18px;
+  cursor: pointer; transition: all .2s; position: relative;
+}
+.option:hover { border-color: var(--ink); }
+.option.selected { border-color: var(--ink); background: var(--off); }
+.option.selected::after { content: '✓'; position: absolute; top: 14px; right: 16px; width: 22px; height: 22px; border-radius: 50%; background: var(--ink); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; }
+.option-row { display: flex; align-items: center; gap: 12px; }
+.option-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.option-name { font-size: 14px; font-weight: 600; color: var(--ink); margin-bottom: 2px; }
+.option-desc { font-size: 12px; color: var(--muted); font-weight: 300; }
+.option-price { margin-left: auto; text-align: right; flex-shrink: 0; }
+.option-price-num { font-family: var(--ff-serif); font-size: 20px; font-weight: 400; color: var(--ink); }
+.option-price-label { font-size: 10px; color: var(--muted); font-family: var(--ff-mono); }
+.option-badge { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 10px; font-family: var(--ff-mono); font-weight: 500; margin-top: 4px; }
+.ob-save { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+.ob-pop { background: var(--accent-bg); color: var(--accent); border: 1px solid var(--accent-border); }
+.ob-flex { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-border); }
+
+/* Plan detail */
+.plan-detail { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border2); display: none; }
+.plan-detail.show { display: block; }
+.plan-schedule { display: flex; flex-direction: column; gap: 6px; }
+.plan-row { display: flex; justify-content: space-between; align-items: center; font-size: 12px; padding: 5px 0; }
+.plan-row-label { color: var(--muted); }
+.plan-row-value { font-family: var(--ff-mono); font-weight: 500; color: var(--ink); }
+.plan-row-value.green { color: var(--green); }
+.plan-input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+.plan-input { width: 100%; padding: 8px 11px; border: 1px solid var(--border); border-radius: var(--r); font-family: var(--ff-body); font-size: 13px; color: var(--ink); background: var(--white); outline: none; transition: border-color .15s; }
+.plan-input:focus { border-color: var(--accent); }
+
+/* ── PAYMENT FORM ── */
+.payment-card {
+  background: var(--white); border: 1px solid var(--border); border-radius: var(--r-xl);
+  overflow: hidden; margin-bottom: 18px; box-shadow: var(--shadow);
+  animation: fadeUp .4s .25s ease both;
+}
+.payment-head { padding: 20px 24px; border-bottom: 1px solid var(--border2); display: flex; align-items: center; justify-content: space-between; }
+.payment-title { font-family: var(--ff-serif); font-size: 20px; font-weight: 400; letter-spacing: -.3px; }
+.payment-icons { display: flex; gap: 6px; }
+.card-icon { width: 32px; height: 20px; background: var(--soft); border: 1px solid var(--border); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 8px; font-family: var(--ff-mono); font-weight: 500; color: var(--muted); }
+.payment-body { padding: 22px 24px; }
+.field { margin-bottom: 14px; }
+.field label { display: block; font-size: 11px; font-weight: 500; color: var(--muted); letter-spacing: .04em; text-transform: uppercase; margin-bottom: 5px; font-family: var(--ff-mono); }
+.field input, .field select { width: 100%; padding: 11px 13px; border: 1px solid var(--border); border-radius: var(--r); font-family: var(--ff-body); font-size: 13px; color: var(--ink); background: var(--white); outline: none; transition: all .15s; }
+.field input:focus, .field select:focus { border-color: var(--ink); box-shadow: 0 0 0 3px rgba(28,24,20,0.06); }
+.field input::placeholder { color: var(--muted2); }
+.field-row { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; }
+.field-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+.card-input-wrap { position: relative; }
+.card-input-wrap input { padding-right: 40px; }
+.card-type-icon { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 10px; font-family: var(--ff-mono); color: var(--muted2); pointer-events: none; }
+.pay-btn {
+  width: 100%; padding: 14px; background: var(--ink); color: #fff; border: none;
+  border-radius: var(--r-lg); font-family: var(--ff-body); font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: all .2s; display: flex; align-items: center; justify-content: center; gap: 8px;
+  letter-spacing: .01em;
+}
+.pay-btn:hover { background: var(--accent); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(181,56,10,0.25); }
+.pay-btn:active { transform: translateY(0); }
+.pay-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+.pay-trust { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 14px; flex-wrap: wrap; }
+.pay-trust-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted2); }
+.pay-trust-item svg { width: 11px; height: 11px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+
+/* ── NEGOTIATE ── */
+.negotiate-card {
+  background: var(--off); border: 1px solid var(--border); border-radius: var(--r-xl);
+  padding: 20px 24px; margin-bottom: 18px;
+  animation: fadeUp .4s .3s ease both;
+}
+.neg-title { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+.neg-sub { font-size: 12px; color: var(--muted); line-height: 1.6; margin-bottom: 14px; font-weight: 300; }
+.neg-chat { background: var(--white); border: 1px solid var(--border); border-radius: var(--r-lg); overflow: hidden; }
+.neg-msgs { padding: 14px; display: flex; flex-direction: column; gap: 10px; max-height: 200px; overflow-y: auto; }
+.neg-msg { font-size: 12px; line-height: 1.6; padding: 10px 12px; border-radius: 10px; max-width: 88%; }
+.neg-msg.company { background: var(--soft); color: var(--ink2); align-self: flex-start; border-radius: 2px 10px 10px 10px; }
+.neg-msg.debtor { background: var(--ink); color: #fff; align-self: flex-end; border-radius: 10px 10px 2px 10px; }
+.neg-msg.ai { background: var(--blue-bg); color: var(--blue); align-self: flex-start; border-radius: 2px 10px 10px 10px; border: 1px solid var(--blue-border); font-style: italic; }
+.neg-input-row { display: flex; gap: 0; border-top: 1px solid var(--border); }
+.neg-input { flex: 1; padding: 11px 14px; border: none; outline: none; font-family: var(--ff-body); font-size: 12px; color: var(--ink); background: transparent; }
+.neg-input::placeholder { color: var(--muted2); }
+.neg-send { padding: 11px 16px; background: none; border: none; border-left: 1px solid var(--border); cursor: pointer; color: var(--accent); font-family: var(--ff-body); font-size: 12px; font-weight: 600; transition: all .15s; white-space: nowrap; }
+.neg-send:hover { background: var(--accent-bg); }
+
+/* ── SUCCESS ── */
+.success-screen {
+  display: none; text-align: center; padding: 48px 24px;
+  background: var(--white); border: 1px solid var(--border); border-radius: var(--r-xl);
+  box-shadow: var(--shadow-lg);
+  animation: fadeUp .5s ease both;
+}
+.success-icon { width: 64px; height: 64px; border-radius: 50%; background: var(--green-bg); border: 1px solid var(--green-border); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; }
+.success-icon svg { width: 28px; height: 28px; stroke: var(--green); fill: none; stroke-width: 2.5; }
+.success-title { font-family: var(--ff-serif); font-size: 32px; font-weight: 300; letter-spacing: -.5px; margin-bottom: 8px; }
+.success-sub { font-size: 14px; color: var(--muted); line-height: 1.7; max-width: 380px; margin: 0 auto 28px; font-weight: 300; }
+.success-receipt { background: var(--soft); border-radius: var(--r-lg); padding: 20px; text-align: left; margin-bottom: 24px; display: flex; flex-direction: column; gap: 10px; }
+.receipt-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+.receipt-label { color: var(--muted); }
+.receipt-value { font-family: var(--ff-mono); font-weight: 500; color: var(--ink); }
+.receipt-value.green { color: var(--green); }
+.success-download { display: inline-flex; align-items: center; gap: 7px; padding: 11px 22px; border: 1px solid var(--border); border-radius: var(--r-lg); font-size: 13px; font-weight: 500; color: var(--ink); cursor: pointer; background: var(--white); transition: all .15s; }
+.success-download:hover { background: var(--soft); border-color: rgba(28,24,20,.2); }
+
+/* ── FOOTER ── */
+.portal-footer { text-align: center; padding: 20px; font-size: 11px; color: var(--muted2); font-family: var(--ff-mono); }
+.portal-footer a { color: var(--muted2); text-decoration: none; }
+.portal-footer a:hover { color: var(--ink); }
+
+/* ── TYPING ── */
+.typing { display: flex; gap: 3px; padding: 2px 0; }
+.t-d { width: 4px; height: 4px; border-radius: 50%; background: var(--blue); animation: tb 1.2s infinite; }
+.t-d:nth-child(2){animation-delay:.2s;}.t-d:nth-child(3){animation-delay:.4s;}
+@keyframes tb{0%,80%,100%{opacity:.2}40%{opacity:1}}
+
+/* ── PROGRESS BAR ── */
+.progress-bar { height: 3px; background: var(--ghost); border-radius: 99px; overflow: hidden; margin-bottom: 24px; }
+.progress-fill { height: 100%; border-radius: 99px; background: var(--ink); transition: width .4s ease; }
+
+/* ── DISPUTE ── */
+.dispute-link { text-align: center; margin-bottom: 18px; }
+.dispute-btn { font-size: 12px; color: var(--muted); background: none; border: none; cursor: pointer; text-decoration: underline; font-family: var(--ff-body); transition: color .15s; }
+.dispute-btn:hover { color: var(--accent); }
+
+@media (max-width: 480px) {
+  .portal-wrap { padding: 20px 14px 48px; }
+  .sender-card { padding: 18px; gap: 12px; }
+  .sender-logo { width: 42px; height: 42px; font-size: 16px; }
+  .invoice-top { padding: 16px 18px; flex-direction: column; gap: 8px; }
+  .invoice-amount-wrap { text-align: left; }
+  .invoice-amount { font-size: 32px; }
+  .invoice-details { padding: 14px 18px; grid-template-columns: 1fr; gap: 10px; }
+  .invoice-items { padding: 14px 18px; }
+  .item-total-row { padding: 10px 18px; }
+  .options-head, .payment-head { padding: 16px 18px; }
+  .option-list { padding: 10px; }
+  .payment-body { padding: 16px 18px; }
+  .negotiate-card { padding: 16px 18px; }
+  .field-row, .field-row-3 { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="portal-header">
+  <div class="portal-logo">Collect<em>IQ</em></div>
+  <div class="portal-secure">
+    <svg viewBox="0 0 16 16"><rect x="3" y="7" width="10" height="7" rx="1"/><path d="M5 7V5a3 3 0 016 0v2"/></svg>
+    Secured by CollectIQ
+  </div>
+  <div class="portal-badge">SSL ENCRYPTED</div>
+</div>
+
+<div class="portal-wrap">
+
+  <!-- PROGRESS -->
+  <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:33%"></div></div>
+
+  <!-- SUCCESS SCREEN (hidden until payment) -->
+  <div class="success-screen" id="successScreen">
+    <div class="success-icon"><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg></div>
+    <div class="success-title">Payment received</div>
+    <div class="success-sub" id="successMsg">Thank you. Your payment has been processed and a confirmation has been sent to your email.</div>
+    <div class="success-receipt" id="successReceipt"></div>
+    <button class="success-download" onclick="downloadReceipt()">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 11v2a1 1 0 001 1h10a1 1 0 001-1v-2M8 2v8M5 9l3 3 3-3"/></svg>
+      Download receipt
+    </button>
+  </div>
+
+  <!-- MAIN PORTAL CONTENT -->
+  <div id="portalContent">
+
+    <!-- SENDER INFO -->
+    <div class="sender-card">
+      <div class="sender-logo">N</div>
+      <div>
+        <div class="sender-name">NexaTech Solutions</div>
+        <div class="sender-msg">You have an outstanding invoice with NexaTech Solutions. Please review the details below and select a payment option that works for you. We're happy to discuss a payment arrangement if needed.</div>
+        <a href="mailto:billing@nexatech.com" class="sender-contact">
+          <svg viewBox="0 0 16 16"><path d="M2 3h12v8H2zM2 3l6 5 6-5"/></svg>
+          billing@nexatech.com
+        </a>
+      </div>
+    </div>
+
+    <!-- INVOICE DETAILS -->
+    <div class="invoice-card">
+      <div class="invoice-top">
+        <div>
+          <div class="invoice-label">Invoice</div>
+          <div class="invoice-number">INV-2024-0892</div>
+        </div>
+        <div class="invoice-amount-wrap">
+          <div class="invoice-label">Amount due</div>
+          <div class="invoice-amount"><sup>$</sup><span id="invoiceAmountDisplay">127,500</span></div>
+          <div class="invoice-overdue">92 days overdue</div>
+        </div>
+      </div>
+      <div class="invoice-details">
+        <div>
+          <div class="inv-detail-label">Invoice date</div>
+          <div class="inv-detail-value">October 15, 2024</div>
+        </div>
+        <div>
+          <div class="inv-detail-label">Due date</div>
+          <div class="inv-detail-value overdue">November 14, 2024</div>
+        </div>
+        <div>
+          <div class="inv-detail-label">Billed to</div>
+          <div class="inv-detail-value">Meridian Logistics Inc.</div>
+        </div>
+        <div>
+          <div class="inv-detail-label">Reference</div>
+          <div class="inv-detail-value">CONTRACT-2024-ML-09</div>
+        </div>
+      </div>
+      <div class="invoice-items">
+        <div class="item-row"><span class="item-name">Q3 2024 Service fees</span><span class="item-amount">$95,000.00</span></div>
+        <div class="item-row"><span class="item-name">Implementation services</span><span class="item-amount">$24,500.00</span></div>
+        <div class="item-row"><span class="item-name">Support &amp; maintenance</span><span class="item-amount">$8,000.00</span></div>
+      </div>
+      <div class="item-total-row">
+        <span class="item-total-label">Total outstanding</span>
+        <span class="item-total-amount">$127,500.00</span>
+      </div>
+    </div>
+
+    <!-- PAYMENT OPTIONS -->
+    <div class="options-card">
+      <div class="options-head">
+        <div class="options-title">Choose how to pay</div>
+        <div class="options-sub">Select the option that works best for your business right now</div>
+      </div>
+      <div class="option-list">
+
+        <!-- Full payment -->
+        <div class="option" id="opt-full" onclick="selectOption('full')">
+          <div class="option-row">
+            <div class="option-icon" style="background:#f0faf5;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0f6b3e" stroke-width="2"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+            </div>
+            <div>
+              <div class="option-name">Pay in full</div>
+              <div class="option-desc">Close this account today with one payment</div>
+              <div><span class="option-badge ob-save">Closes account immediately</span></div>
+            </div>
+            <div class="option-price">
+              <div class="option-price-num">$127,500</div>
+              <div class="option-price-label">due today</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Settlement -->
+        <div class="option" id="opt-settle" onclick="selectOption('settle')">
+          <div class="option-row">
+            <div class="option-icon" style="background:#fef5f1;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#b5380a" stroke-width="2"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <div>
+              <div class="option-name">Early settlement — 10% off</div>
+              <div class="option-desc">Pay $114,750 today to fully close the account</div>
+              <div><span class="option-badge ob-pop">Save $12,750</span></div>
+            </div>
+            <div class="option-price">
+              <div class="option-price-num">$114,750</div>
+              <div class="option-price-label">one-time settlement</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment plan -->
+        <div class="option selected" id="opt-plan" onclick="selectOption('plan')">
+          <div class="option-row">
+            <div class="option-icon" style="background:#f0f4fe;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1444a0" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+            </div>
+            <div>
+              <div class="option-name">Payment plan</div>
+              <div class="option-desc">Split into manageable monthly installments</div>
+              <div><span class="option-badge ob-flex">0% interest available</span></div>
+            </div>
+            <div class="option-price">
+              <div class="option-price-num" id="planInstDisplay">$21,250</div>
+              <div class="option-price-label" id="planInstLabel">per month × 6</div>
+            </div>
+          </div>
+          <div class="plan-detail show" id="planDetail">
+            <div class="plan-input-row">
+              <div>
+                <div style="font-size:11px;color:var(--muted2);margin-bottom:4px;font-family:var(--ff-mono);text-transform:uppercase;letter-spacing:.05em;">Duration</div>
+                <select class="plan-input" id="planDuration" onchange="updatePlan()">
+                  <option value="3">3 months — $42,500/mo</option>
+                  <option value="6" selected>6 months — $21,250/mo</option>
+                  <option value="9">9 months — $14,167/mo</option>
+                  <option value="12">12 months — $10,625/mo</option>
+                </select>
+              </div>
+              <div>
+                <div style="font-size:11px;color:var(--muted2);margin-bottom:4px;font-family:var(--ff-mono);text-transform:uppercase;letter-spacing:.05em;">Down payment</div>
+                <input class="plan-input" type="number" id="planDown" value="0" placeholder="$0" oninput="updatePlan()"/>
+              </div>
+            </div>
+            <div class="plan-schedule" id="planSchedule" style="margin-top:12px;"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- PAYMENT FORM -->
+    <div class="payment-card">
+      <div class="payment-head">
+        <div class="payment-title">Payment details</div>
+        <div class="payment-icons">
+          <div class="card-icon">VISA</div>
+          <div class="card-icon">MC</div>
+          <div class="card-icon">AMEX</div>
+          <div class="card-icon">ACH</div>
+        </div>
+      </div>
+      <div class="payment-body">
+        <div class="field">
+          <label>Full name on card</label>
+          <input type="text" id="cardName" placeholder="Jordan Rivera"/>
+        </div>
+        <div class="field">
+          <label>Card number</label>
+          <div class="card-input-wrap">
+            <input type="text" id="cardNum" placeholder="1234 5678 9012 3456" maxlength="19" oninput="formatCard(this)"/>
+            <span class="card-type-icon" id="cardTypeIcon">CARD</span>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field" style="margin-bottom:0;">
+            <label>Expiry date</label>
+            <input type="text" id="cardExp" placeholder="MM / YY" maxlength="7" oninput="formatExp(this)"/>
+          </div>
+          <div class="field" style="margin-bottom:0;">
+            <label>CVC</label>
+            <input type="text" id="cardCvc" placeholder="123" maxlength="4"/>
+          </div>
+        </div>
+        <div style="height:14px;"></div>
+        <div class="field">
+          <label>Company name</label>
+          <input type="text" id="companyName" placeholder="Meridian Logistics Inc."/>
+        </div>
+        <div class="field">
+          <label>Email for receipt</label>
+          <input type="email" id="receiptEmail" placeholder="billing@meridian.com"/>
+        </div>
+        <button class="pay-btn" onclick="processPayment()" id="payBtn">
+          <svg viewBox="0 0 16 16"><rect x="1" y="5" width="14" height="9" rx="1"/><path d="M1 8h14"/></svg>
+          <span id="payBtnText">Pay $21,250 now — first instalment</span>
+        </button>
+        <div class="pay-trust">
+          <div class="pay-trust-item"><svg viewBox="0 0 16 16"><rect x="3" y="7" width="10" height="7" rx="1"/><path d="M5 7V5a3 3 0 016 0v2"/></svg>256-bit SSL</div>
+          <div class="pay-trust-item"><svg viewBox="0 0 16 16"><path d="M8 1l1.5 3 3.5.5-2.5 2.5.5 3.5L8 9 4.5 10.5l.5-3.5L2.5 4.5 6 4z"/></svg>PCI DSS compliant</div>
+          <div class="pay-trust-item"><svg viewBox="0 0 16 16"><path d="M2 8c0-3.3 2.7-6 6-6s6 2.7 6 6-2.7 6-6 6-6-2.7-6-6zm4 0l2 2 3-3"/></svg>Instant confirmation</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI NEGOTIATE -->
+    <div class="negotiate-card">
+      <div class="neg-title">Need different terms? Talk to our AI</div>
+      <div class="neg-sub">If none of the options above work for your situation, explain your circumstances below. Our AI can propose custom arrangements and escalate to a human if needed.</div>
+      <div class="neg-chat">
+        <div class="neg-msgs" id="negMsgs">
+          <div class="neg-msg company">Hi — I'm the AI assistant for NexaTech's collections team. I can help find a payment arrangement that works for your business. What's your situation?</div>
+        </div>
+        <div class="neg-input-row">
+          <input class="neg-input" id="negInput" type="text" placeholder="Explain your situation or counter-propose…" onkeydown="if(event.key==='Enter')sendNeg()"/>
+          <button class="neg-send" onclick="sendNeg()">Send →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- DISPUTE -->
+    <div class="dispute-link">
+      <button class="dispute-btn" onclick="openDispute()">Dispute this invoice or report an error →</button>
+    </div>
+
+  </div><!-- /portalContent -->
+</div><!-- /portal-wrap -->
+
+<div class="portal-footer">
+  Powered by <a href="https://trycollectiq.com">CollectIQ</a> · Secured payment processing ·
+  <a href="#">Privacy</a> · <a href="#">Terms</a>
+</div>
+
+<script>
+// ── STATE ──────────────────────────────────────────────────────────────
+const INVOICE_AMOUNT = 127500;
+let selectedOption = 'plan';
+let planMonths = 6;
+let planDown = 0;
+let negHistory = [];
+
+// ── OPTION SELECTION ───────────────────────────────────────────────────
+function selectOption(opt) {
+  selectedOption = opt;
+  ['full','settle','plan'].forEach(o => {
+    const el = document.getElementById('opt-'+o);
+    el.classList.toggle('selected', o === opt);
+  });
+  document.getElementById('planDetail').classList.toggle('show', opt === 'plan');
+  updatePayButton();
+  setProgress(opt === 'full' ? 66 : opt === 'settle' ? 66 : 50);
+}
+
+function updatePayButton() {
+  const btn = document.getElementById('payBtnText');
+  if (selectedOption === 'full') btn.textContent = `Pay $${INVOICE_AMOUNT.toLocaleString()} — full balance`;
+  else if (selectedOption === 'settle') btn.textContent = `Pay $${(INVOICE_AMOUNT * 0.9).toLocaleString()} — settlement`;
+  else {
+    const inst = calcInstalment();
+    btn.textContent = `Pay $${Math.round(inst).toLocaleString()} now — first instalment`;
+  }
+}
+
+function calcInstalment() {
+  const balance = INVOICE_AMOUNT - planDown;
+  return balance / planMonths;
+}
+
+function updatePlan() {
+  planMonths = parseInt(document.getElementById('planDuration').value);
+  planDown = parseFloat(document.getElementById('planDown').value) || 0;
+  planDown = Math.min(planDown, INVOICE_AMOUNT * 0.5);
+  const inst = calcInstalment();
+  document.getElementById('planInstDisplay').textContent = '$' + Math.round(inst).toLocaleString();
+  document.getElementById('planInstLabel').textContent = `per month × ${planMonths}`;
+  renderSchedule(inst);
+  updatePayButton();
+}
+
+function renderSchedule(inst) {
+  const el = document.getElementById('planSchedule');
+  const today = new Date();
+  let html = '<div style="display:flex;flex-direction:column;gap:4px;">';
+  const show = Math.min(planMonths, 4);
+  for (let i = 1; i <= show; i++) {
+    const d = new Date(today.getFullYear(), today.getMonth() + i, today.getDate());
+    const dateStr = d.toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'});
+    html += `<div class="plan-row" style="border-bottom:1px solid var(--border2);">
+      <span class="plan-row-label">Payment ${i}</span>
+      <span style="font-size:11px;color:var(--muted2);">${dateStr}</span>
+      <span class="plan-row-value">$${Math.round(inst).toLocaleString()}</span>
+    </div>`;
+  }
+  if (planMonths > 4) {
+    html += `<div class="plan-row"><span class="plan-row-label" style="font-style:italic;">+ ${planMonths - 4} more payments</span><span class="plan-row-value green">$${Math.round(inst * planMonths).toLocaleString()} total</span></div>`;
+  }
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+// ── CARD FORMATTING ─────────────────────────────────────────────────────
+function formatCard(inp) {
+  let v = inp.value.replace(/\D/g,'').substring(0,16);
+  inp.value = v.replace(/(.{4})/g,'$1 ').trim();
+  const icon = document.getElementById('cardTypeIcon');
+  if(v.startsWith('4')) icon.textContent = 'VISA';
+  else if(v.startsWith('5')) icon.textContent = 'MC';
+  else if(v.startsWith('3')) icon.textContent = 'AMEX';
+  else icon.textContent = 'CARD';
+}
+
+function formatExp(inp) {
+  let v = inp.value.replace(/\D/g,'');
+  if(v.length >= 2) v = v.substring(0,2) + ' / ' + v.substring(2,4);
+  inp.value = v;
+}
+
+// ── PROGRESS ────────────────────────────────────────────────────────────
+function setProgress(pct) {
+  document.getElementById('progressFill').style.width = pct + '%';
+}
+
+// ── PAYMENT PROCESSING ──────────────────────────────────────────────────
+function processPayment() {
+  const name = document.getElementById('cardName').value.trim();
+  const num = document.getElementById('cardNum').value.trim();
+  const exp = document.getElementById('cardExp').value.trim();
+  const cvc = document.getElementById('cardCvc').value.trim();
+  const email = document.getElementById('receiptEmail').value.trim();
+  if(!name || num.replace(/\s/g,'').length < 16 || !exp || cvc.length < 3) {
+    alert('Please complete all card details.');
+    return;
+  }
+  const btn = document.getElementById('payBtn');
+  btn.textContent = 'Processing…';
+  btn.style.opacity = '.7';
+  btn.disabled = true;
+  setTimeout(() => {
+    showSuccess(email || 'billing@meridian.com');
+  }, 1800);
+}
+
+function showSuccess(email) {
+  setProgress(100);
+  document.getElementById('portalContent').style.display = 'none';
+  const ss = document.getElementById('successScreen');
+  ss.style.display = 'block';
+  let paymentDesc, paymentAmt, nextStep;
+  if(selectedOption === 'full') {
+    paymentAmt = '$127,500.00';
+    paymentDesc = 'Full payment';
+    nextStep = 'Account closed. You will receive a paid-in-full confirmation shortly.';
+  } else if(selectedOption === 'settle') {
+    paymentAmt = '$114,750.00';
+    paymentDesc = 'Settlement payment';
+    nextStep = 'Account settled and closed. $12,750 has been waived. Confirmation sent.';
+  } else {
+    const inst = calcInstalment();
+    paymentAmt = '$' + Math.round(inst).toLocaleString() + '.00';
+    paymentDesc = `Payment plan — instalment 1 of ${planMonths}`;
+    nextStep = `${planMonths - 1} more payments of $${Math.round(inst).toLocaleString()} to follow. Schedule sent to ${email}.`;
+  }
+  const now = new Date();
+  document.getElementById('successMsg').textContent = `Thank you. Your payment of ${paymentAmt} has been processed. A confirmation and receipt have been sent to ${email}.`;
+  document.getElementById('successReceipt').innerHTML = `
+    <div class="receipt-row"><span class="receipt-label">Transaction ID</span><span class="receipt-value">TXN-${Date.now().toString(36).toUpperCase()}</span></div>
+    <div class="receipt-row"><span class="receipt-label">Payment type</span><span class="receipt-value">${paymentDesc}</span></div>
+    <div class="receipt-row"><span class="receipt-label">Amount paid</span><span class="receipt-value green">${paymentAmt}</span></div>
+    <div class="receipt-row"><span class="receipt-label">Date &amp; time</span><span class="receipt-value">${now.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})} · ${now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'})}</span></div>
+    <div class="receipt-row"><span class="receipt-label">Next step</span><span class="receipt-value" style="text-align:right;max-width:240px;line-height:1.4;">${nextStep}</span></div>`;
+}
+
+function downloadReceipt() { alert('Receipt downloaded as collectiq-receipt-' + Date.now().toString(36).toUpperCase() + '.pdf'); }
+
+// ── AI NEGOTIATE ────────────────────────────────────────────────────────
+async function sendNeg() {
+  const inp = document.getElementById('negInput');
+  const txt = inp.value.trim();
+  if(!txt) return;
+  inp.value = '';
+  appendNegMsg(txt, 'debtor');
+  const typing = document.createElement('div');
+  typing.className = 'neg-msg ai'; typing.id = 'neg-typing';
+  typing.innerHTML = '<div class="typing"><div class="t-d"></div><div class="t-d"></div><div class="t-d"></div></div>';
+  document.getElementById('negMsgs').appendChild(typing);
+  scrollNeg();
+  negHistory.push({role:'user',content:txt});
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      model:'claude-sonnet-4-20250514',max_tokens:300,
+      system:`You are a professional, empathetic collections AI for NexaTech Solutions. A debtor owes $127,500 on invoice INV-2024-0892, 92 days overdue. Your goal is to help them find a payment arrangement that works. Be understanding, professional, and solution-oriented. Offer creative but fair options. Keep responses under 60 words. Never be threatening or aggressive.`,
+      messages:negHistory
+    })});
+    const data = await res.json();
+    document.getElementById('neg-typing')?.remove();
+    const reply = data.content?.[0]?.text || 'I understand your situation. Let me suggest a few options that might work better for your cash flow.';
+    appendNegMsg(reply, 'ai');
+    negHistory.push({role:'assistant',content:reply});
+  } catch {
+    document.getElementById('neg-typing')?.remove();
+    appendNegMsg('I understand. Let\'s find something that works. Can you share what monthly payment amount would be manageable for you right now?', 'ai');
+  }
+}
+
+function appendNegMsg(txt, type) {
+  const el = document.createElement('div');
+  el.className = 'neg-msg ' + type;
+  el.textContent = txt;
+  const msgs = document.getElementById('negMsgs');
+  msgs.appendChild(el);
+  scrollNeg();
+}
+
+function scrollNeg() {
+  const msgs = document.getElementById('negMsgs');
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function openDispute() {
+  const msg = prompt('Please describe the issue with this invoice:');
+  if(msg) {
+    appendNegMsg('I want to dispute this invoice: ' + msg, 'debtor');
+    setTimeout(() => {
+      appendNegMsg(`Thank you for flagging this. I've recorded your dispute and escalated it to the NexaTech billing team. They'll review and respond within 2 business days. Your reference number is DSP-${Date.now().toString(36).toUpperCase().slice(-6)}.`, 'ai');
+    }, 1000);
+    document.getElementById('negotiateCard')?.scrollIntoView({behavior:'smooth'});
+  }
+}
+
+// ── INIT ────────────────────────────────────────────────────────────────
+updatePlan();
+updatePayButton();
+</script>
+</body>
+</html>
