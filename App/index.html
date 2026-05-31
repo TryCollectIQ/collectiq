@@ -969,7 +969,7 @@ async function sendC(ctx){
   tp.innerHTML='<div class="mav">AI</div><div class="mb"><div class="typing-dots"><div class="td-"></div><div class="td-"></div><div class="td-"></div></div></div>';
   el.appendChild(tp);el.scrollTop=el.scrollHeight;
   try{
-    const res=await fetch('/.netlify/functions/ai-proxy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,system:'You are CollectIQ AI, a B2B collections strategy assistant. Help agents recover overdue invoices. Be concise (2-3 sentences), strategic and professional.',messages:hist.map(m=>({role:m.r==='ai'?'assistant':'user',content:m.t}))})});
+    const res=await fetch('/.netlify/functions/ai-proxy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:600,system:'You are CollectIQ AI, a B2B collections strategy assistant. Help agents recover overdue invoices. Be concise (2-3 sentences), strategic and professional.',messages:hist.map(m=>({role:m.r==='ai'?'assistant':'user',content:m.t}))})});
     const data=await res.json();
     document.getElementById('typ-'+ctx)?.remove();
     hist.push({r:'ai',t:data.content?.[0]?.text||'Let me analyze that for you.'});
@@ -1002,7 +1002,7 @@ async function regenE(){
   const t=document.getElementById('oTm')?.value||'reminder';
   document.getElementById('oBd').value='Generating with AI…';
   try{
-    const r=await fetch('/.netlify/functions/ai-proxy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:400,system:'Write concise professional B2B collection emails. Return only the email body under 100 words. No subject line.',messages:[{role:'user',content:`Write a ${t} collection email for ${co}, owed $${Number(am).toLocaleString()}, ${dy} days overdue.`}]})});
+    const r=await fetch('/.netlify/functions/ai-proxy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:400,system:'Write concise professional B2B collection emails. Return only the email body under 100 words. No subject line.',messages:[{role:'user',content:`Write a ${t} collection email for ${co}, owed $${Number(am).toLocaleString()}, ${dy} days overdue.`}]})});
     const d=await r.json();document.getElementById('oBd').value=d.content?.[0]?.text||'';
     addAudit('ai','AI',`Email regenerated for ${co} — ${t} template`);
   }catch{fTmpl();}
