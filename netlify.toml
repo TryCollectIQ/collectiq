@@ -13,3 +13,18 @@
   from = "/pay"
   to = "/pay/index.html"
   status = 200
+
+[[redirects]]
+  from = "/connect"
+  to = "/connect.html"
+  status = 200
+
+[[redirects]]
+  from = "/connect/success"
+  to = "/connect-success.html"
+  status = 200
+
+[[redirects]]
+  from = "/connect/refresh"
+  to = "/connect-refresh.html"
+  status = 200
