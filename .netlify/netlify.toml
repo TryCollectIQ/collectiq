@@ -1,0 +1,52 @@
+functionsDirectory = "C:\\Users\\KINECIA WHEELER\\OneDrive\\Desktop\\site\\netlify\\functions"
+functionsDirectoryOrigin = "config"
+redirectsOrigin = "config"
+plugins = []
+headers = []
+
+[build]
+publish = "C:\\Users\\KINECIA WHEELER\\OneDrive\\Desktop\\site"
+publishOrigin = "default"
+functions = "C:\\Users\\KINECIA WHEELER\\OneDrive\\Desktop\\site\\netlify\\functions"
+
+[build.environment]
+
+[build.processing]
+
+[build.processing.css]
+
+[build.processing.html]
+
+[build.processing.images]
+
+[build.processing.js]
+
+[build.services]
+
+[functions]
+
+[functions."*"]
+
+[[redirects]]
+from = "/app"
+to = "/app/index.html"
+status = 200.0
+force = false
+
+[redirects.query]
+
+[redirects.conditions]
+
+[redirects.headers]
+
+[[redirects]]
+from = "/pay"
+to = "/pay/index.html"
+status = 200.0
+force = false
+
+[redirects.query]
+
+[redirects.conditions]
+
+[redirects.headers]

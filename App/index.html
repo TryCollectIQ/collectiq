@@ -383,7 +383,30 @@ tbody tr:hover td{background:var(--bg);}
   <button class="btn btn-ink" style="padding:11px 24px;font-size:13px;" onclick="goBack()">Go to dashboard →</button>
 </div>
 
-<!-- ═══ SHELL ═══ -->
+<!-- ═══ PAYWALL ═══ -->
+<div id="paywallScreen">
+  <div class="pw-icon">🔒</div>
+  <div class="pw-title">Your trial has <em>ended</em></div>
+  <div class="pw-sub">Your 7-day free trial is over. Choose a plan below to continue recovering revenue with CollectIQ. Your data is safe and ready when you upgrade.</div>
+  <div class="pw-days" id="pwDaysMsg"></div>
+  <div class="pw-plans">
+    <div class="pw-plan" onclick="startCO('https://buy.stripe.com/5kQbJ3a3Decj3Mu29k24002', CU?.email||'')">
+      <div class="pw-plan-name">Starter</div>
+      <div class="pw-plan-price">$299</div>
+      <div class="pw-plan-period">per month</div>
+      <button class="pw-plan-btn">Start Starter →</button>
+    </div>
+    <div class="pw-plan pop" onclick="startCO('https://buy.stripe.com/4gM4gBejT2tBbeWeW624001', CU?.email||'')">
+      <div class="pw-plan-name">Growth · Most Popular</div>
+      <div class="pw-plan-price">$799</div>
+      <div class="pw-plan-period">per month</div>
+      <button class="pw-plan-btn">Start Growth →</button>
+    </div>
+  </div>
+  <button class="pw-logout" onclick="doLogout()">Sign out</button>
+</div>
+
+
 <div id="shell">
   <div class="topbar">
     <div class="t-logo">Collect<em>IQ</em></div>
@@ -841,6 +864,43 @@ async function loadUserAndLaunch(authUser){
     }
   } catch(e) {
     console.log('DB query failed or timed out, using auth data:', e.message);
+  }
+
+  // ── ACCESS CONTROL ──────────────────────────────────────────────────
+  // Check subscription status before showing dashboard
+  const isDemo = CU.tenantId === 'demo';
+  
+  if (!isDemo) {
+    try {
+      // Get tenant subscription status from DB
+      const {data: tenantData} = await Promise.race([
+        sb.from('tenants').select('subscription_status,trial_ends_at,plan').eq('id', CU.tenantId).single(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000))
+      ]);
+      
+      if (tenantData) {
+        const status = tenantData.subscription_status || 'trialing';
+        const trialEnd = tenantData.trial_ends_at ? new Date(tenantData.trial_ends_at) : null;
+        const now = new Date();
+        const isActive = status === 'active' || status === 'trialing';
+        const trialExpired = trialEnd && now > trialEnd;
+        
+        // Block access if trial expired and not on paid plan
+        if (trialExpired && status !== 'active') {
+          document.getElementById('authScreen').style.display='none';
+          const pw = document.getElementById('paywallScreen');
+          pw.style.display='flex';
+          const daysAgo = Math.floor((now - trialEnd) / (1000 * 60 * 60 * 24));
+          document.getElementById('pwDaysMsg').textContent = 
+            daysAgo === 0 ? 'Your trial ended today.' : 
+            `Your trial ended ${daysAgo} day${daysAgo > 1 ? 's' : ''} ago.`;
+          return;
+        }
+      }
+    } catch(e) {
+      console.log('Subscription check error:', e.message);
+      // On error, allow access (fail open for better UX)
+    }
   }
 
   // Launch dashboard with whatever data we have

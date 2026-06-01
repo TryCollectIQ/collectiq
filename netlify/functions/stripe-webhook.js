@@ -21,6 +21,63 @@ function verifyStripeSignature(payload, sigHeader, secret) {
   return expectedSig === signature;
 }
 
+// Update subscription status in Supabase
+async function updateSubscriptionStatus(email, status, subscriptionId) {
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
+  if (!supabaseUrl || !supabaseKey) return;
+
+  return new Promise((resolve, reject) => {
+    const req = https.request({
+      hostname: new URL(supabaseUrl).hostname,
+      path: `/rest/v1/users?email=eq.${encodeURIComponent(email)}&select=tenant_id`,
+      method: 'GET',
+      headers: {
+        'apikey': supabaseKey,
+        'Authorization': `Bearer ${supabaseKey}`,
+        'Content-Type': 'application/json'
+      }
+    }, (res) => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', async () => {
+        try {
+          const users = JSON.parse(data);
+          if (users && users.length > 0) {
+            const tenantId = users[0].tenant_id;
+            const updateBody = JSON.stringify({
+              subscription_status: status,
+              stripe_subscription_id: subscriptionId || null
+            });
+            const updateReq = https.request({
+              hostname: new URL(supabaseUrl).hostname,
+              path: `/rest/v1/tenants?id=eq.${tenantId}`,
+              method: 'PATCH',
+              headers: {
+                'apikey': supabaseKey,
+                'Authorization': `Bearer ${supabaseKey}`,
+                'Content-Type': 'application/json',
+                'Content-Length': Buffer.byteLength(updateBody)
+              }
+            }, (updateRes) => {
+              let d = '';
+              updateRes.on('data', chunk => d += chunk);
+              updateRes.on('end', () => resolve({ status: updateRes.statusCode }));
+            });
+            updateReq.on('error', reject);
+            updateReq.write(updateBody);
+            updateReq.end();
+          } else {
+            resolve({ status: 404 });
+          }
+        } catch(e) { reject(e); }
+      });
+    });
+    req.on('error', reject);
+    req.end();
+  });
+}
+
 // Update user plan in Supabase
 async function updateUserPlan(email, plan, billing) {
   const supabaseUrl = process.env.SUPABASE_URL;
@@ -135,6 +192,9 @@ exports.handler = async function(event, context) {
 
       console.log(`Updating ${email} to ${plan} ${billing}`);
       await updateUserPlan(email, plan, billing);
+      
+      // Also update subscription status to active
+      await updateSubscriptionStatus(email, 'active', session.subscription);
 
       return { statusCode: 200, headers, body: JSON.stringify({ received: true, plan, billing }) };
     }
@@ -144,6 +204,7 @@ exports.handler = async function(event, context) {
       const email = subscription.metadata?.email;
       if (email) {
         await updateUserPlan(email, 'STARTER', 'monthly');
+        await updateSubscriptionStatus(email, 'canceled', null);
       }
       return { statusCode: 200, headers, body: JSON.stringify({ received: true }) };
     }
