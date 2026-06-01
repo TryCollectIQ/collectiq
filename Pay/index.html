@@ -299,10 +299,10 @@ body { font-family: var(--ff-body); background: var(--soft); color: var(--ink); 
 
     <!-- SENDER INFO -->
     <div class="sender-card">
-      <div class="sender-logo">N</div>
+      <div class="sender-logo" id="senderLogo">N</div>
       <div>
-        <div class="sender-name">NexaTech Solutions</div>
-        <div class="sender-msg">You have an outstanding invoice with NexaTech Solutions. Please review the details below and select a payment option that works for you. We're happy to discuss a payment arrangement if needed.</div>
+        <div class="sender-name" id="senderName">NexaTech Solutions</div>
+        <div class="sender-msg" id="senderMsg">You have an outstanding invoice. Please review the details below and select a payment option that works for you. We're happy to discuss a payment arrangement if needed.</div>
         <a href="mailto:billing@nexatech.com" class="sender-contact">
           <svg viewBox="0 0 16 16"><path d="M2 3h12v8H2zM2 3l6 5 6-5"/></svg>
           billing@nexatech.com
@@ -315,12 +315,12 @@ body { font-family: var(--ff-body); background: var(--soft); color: var(--ink); 
       <div class="invoice-top">
         <div>
           <div class="invoice-label">Invoice</div>
-          <div class="invoice-number">INV-2024-0892</div>
+          <div class="invoice-number" id="invoiceNumber">INV-2024-0892</div>
         </div>
         <div class="invoice-amount-wrap">
           <div class="invoice-label">Amount due</div>
           <div class="invoice-amount"><sup>$</sup><span id="invoiceAmountDisplay">127,500</span></div>
-          <div class="invoice-overdue">92 days overdue</div>
+          <div class="invoice-overdue" id="daysOverdue">92 days overdue</div>
         </div>
       </div>
       <div class="invoice-details">
@@ -334,7 +334,7 @@ body { font-family: var(--ff-body); background: var(--soft); color: var(--ink); 
         </div>
         <div>
           <div class="inv-detail-label">Billed to</div>
-          <div class="inv-detail-value">Meridian Logistics Inc.</div>
+          <div class="inv-detail-value" id="debtorName">Meridian Logistics Inc.</div>
         </div>
         <div>
           <div class="inv-detail-label">Reference</div>
@@ -520,7 +520,67 @@ body { font-family: var(--ff-body); background: var(--soft); color: var(--ink); 
 
 <script>
 // ── STATE ──────────────────────────────────────────────────────────────
-const INVOICE_AMOUNT = 127500;
+// ── URL PARAMETER INITIALIZATION ─────────────────────────────────────
+const urlParams = new URLSearchParams(window.location.search);
+
+// Read all parameters from URL
+const PARAM_AMOUNT    = parseFloat(urlParams.get('amount'))    || 127500;
+const PARAM_INVOICE   = urlParams.get('invoice')               || 'INV-2024-0892';
+const PARAM_DEBTOR    = urlParams.get('debtor')                || 'Meridian Logistics Inc.';
+const PARAM_CREDITOR  = urlParams.get('creditor')              || 'NexaTech Solutions';
+const PARAM_EMAIL     = urlParams.get('email')                 || 'billing@company.com';
+const PARAM_DAYS      = parseInt(urlParams.get('days'))        || 92;
+const PARAM_ACCOUNT   = urlParams.get('account')               || '';
+const PARAM_REF       = urlParams.get('ref')                   || 'CONTRACT-REF';
+
+const INVOICE_AMOUNT = PARAM_AMOUNT;
+
+// Apply URL params to page elements
+document.addEventListener('DOMContentLoaded', () => {
+  // Sender/creditor info
+  const senderName = document.getElementById('senderName');
+  const senderMsg  = document.getElementById('senderMsg');
+  const senderLogo = document.getElementById('senderLogo');
+  if(senderName) senderName.textContent = PARAM_CREDITOR;
+  if(senderLogo) senderLogo.textContent = PARAM_CREDITOR.charAt(0).toUpperCase();
+  if(senderMsg)  senderMsg.textContent  = `You have an outstanding invoice with ${PARAM_CREDITOR}. Please review the details below and select a payment option that works for you. We're happy to discuss a payment arrangement if needed.`;
+
+  // Invoice details
+  const invNum    = document.getElementById('invoiceNumber');
+  const invAmt    = document.getElementById('invoiceAmountDisplay');
+  const invTotal  = document.querySelector('.item-total-amount');
+  const daysEl    = document.getElementById('daysOverdue');
+  const debtorEl  = document.getElementById('debtorName');
+  
+  if(invNum)   invNum.textContent   = PARAM_INVOICE;
+  if(invAmt)   invAmt.textContent   = PARAM_AMOUNT.toLocaleString();
+  if(invTotal) invTotal.textContent = '$' + PARAM_AMOUNT.toLocaleString() + '.00';
+  if(daysEl)   daysEl.textContent   = PARAM_DAYS + ' days overdue';
+  if(debtorEl) debtorEl.textContent = PARAM_DEBTOR;
+
+  // Payment options amounts
+  document.querySelectorAll('.option-price-num').forEach((el, i) => {
+    if(i === 0) el.textContent = '$' + PARAM_AMOUNT.toLocaleString();       // Full
+    if(i === 1) el.textContent = '$' + Math.round(PARAM_AMOUNT * 0.9).toLocaleString(); // Settlement
+  });
+
+  // Pre-fill company name and email in payment form
+  const compEl  = document.getElementById('companyName');
+  const emailEl = document.getElementById('receiptEmail');
+  if(compEl)  compEl.placeholder  = PARAM_DEBTOR;
+  if(emailEl) emailEl.placeholder = PARAM_EMAIL;
+  if(emailEl && PARAM_EMAIL !== 'billing@company.com') emailEl.value = PARAM_EMAIL;
+
+  // Store connected account for payments
+  if(PARAM_ACCOUNT) localStorage.setItem('stripe_account_id', PARAM_ACCOUNT);
+
+  // Update page title
+  document.title = `Invoice ${PARAM_INVOICE} — ${PARAM_CREDITOR}`;
+
+  // Initialize plan schedule
+  updatePlan();
+  updatePayButton();
+});
 let selectedOption = 'plan';
 let planMonths = 6;
 let planDown = 0;
@@ -764,7 +824,7 @@ async function sendNeg() {
   try {
     const res = await fetch('/.netlify/functions/ai-proxy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
       model:'claude-sonnet-4-5',max_tokens:300,
-      system:`You are a professional, empathetic collections AI for NexaTech Solutions. A debtor owes $127,500 on invoice INV-2024-0892, 92 days overdue. Your goal is to help them find a payment arrangement that works. Be understanding, professional, and solution-oriented. Offer creative but fair options. Keep responses under 60 words. Never be threatening or aggressive.`,
+      system:`You are a professional, empathetic collections AI for ${PARAM_CREDITOR}. A debtor (${PARAM_DEBTOR}) owes $${PARAM_AMOUNT.toLocaleString()} on invoice ${PARAM_INVOICE}, ${PARAM_DAYS} days overdue. Your goal is to help them find a payment arrangement that works. Be understanding, professional, and solution-oriented. Offer creative but fair options. Keep responses under 60 words. Never be threatening or aggressive.`,
       messages:negHistory
     })});
     const data = await res.json();
@@ -797,7 +857,7 @@ function openDispute() {
   if(msg) {
     appendNegMsg('I want to dispute this invoice: ' + msg, 'debtor');
     setTimeout(() => {
-      appendNegMsg(`Thank you for flagging this. I've recorded your dispute and escalated it to the NexaTech billing team. They'll review and respond within 2 business days. Your reference number is DSP-${Date.now().toString(36).toUpperCase().slice(-6)}.`, 'ai');
+      appendNegMsg(`Thank you for flagging this. I've recorded your dispute and escalated it to the ${PARAM_CREDITOR} billing team. They'll review and respond within 2 business days. Your reference number is DSP-${Date.now().toString(36).toUpperCase().slice(-6)}.`, 'ai');
     }, 1000);
     document.getElementById('negotiateCard')?.scrollIntoView({behavior:'smooth'});
   }
