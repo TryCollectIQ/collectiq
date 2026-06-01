@@ -1154,22 +1154,170 @@ function uSms(){const b=document.getElementById('sBd')?.value||'';if(document.ge
 function rOutHist(){const el=document.getElementById('oHist');if(!el)return;el.innerHTML=OUT.slice(0,5).map(h=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border2);font-size:12px;"><div style="flex:1;"><div style="font-weight:600;">${h.to}</div><div style="font-size:11px;color:var(--muted);">${h.ch} · ${h.time}</div></div><span class="tag t-ok">${h.st}</span></div>`).join('');}
 
 // ── IMPORT ────────────────────────────────────────────────────────────
-function hFile(inp){if(inp.files[0])showImport(inp.files[0].name);}
-function showImport(name){
-  document.getElementById('iPrev').style.display='block';
-  document.getElementById('iMsg').textContent=`"${name}" loaded — 12 records detected. Map your columns below.`;
-  const fields=[['Company Name','name'],['Invoice Amount','balance'],['Days Outstanding','days'],['Contact Email','email']];
-  document.getElementById('mRows').innerHTML=fields.map(([s,d])=>`<div style="display:grid;grid-template-columns:1fr 20px 1fr;gap:7px;align-items:center;margin-bottom:6px;"><div style="background:var(--surface2);padding:5px 9px;border-radius:var(--r);font-size:11px;color:var(--muted);font-family:var(--ff-mono);">${s}</div><div style="text-align:center;color:var(--muted2);">→</div><select style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:5px 8px;font-size:11px;color:var(--ink);font-family:var(--ff-body);"><option>${d.charAt(0).toUpperCase()+d.slice(1)}</option><option>Skip</option></select></div>`).join('');
+// ── CSV IMPORT ────────────────────────────────────────────────────────
+let parsedCSVRows = []; // store parsed rows globally for import
+
+function hFile(inp) {
+  if (!inp.files[0]) return;
+  const file = inp.files[0];
+  const reader = new FileReader();
+  reader.onload = (e) => parseCSV(e.target.result, file.name);
+  reader.readAsText(file);
 }
-function cxImport(){document.getElementById('iPrev').style.display='none';document.getElementById('fi').value='';}
-function cfImport(){
-  const nr=[{id:ACCTS.length+1,name:'Apex Ventures',email:'finance@apex.com',balance:45000,risk:71,status:'OVERDUE',days:33},{id:ACCTS.length+2,name:'Crown Logistics',email:'ar@crown.com',balance:180000,risk:85,status:'OVERDUE',days:88}];
-  ACCTS.push(...nr);
-  addAudit('import',CU?.name||'Agent',`CSV imported — ${nr.length} new records added and AI-scored`);
-  cxImport();rImpTbl();rDashTbl();rAcctTbl(ACCTS);
-  document.getElementById('acBadge').textContent=ACCTS.length;
-  alert(`${nr.length} records imported and AI-scored.`);
+
+function parseCSV(text, fileName) {
+  const lines = text.trim().split('\n').filter(l => l.trim());
+  if (lines.length < 2) { alert('CSV must have at least a header row and one data row.'); return; }
+
+  // Parse headers
+  const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, '').toLowerCase());
+
+  // Parse data rows
+  parsedCSVRows = [];
+  for (let i = 1; i < lines.length; i++) {
+    const vals = lines[i].split(',').map(v => v.trim().replace(/"/g, ''));
+    const row = {};
+    headers.forEach((h, idx) => row[h] = vals[idx] || '');
+    parsedCSVRows.push(row);
+  }
+
+  // Auto-detect column mappings
+  const findCol = (...candidates) => {
+    for (const c of candidates) {
+      const match = headers.find(h => h.includes(c));
+      if (match) return match;
+    }
+    return headers[0]; // fallback to first column
+  };
+
+  const nameCol    = findCol('company', 'name', 'business', 'client', 'debtor');
+  const emailCol   = findCol('email', 'mail', 'contact');
+  const balanceCol = findCol('balance', 'amount', 'owed', 'invoice', 'total', 'due');
+  const daysCol    = findCol('days', 'overdue', 'age', 'aging');
+  const phoneCol   = findCol('phone', 'mobile', 'tel');
+
+  // Show preview
+  document.getElementById('iPrev').style.display = 'block';
+  document.getElementById('iMsg').textContent = `"${fileName}" loaded — ${parsedCSVRows.length} records detected. Review column mapping below.`;
+
+  const fields = [
+    ['Company Name', 'name', nameCol],
+    ['Balance / Amount', 'balance', balanceCol],
+    ['Days Overdue', 'days', daysCol],
+    ['Contact Email', 'email', emailCol],
+  ];
+
+  document.getElementById('mRows').innerHTML = fields.map(([label, field, detected]) => `
+    <div style="display:grid;grid-template-columns:1fr 20px 1.5fr;gap:7px;align-items:center;margin-bottom:8px;">
+      <div style="background:var(--surface2);padding:5px 9px;border-radius:var(--r);font-size:11px;color:var(--muted);font-family:var(--ff-mono);">${label}</div>
+      <div style="text-align:center;color:var(--muted2);">→</div>
+      <select id="map_${field}" style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:5px 8px;font-size:11px;color:var(--ink);font-family:var(--ff-body);">
+        ${headers.map(h => `<option value="${h}" ${h === detected ? 'selected' : ''}>${h}</option>`).join('')}
+        <option value="skip">— Skip this field —</option>
+      </select>
+    </div>`).join('');
+
+  // Show first 3 rows preview
+  if (parsedCSVRows.length > 0) {
+    const preview = parsedCSVRows.slice(0, 3).map(r =>
+      `<div style="font-size:11px;color:var(--muted);padding:4px 0;border-bottom:1px solid var(--border2);">${Object.values(r).slice(0,4).join(' · ')}</div>`
+    ).join('');
+    document.getElementById('mRows').innerHTML += `
+      <div style="margin-top:10px;font-size:10px;color:var(--muted2);font-family:var(--ff-mono);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;">Preview (first 3 rows)</div>
+      ${preview}`;
+  }
 }
+
+function cxImport() {
+  document.getElementById('iPrev').style.display = 'none';
+  document.getElementById('fi').value = '';
+  parsedCSVRows = [];
+}
+
+async function cfImport() {
+  if (!parsedCSVRows.length) { alert('No CSV data loaded.'); return; }
+
+  const nameCol    = document.getElementById('map_name')?.value;
+  const balanceCol = document.getElementById('map_balance')?.value;
+  const daysCol    = document.getElementById('map_days')?.value;
+  const emailCol   = document.getElementById('map_email')?.value;
+
+  const btn = document.querySelector('#iPrev .btn-ink');
+  if (btn) { btn.textContent = 'Importing…'; btn.disabled = true; }
+
+  const newAccts = [];
+  const dbInserts = [];
+
+  for (const row of parsedCSVRows) {
+    const name    = nameCol !== 'skip' ? (row[nameCol] || '').trim() : '';
+    const balance = balanceCol !== 'skip' ? parseFloat((row[balanceCol] || '0').replace(/[$,]/g, '')) || 0 : 0;
+    const days    = daysCol !== 'skip' ? parseInt(row[daysCol]) || 0 : 0;
+    const email   = emailCol !== 'skip' ? (row[emailCol] || '').trim() : '';
+
+    if (!name) continue; // skip rows with no company name
+
+    // AI-style risk score based on balance and days
+    const risk = Math.min(99, Math.max(10, Math.round(
+      (balance / 5000) * 20 + (days / 90) * 50 + Math.random() * 15
+    )));
+
+    const acct = {
+      id: ACCTS.length + newAccts.length + 1,
+      name, email,
+      balance, risk,
+      status: days > 30 ? 'OVERDUE' : 'PENDING',
+      days
+    };
+    newAccts.push(acct);
+
+    // Prepare for DB insert
+    if (CU?.tenantId && CU.tenantId !== 'demo') {
+      dbInserts.push({
+        tenant_id: CU.tenantId,
+        name, email,
+        balance,
+        risk_score: risk,
+        status: acct.status,
+        days_overdue: days
+      });
+    }
+  }
+
+  // Save to Supabase in batches of 50
+  let saved = 0;
+  if (dbInserts.length > 0) {
+    for (let i = 0; i < dbInserts.length; i += 50) {
+      const batch = dbInserts.slice(i, i + 50);
+      const { error } = await sb.from('accounts').insert(batch);
+      if (!error) saved += batch.length;
+      else console.error('Import batch error:', error);
+    }
+    // Log to audit
+    await sb.from('audit_log').insert({
+      tenant_id: CU.tenantId,
+      actor: CU.name,
+      action_type: 'import',
+      description: `CSV imported — ${saved} accounts added and AI-scored`
+    });
+  }
+
+  // Update local state
+  ACCTS.unshift(...newAccts);
+  addAudit('import', CU?.name || 'Agent', `CSV imported — ${newAccts.length} records added and AI-scored`);
+  cxImport();
+  rImpTbl();
+  rDashTbl();
+  rAcctTbl(ACCTS);
+  document.getElementById('acBadge').textContent = ACCTS.length;
+
+  if (btn) { btn.textContent = 'Import records →'; btn.disabled = false; }
+
+  const msg = dbInserts.length > 0
+    ? `✓ ${newAccts.length} accounts imported and saved to your database. ${saved} saved successfully.`
+    : `✓ ${newAccts.length} accounts imported. Sign in to save permanently.`;
+  alert(msg);
+}
+
 function erpC(n){const el=document.getElementById('erpMsg');if(el)el.textContent=`Connecting to ${n}… In production this triggers OAuth. 47+ invoices sync automatically.`;addAudit('import',CU?.name||'Admin',`${n} ERP integration initiated`);}
 function rImpTbl(){
   const t=document.getElementById('iTbl');if(!t)return;
