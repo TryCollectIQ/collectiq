@@ -841,9 +841,17 @@ async function doLogin(){
   if(!e||!p){showAuthErr('authErr','Enter email and password.');return;}
   const btn=document.querySelector('#loginF .auth-submit');
   btn.textContent='Signing in…';btn.disabled=true;
-  const {error}=await sb.auth.signInWithPassword({email:e,password:p});
+  const {data,error}=await sb.auth.signInWithPassword({email:e,password:p});
+  if(error){
+    btn.textContent='Sign in →';btn.disabled=false;
+    showAuthErr('authErr',error.message==='Invalid login credentials'?'Incorrect email or password.':error.message);
+    return;
+  }
+  // Manually trigger launch since onAuthStateChange may not fire
+  if(data && data.user){
+    await loadUserAndLaunch(data.user);
+  }
   btn.textContent='Sign in →';btn.disabled=false;
-  if(error)showAuthErr('authErr',error.message==='Invalid login credentials'?'Incorrect email or password.':error.message);
 }
 
 async function doRegister(){
