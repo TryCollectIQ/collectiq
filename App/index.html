@@ -817,8 +817,15 @@ let eCt=24,sCt=11;
 // ── SUPABASE DIRECT FETCH ─────────────────────────────────────────────
 // Use direct fetch with auth token instead of sb client which has session issues
 async function sbFetch(table, method='GET', body=null, filters='') {
-  const session = await sb.auth.getSession();
-  const token = session?.data?.session?.access_token || SUPABASE_KEY;
+  // Read token directly from localStorage since sb.auth.getSession() hangs
+  let token = SUPABASE_KEY;
+  try {
+    const stored = localStorage.getItem('sb-cnpcefikmgjxlykbjfpl-auth-token');
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      token = parsed.access_token || SUPABASE_KEY;
+    }
+  } catch(e) { console.log('Token read error:', e); }
   const url = `${SUPABASE_URL}/rest/v1/${table}${filters ? '?' + filters : ''}`;
   const opts = {
     method,
