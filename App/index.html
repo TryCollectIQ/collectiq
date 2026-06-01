@@ -810,31 +810,50 @@ sb.auth.onAuthStateChange(async (event, session) => {
 
 async function loadUserAndLaunch(authUser){
   console.log('loadUserAndLaunch called for:', authUser.email);
-  const {data:userRow, error:userError} = await sb.from('users').select('*, tenants(*)').eq('email',authUser.email).single();
-  console.log('userRow:', userRow, 'error:', userError);
-  if(userRow){
-    CU={name:userRow.full_name||authUser.email.split('@')[0],email:authUser.email,role:userRow.role||'USER',plan:userRow.tenants?.plan||'STARTER',tenantId:userRow.tenant_id,i:(userRow.full_name||authUser.email).split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()};
-  } else {
-    const company=authUser.user_metadata?.company||authUser.email.split('@')[1]?.split('.')[0]||'My Company';
-    const {data:tenant}=await sb.from('tenants').insert({name:company,plan:'STARTER'}).select().single();
-    if(tenant){
-      const fullName=authUser.user_metadata?.full_name||authUser.email.split('@')[0];
-      await sb.from('users').insert({tenant_id:tenant.id,email:authUser.email,full_name:fullName,role:'ADMIN'});
-      CU={name:fullName,email:authUser.email,role:'ADMIN',plan:'STARTER',tenantId:tenant.id,i:fullName.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()};
+  
+  // Build user from auth data directly - don't rely on DB query for launch
+  const fullName = authUser.user_metadata?.full_name || authUser.email.split('@')[0];
+  const initials = fullName.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  
+  CU = {
+    name: fullName,
+    email: authUser.email,
+    role: 'ADMIN',
+    plan: 'STARTER',
+    tenantId: authUser.id, // use auth user id as tenant reference
+    i: initials
+  };
+
+  // Try to get real user data from DB (non-blocking)
+  try {
+    const {data:userRow} = await Promise.race([
+      sb.from('users').select('*, tenants(*)').eq('email', authUser.email).single(),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000))
+    ]);
+    if(userRow){
+      CU.name = userRow.full_name || fullName;
+      CU.role = userRow.role || 'ADMIN';
+      CU.plan = userRow.tenants?.plan || 'STARTER';
+      CU.tenantId = userRow.tenant_id;
+      CU.i = CU.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+      console.log('DB user loaded:', CU);
     }
+  } catch(e) {
+    console.log('DB query failed or timed out, using auth data:', e.message);
   }
-  if(CU){
-    document.getElementById('authScreen').style.display='none';
-    document.getElementById('shell').style.display='flex';
-    ['tAv','sAv'].forEach(id=>document.getElementById(id).textContent=CU.i);
-    ['tName','sN'].forEach(id=>document.getElementById(id).textContent=CU.name);
-    ['tRole','sR'].forEach(id=>document.getElementById(id).textContent=CU.role.toLowerCase());
-    document.getElementById('dName').textContent=CU.name.split(' ')[0];
-    document.getElementById('tPlan').textContent=CU.plan;
-    document.getElementById('tPlan').className='plan-pill '+(CU.plan==='PREMIUM'?'pp-premium':'pp-growth');
-    await loadAccountsFromDB();
-    init();
-  }
+
+  // Launch dashboard with whatever data we have
+  document.getElementById('authScreen').style.display='none';
+  document.getElementById('shell').style.display='flex';
+  ['tAv','sAv'].forEach(id=>document.getElementById(id).textContent=CU.i);
+  ['tName','sN'].forEach(id=>document.getElementById(id).textContent=CU.name);
+  ['tRole','sR'].forEach(id=>document.getElementById(id).textContent=CU.role.toLowerCase());
+  document.getElementById('dName').textContent=CU.name.split(' ')[0];
+  document.getElementById('tPlan').textContent=CU.plan;
+  document.getElementById('tPlan').className='plan-pill '+(CU.plan==='PREMIUM'?'pp-premium':'pp-growth');
+  
+  try { await loadAccountsFromDB(); } catch(e) { console.log('loadAccounts error:', e); }
+  init();
 }
 
 async function doLogin(){
