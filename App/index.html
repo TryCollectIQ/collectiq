@@ -976,12 +976,14 @@ function demoLogin(r){
 
 async function doLogout(){
   addAudit('auth',CU?.name||'User','Signed out');
-  if(CU?.tenantId!=='demo') await sb.auth.signOut();
   CU=null;
-  document.getElementById('shell').style.display='none';
-  document.getElementById('authScreen').style.display='flex';
-  document.getElementById('loginF').style.display='';
-  document.getElementById('registerF').style.display='none';
+  try {
+    if(CU?.tenantId!=='demo') await sb.auth.signOut();
+  } catch(e) { console.log('signOut error:', e); }
+  // Clear all local storage and reload to ensure clean state
+  localStorage.clear();
+  sessionStorage.clear();
+  window.location.reload();
 }
 
 async function loadAccountsFromDB(){
