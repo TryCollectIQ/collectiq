@@ -762,8 +762,8 @@ async function sendNeg() {
   scrollNeg();
   negHistory.push({role:'user',content:txt});
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-      model:'claude-sonnet-4-20250514',max_tokens:300,
+    const res = await fetch('/.netlify/functions/ai-proxy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      model:'claude-sonnet-4-5',max_tokens:300,
       system:`You are a professional, empathetic collections AI for NexaTech Solutions. A debtor owes $127,500 on invoice INV-2024-0892, 92 days overdue. Your goal is to help them find a payment arrangement that works. Be understanding, professional, and solution-oriented. Offer creative but fair options. Keep responses under 60 words. Never be threatening or aggressive.`,
       messages:negHistory
     })});
