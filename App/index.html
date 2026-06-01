@@ -1006,15 +1006,10 @@ function demoLogin(r){
 }
 
 async function doLogout(){
-  addAudit('auth',CU?.name||'User','Signed out');
-  CU=null;
-  try {
-    if(CU?.tenantId!=='demo') await sb.auth.signOut();
-  } catch(e) { console.log('signOut error:', e); }
-  // Clear all local storage and reload to ensure clean state
+  try { await sb.auth.signOut(); } catch(e) { console.log('signOut error:', e); }
   localStorage.clear();
   sessionStorage.clear();
-  window.location.reload();
+  window.location.href = '/app';
 }
 
 async function loadAccountsFromDB(){
