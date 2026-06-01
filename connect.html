@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Connect Your Bank — CollectIQ</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;1,300;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:#f5f2ed;min-height:100vh;display:flex;flex-direction:column;}
+.header{background:#fff;border-bottom:1px solid rgba(28,25,23,0.1);padding:14px 24px;display:flex;align-items:center;gap:10px;}
+.logo{font-family:'Fraunces',serif;font-size:20px;font-weight:400;letter-spacing:-.3px;}
+.logo em{font-style:italic;color:#c2410c;}
+.main{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 20px;}
+.card{background:#fff;border:1px solid rgba(28,25,23,0.1);border-radius:20px;padding:48px 40px;max-width:520px;width:100%;box-shadow:0 4px 24px rgba(28,25,23,0.08);}
+.step-badge{display:inline-flex;align-items:center;gap:6px;background:#fff7f5;border:1px solid rgba(194,65,12,0.2);border-radius:99px;padding:4px 12px;font-family:'Fira Mono',monospace;font-size:11px;color:#c2410c;margin-bottom:20px;}
+h1{font-family:'Fraunces',serif;font-size:28px;font-weight:300;letter-spacing:-.5px;color:#1c1917;margin-bottom:8px;}
+h1 em{font-style:italic;color:#c2410c;}
+.sub{font-size:14px;color:#78716c;line-height:1.7;margin-bottom:28px;font-weight:300;}
+.how-it-works{background:#f5f2ed;border-radius:12px;padding:20px;margin-bottom:24px;}
+.how-title{font-size:12px;font-weight:600;color:#1c1917;margin-bottom:14px;letter-spacing:.02em;}
+.how-step{display:flex;gap:12px;margin-bottom:12px;align-items:flex-start;}
+.how-step:last-child{margin-bottom:0;}
+.how-num{width:24px;height:24px;border-radius:50%;background:#1c1917;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
+.how-text{font-size:13px;color:#44403c;line-height:1.5;padding-top:2px;}
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:11px;font-weight:600;color:#78716c;margin-bottom:5px;letter-spacing:.04em;text-transform:uppercase;}
+.field input{width:100%;padding:11px 13px;border:1px solid rgba(28,25,23,0.1);border-radius:8px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;color:#1c1917;outline:none;transition:border-color .15s;}
+.field input:focus{border-color:#c2410c;box-shadow:0 0 0 3px rgba(194,65,12,0.08);}
+.field input::placeholder{color:#a8a29e;}
+.connect-btn{width:100%;padding:14px;background:#1c1917;color:#fff;border:none;border-radius:8px;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.connect-btn:hover{background:#c2410c;transform:translateY(-1px);}
+.trust{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:14px;flex-wrap:wrap;}
+.trust-item{font-size:11px;color:#a8a29e;display:flex;align-items:center;gap:4px;}
+.fee-note{text-align:center;font-size:12px;color:#78716c;margin-top:16px;padding-top:16px;border-top:1px solid rgba(28,25,23,0.08);line-height:1.6;}
+.fee-note strong{color:#1c1917;}
+
+/* Success state */
+.success{display:none;text-align:center;}
+.success-icon{width:60px;height:60px;border-radius:50%;background:#f0fdf4;border:1px solid rgba(4,120,87,0.2);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:24px;}
+.success-title{font-family:'Fraunces',serif;font-size:24px;font-weight:300;margin-bottom:8px;}
+.success-sub{font-size:13px;color:#78716c;line-height:1.6;margin-bottom:20px;}
+.dashboard-btn{display:inline-block;padding:11px 24px;background:#1c1917;color:#fff;border-radius:8px;font-size:13px;font-weight:500;text-decoration:none;cursor:pointer;border:none;font-family:'Plus Jakarta Sans',sans-serif;}
+
+/* Refresh/already connected states */
+.refresh-card{background:#fff7f5;border:1px solid rgba(194,65,12,0.2);border-radius:10px;padding:16px;margin-bottom:16px;font-size:13px;color:#c2410c;display:none;}
+
+.footer{text-align:center;padding:20px;font-size:11px;color:#a8a29e;font-family:monospace;}
+.footer a{color:#a8a29e;text-decoration:none;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">Collect<em>IQ</em></div>
+  <div style="font-size:12px;color:#78716c;margin-left:8px;">· Bank account setup</div>
+</div>
+
+<div class="main">
+  <div class="card">
+
+    <!-- CONNECT FORM -->
+    <div id="connectForm">
+      <div class="step-badge">Step 1 of 1</div>
+      <h1>Connect your <em>bank account</em></h1>
+      <div class="sub">Link your business bank account so debtor payments flow directly to you. Setup takes about 5 minutes through Stripe's secure onboarding.</div>
+
+      <div class="how-it-works">
+        <div class="how-title">How payments work</div>
+        <div class="how-step">
+          <div class="how-num">1</div>
+          <div class="how-text">Your debtor receives a CollectIQ payment link via email or SMS</div>
+        </div>
+        <div class="how-step">
+          <div class="how-num">2</div>
+          <div class="how-text">They pay through the secure CollectIQ portal — full payment, settlement, or payment plan</div>
+        </div>
+        <div class="how-step">
+          <div class="how-num">3</div>
+          <div class="how-text">Funds transfer directly to your connected bank account within 2 business days</div>
+        </div>
+        <div class="how-step">
+          <div class="how-num">4</div>
+          <div class="how-text">CollectIQ retains a 2% platform fee only on successful recoveries</div>
+        </div>
+      </div>
+
+      <div class="refresh-card" id="refreshCard">
+        Your onboarding session expired. Click below to restart — your progress is saved.
+      </div>
+
+      <div class="field">
+        <label>Business email</label>
+        <input type="email" id="bizEmail" placeholder="billing@yourcompany.com"/>
+      </div>
+      <div class="field">
+        <label>Business name</label>
+        <input type="text" id="bizName" placeholder="Acme Staffing Inc."/>
+      </div>
+
+      <button class="connect-btn" onclick="startConnect()" id="connectBtn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Connect bank account via Stripe →
+      </button>
+
+      <div class="trust">
+        <div class="trust-item">🔒 256-bit SSL</div>
+        <div class="trust-item">🏦 Bank-level security</div>
+        <div class="trust-item">✓ Stripe verified</div>
+      </div>
+
+      <div class="fee-note">
+        <strong>2% platform fee</strong> on recovered invoices only · No fee on your CollectIQ subscription · 
+        Payouts deposited within 2 business days · <strong>Cancel anytime</strong>
+      </div>
+    </div>
+
+    <!-- SUCCESS STATE -->
+    <div class="success" id="successState">
+      <div class="success-icon">✓</div>
+      <div class="success-title">Bank account connected!</div>
+      <div class="success-sub">Your Stripe account is set up and ready. Debtor payments will now flow directly to your bank account. You can view your payouts and transactions in your Stripe Express dashboard.</div>
+      <button class="dashboard-btn" onclick="openDashboard()">View Stripe dashboard →</button>
+      <div style="margin-top:14px;">
+        <a href="https://trycollectiq.com/app" style="font-size:12px;color:#78716c;">← Back to CollectIQ</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="footer">
+  Powered by <a href="https://trycollectiq.com">CollectIQ</a> &nbsp;·&nbsp; Payments by <a href="https://stripe.com">Stripe</a> &nbsp;·&nbsp; <a href="mailto:hello@trycollectiq.com">hello@trycollectiq.com</a>
+</div>
+
+<script>
+// Check URL params for return/refresh states
+const params = new URLSearchParams(window.location.search);
+const state = params.get('state');
+const accountId = params.get('account');
+
+if (state === 'success' || window.location.pathname.includes('/connect/success')) {
+  document.getElementById('connectForm').style.display = 'none';
+  document.getElementById('successState').style.display = 'block';
+  // Store the connected account ID
+  if (accountId) localStorage.setItem('stripe_account_id', accountId);
+}
+
+if (state === 'refresh' || window.location.pathname.includes('/connect/refresh')) {
+  document.getElementById('refreshCard').style.display = 'block';
+}
+
+async function startConnect() {
+  const email = document.getElementById('bizEmail').value.trim();
+  const name = document.getElementById('bizName').value.trim();
+  
+  if (!email || !email.includes('@')) {
+    alert('Please enter your business email address.');
+    return;
+  }
+  if (!name) {
+    alert('Please enter your business name.');
+    return;
+  }
+
+  const btn = document.getElementById('connectBtn');
+  btn.textContent = 'Setting up your account…';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch('/.netlify/functions/stripe-connect', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'create_account',
+        email,
+        tenantId: localStorage.getItem('collectiq_tenant_id') || 'unknown'
+      })
+    });
+
+    const data = await res.json();
+
+    if (data.onboardingUrl) {
+      // Store account ID for later use
+      localStorage.setItem('stripe_account_id', data.accountId);
+      // Redirect to Stripe onboarding
+      window.location.href = data.onboardingUrl;
+    } else {
+      alert('Error: ' + (data.error || 'Could not create Stripe account'));
+      btn.textContent = 'Connect bank account via Stripe →';
+      btn.disabled = false;
+    }
+  } catch (err) {
+    alert('Connection error: ' + err.message);
+    btn.textContent = 'Connect bank account via Stripe →';
+    btn.disabled = false;
+  }
+}
+
+async function openDashboard() {
+  const accountId = localStorage.getItem('stripe_account_id');
+  if (!accountId) { alert('No connected account found.'); return; }
+  
+  const res = await fetch('/.netlify/functions/stripe-connect', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'get_dashboard_link', accountId })
+  });
+  const data = await res.json();
+  if (data.url) window.open(data.url, '_blank');
+}
+</script>
+</body>
+</html>
