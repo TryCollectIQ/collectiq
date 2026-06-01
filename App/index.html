@@ -809,7 +809,9 @@ sb.auth.onAuthStateChange(async (event, session) => {
 });
 
 async function loadUserAndLaunch(authUser){
-  const {data:userRow} = await sb.from('users').select('*, tenants(*)').eq('email',authUser.email).single();
+  console.log('loadUserAndLaunch called for:', authUser.email);
+  const {data:userRow, error:userError} = await sb.from('users').select('*, tenants(*)').eq('email',authUser.email).single();
+  console.log('userRow:', userRow, 'error:', userError);
   if(userRow){
     CU={name:userRow.full_name||authUser.email.split('@')[0],email:authUser.email,role:userRow.role||'USER',plan:userRow.tenants?.plan||'STARTER',tenantId:userRow.tenant_id,i:(userRow.full_name||authUser.email).split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()};
   } else {
