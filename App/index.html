@@ -879,6 +879,11 @@ async function loadUserAndLaunch(authUser){
       ]);
       
       if (tenantData) {
+        // Update plan from tenant data
+        if (tenantData.plan) {
+          CU.plan = tenantData.plan;
+        }
+        
         const status = tenantData.subscription_status || 'trialing';
         const trialEnd = tenantData.trial_ends_at ? new Date(tenantData.trial_ends_at) : null;
         const now = new Date();
