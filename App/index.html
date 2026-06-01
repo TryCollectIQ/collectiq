@@ -630,7 +630,11 @@ tbody tr:hover td{background:var(--bg);}
           <div class="card cp">
             <div class="ct" style="margin-bottom:10px;">ERP &amp; accounting</div>
             <div class="egrid">
-              <div class="ec" onclick="erpC('QuickBooks')"><div class="ec-n">QuickBooks</div><div class="ec-t">Accounting</div></div>
+              <div class="ec" onclick="connectQBO()" id="qbCard" style="border-color:var(--green-border);background:var(--green-bg);">
+                <div style="font-size:16px;margin-bottom:4px;">📊</div>
+                <div class="ec-n" style="color:var(--green);">QuickBooks</div>
+                <div class="ec-t" id="qbStatus">Click to connect</div>
+              </div>
               <div class="ec" onclick="erpC('Xero')"><div class="ec-n">Xero</div><div class="ec-t">Accounting</div></div>
               <div class="ec" onclick="erpC('SAP')"><div class="ec-n">SAP</div><div class="ec-t">ERP</div></div>
               <div class="ec" onclick="erpC('NetSuite')"><div class="ec-n">NetSuite</div><div class="ec-t">ERP</div></div>
@@ -714,7 +718,7 @@ tbody tr:hover td{background:var(--bg);}
           </div>
           <div class="card cp">
             <div class="ct" style="margin-bottom:12px;">ERP &amp; accounting</div>
-            <div class="ir"><div class="il">QB</div><div class="ii"><div class="in">QuickBooks</div><div class="id-">Invoice and AR sync</div></div><button class="btn btn-ink btn-sm" onclick="erpC('QuickBooks')">Connect</button></div>
+            <div class="ir"><div class="il" style="color:#2CA01C;border-color:rgba(44,160,28,0.3);">QB</div><div class="ii"><div class="in">QuickBooks Online</div><div class="id-" id="qbIntgStatus">Click Connect to sync your AR data</div></div><button class="btn btn-ink btn-sm" id="qbIntgBtn" onclick="connectQBO()">Connect</button></div>
             <div class="ir"><div class="il">XR</div><div class="ii"><div class="in">Xero</div><div class="id-">Real-time AR sync</div></div><button class="btn btn-ink btn-sm" onclick="erpC('Xero')">Connect</button></div>
             <div class="ir"><div class="il">NS</div><div class="ii"><div class="in">NetSuite</div><div class="id-">Enterprise ERP</div></div><button class="btn btn-sm" onclick="erpC('NetSuite')">Configure</button></div>
             <div class="ir"><div class="il" style="color:var(--emerald);">ST</div><div class="ii"><div class="in">Stripe</div><div class="id-">Billing and subscriptions</div></div><span class="tag t-ok">Connected</span></div>
@@ -1452,6 +1456,78 @@ function addAcct(){
 
 // ── SMS LIVE ──────────────────────────────────────────────────────────
 document.getElementById('sBd').addEventListener('input',uSms);
+
+// ── QUICKBOOKS INTEGRATION ─────────────────────────────────────────────
+function connectQBO() {
+  if (!CU?.tenantId || CU.tenantId === 'demo') {
+    alert('Please sign in to connect QuickBooks.');
+    return;
+  }
+  // Redirect to QBO OAuth flow
+  const authUrl = `/.netlify/functions/qbo-auth?tenantId=${CU.tenantId}`;
+  window.location.href = authUrl;
+}
+
+async function syncQBO() {
+  if (!CU?.tenantId || CU.tenantId === 'demo') return;
+  const btn = document.getElementById('qboSyncBtn');
+  if (btn) { btn.textContent = 'Syncing…'; btn.disabled = true; }
+  
+  try {
+    const res = await fetch('/.netlify/functions/qbo-sync', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tenantId: CU.tenantId })
+    });
+    const data = await res.json();
+    
+    if (data.success) {
+      alert(`✓ QuickBooks sync complete! ${data.imported} invoices imported.`);
+      // Reload accounts
+      await loadAccountsFromDB();
+      rDashTbl(); rAcctTbl(ACCTS); rImpTbl();
+      addAudit('import', CU.name, `QuickBooks sync — ${data.imported} invoices imported`);
+    } else {
+      alert('QuickBooks sync failed: ' + (data.error || 'Unknown error'));
+    }
+  } catch(e) {
+    alert('Sync error: ' + e.message);
+  }
+  
+  if (btn) { btn.textContent = 'Sync now'; btn.disabled = false; }
+}
+
+// Check if QBO was just connected (redirect back from OAuth)
+(function checkQBOConnection() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('qbo_connected') === 'true') {
+    // Update UI to show connected state
+    const qbCard = document.getElementById('qbCard');
+    const qbStatus = document.getElementById('qbStatus');
+    const qbIntgStatus = document.getElementById('qbIntgStatus');
+    const qbIntgBtn = document.getElementById('qbIntgBtn');
+    
+    if (qbCard) qbCard.style.borderColor = 'var(--green)';
+    if (qbStatus) qbStatus.textContent = '✓ Connected';
+    if (qbIntgStatus) qbIntgStatus.textContent = '✓ Connected — AR data ready to sync';
+    if (qbIntgBtn) {
+      qbIntgBtn.textContent = 'Sync now';
+      qbIntgBtn.id = 'qboSyncBtn';
+      qbIntgBtn.onclick = syncQBO;
+    }
+    
+    // Auto-trigger first sync
+    setTimeout(() => syncQBO(), 1000);
+    
+    // Clean up URL
+    window.history.replaceState({}, '', '/app');
+  }
+  
+  if (params.get('qbo_error')) {
+    alert('QuickBooks connection failed: ' + params.get('qbo_error'));
+    window.history.replaceState({}, '', '/app');
+  }
+})();
 </script>
 </body>
 </html>
