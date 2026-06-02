@@ -1194,15 +1194,39 @@ async function sendE(){
   }
 }
 
-function sendS(){
+async function sendS(){
   const to=(document.getElementById('sTo')?.value||'').split('|');const[co,phone]=to;
   const body=document.getElementById('sBd')?.value||'';
-  sCt++;document.getElementById('sCnt').textContent=sCt;document.getElementById('kMsg').textContent=eCt+sCt;
-  OUT.unshift({time:'Just now',to:co,ch:'SMS',st:'Delivered'});
-  saveOutreachToDB(co,'SMS','Payment reminder SMS',body);
-  addAudit('sms',CU?.name||'Agent',`SMS sent to ${phone} (${co}) via Twilio`);
-  rOutHist();rDashAudit();alert(`SMS sent to ${phone} via Twilio.`);
+  if(!phone||phone.replace(/\D/g,'').length < 10){alert('No valid phone number for this account.');return;}
+
+  const btn=document.querySelector('#sCmp .btn-ink');
+  if(btn){btn.textContent='Sending…';btn.disabled=true;}
+
+  try{
+    const res=await fetch('/.netlify/functions/send-sms',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({to:phone,body,from:'+18635632386'})
+    });
+    const data=await res.json();
+    if(btn){btn.textContent='Send via Twilio →';btn.disabled=false;}
+
+    if(data.success){
+      sCt++;document.getElementById('sCnt').textContent=sCt;document.getElementById('kMsg').textContent=eCt+sCt;
+      OUT.unshift({time:'Just now',to:co,ch:'SMS',st:'Delivered'});
+      saveOutreachToDB(co,'SMS','Payment reminder SMS',body);
+      addAudit('sms',CU?.name||'Agent',`SMS sent to ${phone} (${co}) via Twilio`);
+      rOutHist();rDashAudit();
+      alert(`✓ SMS sent to ${phone} successfully via Twilio.`);
+    } else {
+      alert('SMS error: '+(data.error||'Check Twilio credentials and A2P registration'));
+    }
+  }catch(e){
+    if(btn){btn.textContent='Send via Twilio →';btn.disabled=false;}
+    alert('SMS error: '+e.message);
+  }
 }
+
 function uSms(){const b=document.getElementById('sBd')?.value||'';if(document.getElementById('sCc'))document.getElementById('sCc').textContent=b.length;if(document.getElementById('sSg'))document.getElementById('sSg').textContent=Math.ceil(b.length/160)||1;if(document.getElementById('sPrev'))document.getElementById('sPrev').textContent=b;}
 function rOutHist(){const el=document.getElementById('oHist');if(!el)return;el.innerHTML=OUT.slice(0,5).map(h=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border2);font-size:12px;"><div style="flex:1;"><div style="font-weight:600;">${h.to}</div><div style="font-size:11px;color:var(--muted);">${h.ch} · ${h.time}</div></div><span class="tag t-ok">${h.st}</span></div>`).join('');}
 
