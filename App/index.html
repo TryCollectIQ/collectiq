@@ -1477,7 +1477,11 @@ function connectQBO() {
     alert('Please sign in to connect QuickBooks.');
     return;
   }
-  // Redirect to QBO OAuth flow
+  if (CU.tenantId === CU.email || CU.tenantId.length < 10) {
+    alert('Account not fully loaded. Please sign out and sign back in, then try again.');
+    return;
+  }
+  // Open QBO OAuth in same window
   const authUrl = `/.netlify/functions/qbo-auth?tenantId=${CU.tenantId}`;
   window.location.href = authUrl;
 }
@@ -1487,6 +1491,7 @@ async function syncQBO() {
   const btn = document.getElementById('qboSyncBtn');
   if (btn) { btn.textContent = 'Syncing…'; btn.disabled = true; }
   
+  console.log('Syncing QBO for tenantId:', CU.tenantId);
   try {
     const res = await fetch('/.netlify/functions/qbo-sync', {
       method: 'POST',
