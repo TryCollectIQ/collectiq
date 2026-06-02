@@ -118,7 +118,7 @@ exports.handler = async function(event, context) {
   // Redirect back to app with success
   return {
     statusCode: 302,
-    headers: { Location: `https://trycollectiq.com/app?qbo_connected=true&realmId=${realmId}` },
+    headers: { Location: `https://trycollectiq.com/qbo-success.html?realmId=${realmId}` },
     body: ''
   };
 };

@@ -1481,6 +1481,8 @@ function connectQBO() {
     alert('Account not fully loaded. Please sign out and sign back in, then try again.');
     return;
   }
+  // Store tenant ID before redirect so success page can use it
+  localStorage.setItem('collectiq_tenant_id', CU.tenantId);
   // Open QBO OAuth in same window
   const authUrl = `/.netlify/functions/qbo-auth?tenantId=${CU.tenantId}`;
   window.location.href = authUrl;
@@ -1516,32 +1518,9 @@ async function syncQBO() {
   if (btn) { btn.textContent = 'Sync now'; btn.disabled = false; }
 }
 
-// Check if QBO was just connected (redirect back from OAuth)
+// Check if QBO was just connected
 (function checkQBOConnection() {
   const params = new URLSearchParams(window.location.search);
-  if (params.get('qbo_connected') === 'true') {
-    // Update UI to show connected state
-    const qbCard = document.getElementById('qbCard');
-    const qbStatus = document.getElementById('qbStatus');
-    const qbIntgStatus = document.getElementById('qbIntgStatus');
-    const qbIntgBtn = document.getElementById('qbIntgBtn');
-    
-    if (qbCard) qbCard.style.borderColor = 'var(--green)';
-    if (qbStatus) qbStatus.textContent = '✓ Connected';
-    if (qbIntgStatus) qbIntgStatus.textContent = '✓ Connected — AR data ready to sync';
-    if (qbIntgBtn) {
-      qbIntgBtn.textContent = 'Sync now';
-      qbIntgBtn.id = 'qboSyncBtn';
-      qbIntgBtn.onclick = syncQBO;
-    }
-    
-    // Auto-trigger first sync
-    setTimeout(() => syncQBO(), 1000);
-    
-    // Clean up URL
-    window.history.replaceState({}, '', '/app');
-  }
-  
   if (params.get('qbo_error')) {
     alert('QuickBooks connection failed: ' + params.get('qbo_error'));
     window.history.replaceState({}, '', '/app');

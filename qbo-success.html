@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>QuickBooks Connected — CollectIQ</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;1,300;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:#f5f2ed;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem;}
+.card{background:#fff;border:1px solid rgba(28,25,23,0.1);border-radius:20px;padding:48px 40px;max-width:480px;width:100%;text-align:center;box-shadow:0 4px 24px rgba(28,25,23,0.08);}
+.icon{width:64px;height:64px;border-radius:50%;background:#f0fdf4;border:1px solid rgba(4,120,87,0.2);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:26px;}
+h1{font-family:'Fraunces',serif;font-size:28px;font-weight:300;letter-spacing:-.5px;color:#1c1917;margin-bottom:8px;}
+h1 em{font-style:italic;color:#2CA01C;}
+p{font-size:14px;color:#78716c;line-height:1.7;margin-bottom:24px;font-weight:300;}
+.btn{display:inline-block;padding:12px 28px;background:#1c1917;color:#fff;border-radius:8px;font-size:13px;font-weight:500;text-decoration:none;cursor:pointer;}
+.btn:hover{background:#c2410c;}
+.syncing{font-size:12px;color:#78716c;margin-top:14px;font-family:monospace;}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="icon">✓</div>
+  <h1>QuickBooks <em>connected!</em></h1>
+  <p>Your QuickBooks account is now linked to CollectIQ. We're syncing your overdue invoices now — this takes about 30 seconds.</p>
+  <a href="https://trycollectiq.com/app" class="btn">Go to dashboard →</a>
+  <div class="syncing" id="syncMsg">Syncing invoices in background…</div>
+</div>
+<script>
+// Trigger QBO sync via the function
+async function triggerSync() {
+  const params = new URLSearchParams(window.location.search);
+  const realmId = params.get('realmId');
+  
+  // Get tenant ID from localStorage (set during connect flow)
+  const tenantId = localStorage.getItem('collectiq_tenant_id');
+  
+  if (!tenantId) {
+    document.getElementById('syncMsg').textContent = 'Go to dashboard and click Sync now to import your invoices.';
+    return;
+  }
+  
+  try {
+    const res = await fetch('/.netlify/functions/qbo-sync', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tenantId })
+    });
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById('syncMsg').textContent = `✓ ${data.imported} invoices synced successfully!`;
+    } else {
+      document.getElementById('syncMsg').textContent = 'Sync will complete when you open the dashboard.';
+    }
+  } catch(e) {
+    document.getElementById('syncMsg').textContent = 'Open dashboard and click Sync now to import your invoices.';
+  }
+}
+
+triggerSync();
+</script>
+</body>
+</html>
