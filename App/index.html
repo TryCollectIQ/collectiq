@@ -583,7 +583,8 @@ tbody tr:hover td{background:var(--bg);}
               </div>
             </div>
             <div id="sCmp" style="display:none;">
-              <div class="f"><label>To</label><select id="sTo"><option value="Acme Corp|+13055550001">Acme Corp — +1 (305) 555-0001</option><option value="Globe Industries|+13055550002">Globe Industries — +1 (305) 555-0002</option></select></div>
+              <div class="f"><label>To</label><select id="sTo" onchange="updateSmsPhone(this)"><option value="">— Select account —</option></select></div>
+              <div class="f"><label>Phone number</label><input type="tel" id="sPhone" placeholder="+1 (305) 555-0000" style="font-family:var(--ff-mono);"/></div>
               <div class="f"><label>Message</label><textarea id="sBd" oninput="uSms()" style="height:90px;">Hi, this is CollectIQ. Your invoice is overdue. Reply PLAN to arrange payment or call 1-800-COLLECT.</textarea></div>
               <div style="font-size:10px;color:var(--muted2);text-align:right;margin-bottom:8px;font-family:var(--ff-mono);"><span id="sCc">0</span>/160 · <span id="sSg">1</span> segment</div>
               <div style="background:var(--surface2);border-radius:var(--r);padding:9px 12px;font-size:12px;line-height:1.6;margin-bottom:10px;color:var(--ink);" id="sPrev"></div>
@@ -1185,7 +1186,7 @@ async function sendE(){
     OUT.unshift({time:'Just now',to:co,ch:'Email',st:'Delivered'});
     saveOutreachToDB(co,'Email',sj,body);
     addAudit('email',CU?.name||'Agent',`Email sent to ${email} (${co}) via SendGrid`);
-    rOutHist();rDashAudit();
+    rOutHist();rDashAudit();populateSmsDropdown();
     alert('✓ Email sent to '+email+' successfully.');
   }catch(e){
     if(btn){btn.textContent='Send via SendGrid →';btn.disabled=false;}
@@ -1195,9 +1196,12 @@ async function sendE(){
 }
 
 async function sendS(){
-  const to=(document.getElementById('sTo')?.value||'').split('|');const[co,phone]=to;
+  const toVal=(document.getElementById('sTo')?.value||'').split('|');
+  const co=toVal[0]||'';
+  const phone=(document.getElementById('sPhone')?.value||'').trim();
   const body=document.getElementById('sBd')?.value||'';
-  if(!phone||phone.replace(/\D/g,'').length < 10){alert('No valid phone number for this account.');return;}
+  if(!co){alert('Please select an account.');return;}
+  if(!phone||phone.replace(/\D/g,'').length < 10){alert('Please enter a valid phone number.');return;}
 
   const btn=document.querySelector('#sCmp .btn-ink');
   if(btn){btn.textContent='Sending…';btn.disabled=true;}
@@ -1225,6 +1229,21 @@ async function sendS(){
     if(btn){btn.textContent='Send via Twilio →';btn.disabled=false;}
     alert('SMS error: '+e.message);
   }
+}
+
+function populateSmsDropdown(){
+  const sel = document.getElementById('sTo');
+  if(!sel) return;
+  sel.innerHTML = '<option value="">— Select account —</option>' +
+    ACCTS.map(a => `<option value="${a.name}|${a.email||''}">${a.name}</option>`).join('');
+}
+
+function updateSmsPhone(sel){
+  const phoneEl = document.getElementById('sPhone');
+  if(!phoneEl) return;
+  // Phone not stored yet — just clear the field for manual entry
+  phoneEl.value = '';
+  phoneEl.placeholder = 'Enter phone number for ' + (sel.value.split('|')[0] || 'this account');
 }
 
 function uSms(){const b=document.getElementById('sBd')?.value||'';if(document.getElementById('sCc'))document.getElementById('sCc').textContent=b.length;if(document.getElementById('sSg'))document.getElementById('sSg').textContent=Math.ceil(b.length/160)||1;if(document.getElementById('sPrev'))document.getElementById('sPrev').textContent=b;}
