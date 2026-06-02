@@ -1135,7 +1135,7 @@ function nAct(p){sv('negotiator',document.querySelectorAll('.nav-item')[3]);docu
 
 // ── OUTREACH ──────────────────────────────────────────────────────────
 let oTab='e';
-function setOT(t){oTab=t;document.getElementById('eCmp').style.display=t==='e'?'':'none';document.getElementById('sCmp').style.display=t==='s'?'':'none';document.getElementById('oTE').className='btn btn-sm'+(t==='e'?' btn-ink':'');document.getElementById('oTS').className='btn btn-sm'+(t==='s'?' btn-ink':'');}
+function setOT(t){oTab=t;document.getElementById('eCmp').style.display=t==='e'?'':'none';document.getElementById('sCmp').style.display=t==='s'?'':'none';document.getElementById('oTE').className='btn btn-sm'+(t==='e'?' btn-ink':'');document.getElementById('oTS').className='btn btn-sm'+(t==='s'?' btn-ink':'');if(t==='s')populateSmsDropdown();}
 function buildPayLink(co, am, dy) {
   const invoiceId = 'INV-' + Date.now().toString(36).toUpperCase().slice(-6);
   const accountId = localStorage.getItem('stripe_account_id') || '';
