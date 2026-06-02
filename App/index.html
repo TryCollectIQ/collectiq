@@ -883,19 +883,27 @@ async function loadUserAndLaunch(authUser){
     i: initials
   };
 
-  // Try to get real user data from DB (non-blocking)
+  // Use sbFetch with localStorage token to get real user + tenant data
   try {
-    const {data:userRow} = await Promise.race([
-      sb.from('users').select('*, tenants(*)').eq('email', authUser.email).single(),
+    const userRows = await Promise.race([
+      sbFetch('users', 'GET', null, `email=eq.${encodeURIComponent(authUser.email)}&select=full_name,role,tenant_id`),
       new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 8000))
     ]);
-    if(userRow){
+    if(userRows && userRows.length > 0){
+      const userRow = userRows[0];
       CU.name = userRow.full_name || fullName;
       CU.role = userRow.role || 'ADMIN';
-      CU.plan = userRow.tenants?.plan || 'STARTER';
       CU.tenantId = userRow.tenant_id;
       CU.i = CU.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
-      console.log('DB user loaded:', CU);
+      console.log('DB user loaded - tenantId:', CU.tenantId);
+      
+      // Now get tenant plan
+      try {
+        const tenantRows = await sbFetch('tenants', 'GET', null, `id=eq.${userRow.tenant_id}&select=plan,subscription_status,trial_ends_at`);
+        if(tenantRows && tenantRows.length > 0) {
+          CU.plan = tenantRows[0].plan || 'STARTER';
+        }
+      } catch(e) { console.log('Tenant fetch error:', e.message); }
     }
   } catch(e) {
     console.log('DB query failed or timed out, using auth data:', e.message);
