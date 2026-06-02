@@ -1037,6 +1037,7 @@ async function loadAccountsFromDB(){
     const data = await sbFetch('accounts', 'GET', null, `tenant_id=eq.${CU.tenantId}&order=risk_score.desc`);
     if(data&&data.length>0) ACCTS=data.map(a=>({id:a.id,name:a.name,email:a.email||'',balance:a.balance,risk:a.risk_score,status:a.status,days:a.days_overdue}));
     console.log('Accounts loaded from DB:', data?.length);
+    populateSmsDropdown();
   } catch(e) {
     console.log('loadAccountsFromDB error:', e.message);
   }
