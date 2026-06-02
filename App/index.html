@@ -858,11 +858,16 @@ const rtTag=s=>{if(s>=80)return'<span class="tag t-hot">HIGH</span>';if(s>=55)re
 const addAudit=(type,actor,txt)=>AUDIT.unshift({time:'Just now',type,actor,txt});
 
 // ── SUPABASE AUTH STATE ────────────────────────────────────────────────
+let authLaunched = false;
 sb.auth.onAuthStateChange(async (event, session) => {
   document.getElementById('authLoading').style.display='none';
   if(session && session.user){
-    await loadUserAndLaunch(session.user);
+    if(!authLaunched){
+      authLaunched = true;
+      await loadUserAndLaunch(session.user);
+    }
   } else {
+    authLaunched = false;
     document.getElementById('loginF').style.display='';
   }
 });
@@ -978,7 +983,8 @@ async function doLogin(){
     return;
   }
   // Manually trigger launch since onAuthStateChange may not fire
-  if(data && data.user){
+  if(data && data.user && !authLaunched){
+    authLaunched = true;
     await loadUserAndLaunch(data.user);
   }
   btn.textContent='Sign in →';btn.disabled=false;
