@@ -28,3 +28,7 @@
   from = "/connect/refresh"
   to = "/connect-refresh.html"
   status = 200
+[[redirects]]
+  from = "/qbo-success"
+  to = "/qbo-success.html"
+  status = 200
