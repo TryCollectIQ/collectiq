@@ -1,0 +1,1575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>CollectIQ</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600&family=Fira+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#f5f2ed;--canvas:#faf9f7;--surface:#ffffff;--surface2:#f0ede8;--surface3:#e8e4dd;
+  --ink:#1c1917;--ink2:#44403c;--muted:#78716c;--muted2:#a8a29e;--ghost:#d6d3cd;
+  --border:rgba(28,25,23,0.09);--border2:rgba(28,25,23,0.05);
+  --accent:#c2410c;--accent-bg:#fff7f5;--accent-border:rgba(194,65,12,0.2);
+  --emerald:#047857;--emerald-bg:#f0fdf4;--emerald-border:rgba(4,120,87,0.2);
+  --sapphire:#1d4ed8;--sapphire-bg:#eff6ff;--sapphire-border:rgba(29,78,216,0.15);
+  --amber:#b45309;--amber-bg:#fffbeb;--amber-border:rgba(180,83,9,0.2);
+  --rose:#be123c;--rose-bg:#fff1f2;--rose-border:rgba(190,18,60,0.2);
+  --ff-serif:'Fraunces',Georgia,serif;
+  --ff-body:'Plus Jakarta Sans',system-ui,sans-serif;
+  --ff-mono:'Fira Mono',monospace;
+  --r:6px;--r-lg:10px;--r-xl:14px;
+  --shadow:0 1px 3px rgba(28,25,23,0.06),0 1px 2px rgba(28,25,23,0.04);
+  --shadow-md:0 4px 12px rgba(28,25,23,0.08),0 2px 4px rgba(28,25,23,0.04);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{font-size:13px;box-sizing:border-box;}
+body{font-family:var(--ff-body);background:var(--bg);color:var(--ink);line-height:1.5;margin:0;padding:0;min-height:100vh;}
+::-webkit-scrollbar{width:3px;height:3px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--ghost);border-radius:3px;}
+
+/* ─── AUTH ─── */
+#authScreen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem;background:var(--bg);position:relative;}
+#authScreen::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 30% 20%,rgba(194,65,12,0.06) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 80% 80%,rgba(4,120,87,0.04) 0%,transparent 60%);}
+.auth-inner{position:relative;z-index:1;display:flex;gap:56px;align-items:center;max-width:800px;width:100%;}
+.auth-left{flex:1;}
+.auth-brand{font-family:var(--ff-serif);font-size:36px;font-weight:300;letter-spacing:-1px;color:var(--ink);line-height:1.1;margin-bottom:12px;}
+.auth-brand em{font-style:italic;color:var(--accent);}
+.auth-pitch{font-size:14px;color:var(--muted);line-height:1.7;font-weight:300;max-width:320px;}
+.auth-stats{display:flex;gap:24px;margin-top:32px;}
+.auth-stat-num{font-family:var(--ff-serif);font-size:28px;font-weight:300;color:var(--ink);}
+.auth-stat-num em{font-style:italic;color:var(--accent);}
+.auth-stat-label{font-size:11px;color:var(--muted);font-family:var(--ff-mono);margin-top:2px;}
+.auth-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);padding:32px;width:340px;flex-shrink:0;box-shadow:var(--shadow-md);}
+.auth-card-title{font-family:var(--ff-serif);font-size:20px;font-weight:400;margin-bottom:4px;letter-spacing:-.3px;}
+.auth-card-sub{font-size:12px;color:var(--muted);margin-bottom:22px;}
+.f{margin-bottom:12px;}
+.f label{display:block;font-size:11px;font-weight:600;color:var(--ink2);margin-bottom:4px;letter-spacing:.03em;}
+.f input,.f select,.f textarea{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:var(--r);font-family:var(--ff-body);font-size:13px;color:var(--ink);background:var(--surface);outline:none;transition:border-color .15s,box-shadow .15s;}
+.f input:focus,.f select:focus,.f textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(194,65,12,0.08);}
+.f input::placeholder{color:var(--muted2);}
+.f textarea{resize:vertical;}
+.auth-submit{width:100%;padding:10px;background:var(--ink);color:#fff;border:none;border-radius:var(--r);font-family:var(--ff-body);font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;margin-top:4px;}
+.auth-submit:hover{background:var(--accent);}
+.auth-err{display:none;background:var(--rose-bg);border:1px solid var(--rose-border);border-radius:var(--r);padding:8px 11px;font-size:12px;color:var(--rose);margin-bottom:10px;}
+.auth-demos{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:12px;}
+.demo-chip{padding:7px 10px;border:1px solid var(--border);border-radius:var(--r);background:var(--surface2);font-size:11px;color:var(--muted);cursor:pointer;text-align:center;transition:all .15s;font-family:var(--ff-mono);}
+.demo-chip:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-bg);}
+
+/* ─── SHELL ─── */
+#shell{display:none;position:fixed;inset:0;flex-direction:column;}
+
+/* ─── TOPBAR ─── */
+.topbar{height:52px;display:flex;align-items:center;gap:10px;padding:0 16px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;box-shadow:var(--shadow);flex-wrap:nowrap;overflow:hidden;width:100%;}
+.t-logo{font-family:var(--ff-serif);font-size:19px;font-weight:400;letter-spacing:-.5px;flex:1;}
+.t-logo em{font-style:italic;color:var(--accent);}
+.t-search{display:flex;align-items:center;gap:7px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:6px 11px;width:180px;min-width:0;flex-shrink:1;}
+.t-search input{background:none;border:none;outline:none;font-family:var(--ff-body);font-size:12px;color:var(--ink);width:100%;}
+.t-search input::placeholder{color:var(--muted2);}
+.ai-pill{display:flex;align-items:center;gap:5px;padding:3px 10px;border-radius:99px;font-family:var(--ff-mono);font-size:10px;background:var(--emerald-bg);color:var(--emerald);border:1px solid var(--emerald-border);}
+.ai-dot{width:5px;height:5px;border-radius:50%;background:var(--emerald);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.plan-pill{padding:3px 10px;border-radius:99px;font-family:var(--ff-mono);font-size:10px;font-weight:500;}
+.pp-premium{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border);}
+.pp-growth{background:var(--sapphire-bg);color:var(--sapphire);border:1px solid var(--sapphire-border);}
+.t-av{width:30px;height:30px;border-radius:50%;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;font-family:var(--ff-body);}
+.t-name{font-size:12px;font-weight:600;}
+.t-role{font-size:10px;color:var(--muted);font-family:var(--ff-mono);}
+.t-signout{font-size:11px;color:var(--muted);background:none;border:none;cursor:pointer;padding:4px 8px;border-radius:var(--r);font-family:var(--ff-mono);transition:all .15s;}
+.t-signout:hover{background:var(--rose-bg);color:var(--rose);}
+
+/* ─── LAYOUT ─── */
+.app-body{display:flex;flex:1;overflow:hidden;position:absolute;top:52px;left:0;right:0;bottom:0;}
+
+/* ─── SIDEBAR ─── */
+.sidebar{width:192px;min-width:192px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;flex-shrink:0;height:100%;}
+.nav-section{font-family:var(--ff-mono);font-size:9px;color:var(--muted2);padding:14px 14px 4px;letter-spacing:.1em;text-transform:uppercase;}
+.nav-item{display:flex;align-items:center;gap:8px;padding:7px 14px;font-size:12px;color:var(--muted);cursor:pointer;border-left:2px solid transparent;transition:all .12s;user-select:none;font-weight:400;}
+.nav-item:hover{background:var(--bg);color:var(--ink);}
+.nav-item.on{color:var(--accent);background:var(--accent-bg);border-left-color:var(--accent);font-weight:600;}
+.nav-item svg{width:13px;height:13px;flex-shrink:0;}
+.nav-ct{margin-left:auto;background:var(--accent-bg);color:var(--accent);border:1px solid var(--accent-border);font-size:9px;font-family:var(--ff-mono);padding:1px 5px;border-radius:99px;}
+.sidebar-bot{margin-top:auto;padding:14px;border-top:1px solid var(--border);}
+
+/* ─── MAIN ─── */
+.main{flex:1;min-width:0;overflow-y:auto;overflow-x:hidden;padding:22px;background:var(--canvas);height:100%;}
+.view{display:none;flex-direction:column;gap:18px;animation:vu .2s ease;}
+.view.on{display:flex;}
+@keyframes vu{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+
+/* ─── PAGE HEADER ─── */
+.ph{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
+.ph-t{font-family:var(--ff-serif);font-size:24px;font-weight:300;letter-spacing:-.5px;color:var(--ink);}
+.ph-t em{font-style:italic;color:var(--accent);}
+.ph-s{font-size:12px;color:var(--muted);margin-top:3px;}
+.ph-a{display:flex;gap:8px;flex-shrink:0;}
+
+/* ─── CARDS ─── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow);}
+.cp{padding:18px 20px;}
+.ch{display:flex;align-items:center;gap:10px;padding:16px 20px 0;margin-bottom:13px;}
+.ct{font-size:12px;font-weight:700;flex:1;color:var(--ink);letter-spacing:.01em;}
+.ca{font-size:11px;color:var(--accent);cursor:pointer;font-family:var(--ff-mono);}
+.ca:hover{text-decoration:underline;}
+
+/* ─── BUTTONS ─── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--r);border:1px solid var(--border);background:var(--surface);color:var(--ink);font-family:var(--ff-body);font-size:12px;font-weight:500;cursor:pointer;transition:all .12s;white-space:nowrap;}
+.btn:hover{background:var(--surface2);border-color:rgba(28,25,23,.15);}
+.btn-ink{background:var(--ink);color:#fff;border-color:var(--ink);}
+.btn-ink:hover{background:var(--accent);border-color:var(--accent);}
+.btn-accent{background:var(--accent);color:#fff;border-color:var(--accent);}
+.btn-accent:hover{background:#a83509;border-color:#a83509;}
+.btn-ghost{background:transparent;border-color:transparent;color:var(--muted);}
+.btn-ghost:hover{background:var(--surface2);color:var(--ink);border-color:var(--border);}
+.btn-sm{padding:4px 10px;font-size:11px;}
+
+/* ─── TAGS ─── */
+.tag{display:inline-flex;align-items:center;padding:2px 7px;border-radius:99px;font-size:10px;font-weight:600;font-family:var(--ff-mono);}
+.t-hot{background:var(--rose-bg);color:var(--rose);border:1px solid var(--rose-border);}
+.t-warm{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border);}
+.t-cold{background:var(--surface2);color:var(--muted);border:1px solid var(--border);}
+.t-ok{background:var(--emerald-bg);color:var(--emerald);border:1px solid var(--emerald-border);}
+.t-blue{background:var(--sapphire-bg);color:var(--sapphire);border:1px solid var(--sapphire-border);}
+
+/* ─── KPI ─── */
+/* grids defined in responsive section below */
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px 20px;box-shadow:var(--shadow);position:relative;overflow:hidden;}
+.kpi-accent{position:absolute;bottom:-16px;right:-10px;font-family:var(--ff-serif);font-size:64px;font-weight:300;opacity:.05;line-height:1;pointer-events:none;user-select:none;}
+.kpi-label{font-family:var(--ff-mono);font-size:10px;color:var(--muted);margin-bottom:8px;letter-spacing:.04em;text-transform:uppercase;}
+.kpi-val{font-family:var(--ff-serif);font-size:30px;font-weight:300;line-height:1;margin-bottom:6px;letter-spacing:-.5px;color:var(--ink);}
+.kpi-val em{font-style:italic;}
+.kpi-delta{font-size:11px;font-family:var(--ff-mono);}
+.kp{color:var(--emerald);}
+.kn{color:var(--rose);}
+
+/* ─── TABLE ─── */
+.tw{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+thead th{font-size:10px;font-family:var(--ff-mono);color:var(--muted2);padding:0 12px 10px;text-align:left;border-bottom:1px solid var(--border);font-weight:500;letter-spacing:.05em;text-transform:uppercase;}
+tbody td{padding:10px 12px;border-bottom:1px solid var(--border2);color:var(--ink);vertical-align:middle;}
+tbody tr:last-child td{border:none;}
+tbody tr{cursor:pointer;transition:background .1s;}
+tbody tr:hover td{background:var(--bg);}
+.tn{font-weight:600;}
+.ts-{font-size:11px;color:var(--muted);margin-top:1px;}
+
+/* ─── SCORE ─── */
+.sw{display:flex;align-items:center;gap:6px;}
+.sn{font-family:var(--ff-mono);font-size:11px;font-weight:500;width:26px;}
+.sb{flex:1;height:3px;background:var(--ghost);border-radius:99px;overflow:hidden;}
+.sf{height:100%;border-radius:99px;}
+
+/* ─── PIPELINE ─── */
+.prow{display:flex;align-items:center;gap:9px;padding:8px 11px;background:var(--bg);border-radius:var(--r);border:1px solid var(--border2);margin-bottom:6px;}
+.pdot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.plb{font-size:12px;font-weight:500;flex:1;}
+.pct{font-family:var(--ff-mono);font-size:11px;color:var(--muted);width:34px;text-align:right;}
+.pbb{width:60px;height:3px;background:var(--ghost);border-radius:99px;overflow:hidden;}
+.pbf{height:100%;border-radius:99px;}
+.pam{font-family:var(--ff-mono);font-size:11px;font-weight:500;width:50px;text-align:right;}
+
+/* ─── CHAT ─── */
+.cw{display:flex;flex-direction:column;height:256px;}
+.cm{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:9px;padding-bottom:3px;}
+.mr{display:flex;gap:7px;align-items:flex-end;}
+.mr.u{flex-direction:row-reverse;}
+.mav{width:22px;height:22px;border-radius:50%;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0;}
+.mb{max-width:82%;padding:8px 11px;border-radius:10px;font-size:12px;line-height:1.5;}
+.mr.ai .mb{background:var(--surface2);border:1px solid var(--border);color:var(--ink);border-radius:2px 10px 10px 10px;}
+.mr.u .mb{background:var(--ink);color:#fff;border-radius:10px 10px 2px 10px;}
+.typing-dots{display:flex;gap:3px;padding:2px 0;}
+.td-{width:4px;height:4px;border-radius:50%;background:var(--muted);animation:tb 1.2s infinite;}
+.td-:nth-child(2){animation-delay:.2s;}.td-:nth-child(3){animation-delay:.4s;}
+@keyframes tb{0%,80%,100%{opacity:.2}40%{opacity:1}}
+.cir{display:flex;gap:7px;margin-top:9px;}
+.cir input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:8px 12px;color:var(--ink);font-family:var(--ff-body);font-size:12px;outline:none;transition:border-color .12s;}
+.cir input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(194,65,12,0.08);}
+.cir input::placeholder{color:var(--muted2);}
+.cir button{padding:8px 14px;background:var(--ink);color:#fff;border:none;border-radius:var(--r);font-size:12px;cursor:pointer;transition:background .12s;font-family:var(--ff-body);font-weight:600;}
+.cir button:hover{background:var(--accent);}
+
+/* ─── ACTIVE PLANS ─── */
+.prog-bar{height:4px;background:var(--ghost);border-radius:99px;overflow:hidden;margin:5px 0 3px;}
+.prog-fill{height:100%;border-radius:99px;background:var(--emerald);}
+
+/* ─── AUDIT ─── */
+.arow{display:flex;gap:9px;padding:8px 0;border-bottom:1px solid var(--border2);align-items:flex-start;}
+.arow:last-child{border:none;}
+.at{font-size:10px;color:var(--muted2);font-family:var(--ff-mono);width:68px;flex-shrink:0;padding-top:1px;}
+.adot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:3px;}
+.ab{flex:1;font-size:12px;}
+.aact{font-weight:600;color:var(--ink);}
+.atxt{color:var(--muted);}
+.ai-chip{display:inline-block;font-size:9px;padding:1px 5px;border-radius:99px;background:var(--sapphire-bg);color:var(--sapphire);font-family:var(--ff-mono);margin-left:4px;vertical-align:middle;border:1px solid var(--sapphire-border);}
+
+/* ─── PRICING ─── */
+/* pgrid defined in responsive section */
+.pc{border:1px solid var(--border);border-radius:var(--r-xl);padding:24px;background:var(--surface);position:relative;transition:transform .15s,box-shadow .15s;}
+.pc:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);}
+.pc.pop{border-color:var(--ink);border-width:2px;}
+.pop-tag{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;font-family:var(--ff-mono);font-size:9px;letter-spacing:.06em;padding:3px 12px;border-radius:99px;white-space:nowrap;}
+.pc-name{font-family:var(--ff-mono);font-size:10px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px;}
+.pc-price{font-family:var(--ff-serif);font-size:40px;font-weight:300;letter-spacing:-1px;line-height:1;margin-bottom:3px;color:var(--ink);}
+.pc-period{font-size:12px;color:var(--muted);margin-bottom:16px;}
+.pc-savings{font-size:11px;color:var(--emerald);font-family:var(--ff-mono);margin-bottom:18px;}
+.pc-div{height:1px;background:var(--border);margin-bottom:16px;}
+.pc-feats{list-style:none;display:flex;flex-direction:column;gap:8px;margin-bottom:20px;}
+.pc-feats li{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:7px;}
+.pc-feats li::before{content:'';width:14px;height:14px;border-radius:50%;flex-shrink:0;background:var(--emerald-bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%23047857' stroke-width='2'%3E%3Cpath d='M2 6l3 3 5-5'/%3E%3C/svg%3E") center/9px no-repeat;border:1px solid var(--emerald-border);}
+.pc-btn{width:100%;padding:10px;border-radius:var(--r);font-family:var(--ff-body);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;border:1px solid var(--border);background:var(--surface2);color:var(--ink);}
+.pc-btn:hover{background:var(--ink);color:#fff;border-color:var(--ink);}
+.pc.pop .pc-btn{background:var(--ink);color:#fff;border-color:var(--ink);}
+.pc.pop .pc-btn:hover{background:var(--accent);border-color:var(--accent);}
+
+/* ─── IMPORT ─── */
+.dz{border:2px dashed var(--border);border-radius:var(--r-lg);padding:2.5rem;text-align:center;cursor:pointer;transition:all .15s;}
+.dz:hover{border-color:var(--accent);background:var(--accent-bg);}
+.dz-i{width:38px;height:38px;background:var(--surface2);border-radius:var(--r);display:flex;align-items:center;justify-content:center;margin:0 auto 10px;}
+.dz-i svg{width:17px;height:17px;stroke:var(--muted);fill:none;stroke-width:1.5;}
+.dz-t{font-size:13px;font-weight:600;margin-bottom:3px;font-family:var(--ff-serif);font-style:italic;}
+.dz-s{font-size:11px;color:var(--muted);}
+/* egrid defined in responsive section */
+.ec{border:1px solid var(--border);border-radius:var(--r);padding:9px;text-align:center;cursor:pointer;transition:all .12s;background:var(--surface2);}
+.ec:hover{border-color:var(--accent);background:var(--accent-bg);}
+.ec-n{font-size:11px;font-weight:600;}
+.ec-t{font-size:10px;color:var(--muted);}
+
+/* ─── INTG ─── */
+.ir{display:flex;align-items:center;gap:11px;padding:11px 0;border-bottom:1px solid var(--border2);}
+.ir:last-child{border:none;}
+.il{width:34px;height:34px;border-radius:var(--r);background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;border:1px solid var(--border);flex-shrink:0;font-family:var(--ff-mono);}
+.in{font-size:12px;font-weight:600;color:var(--ink);}
+.id-{font-size:11px;color:var(--muted);}
+.ii{flex:1;}
+
+/* ─── USERS ─── */
+.ur{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border2);}
+.ur:last-child{border:none;}
+.uav{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;font-family:var(--ff-body);}
+
+/* ─── ACT BTNS ─── */
+.actb{display:flex;gap:4px;}
+.ab-{padding:3px 8px;border:1px solid var(--border);border-radius:5px;font-size:10px;background:transparent;color:var(--muted);cursor:pointer;font-family:var(--ff-mono);transition:all .12s;}
+.ab-:hover{border-color:var(--accent);color:var(--accent);}
+.ab-.hi{border-color:var(--accent);color:var(--accent);background:var(--accent-bg);}
+
+/* ─── MODAL ─── */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(28,25,23,0.4);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(3px);}
+.modal-bg.open{display:flex;}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);padding:24px;width:440px;max-width:95vw;box-shadow:var(--shadow-md);}
+.mt{font-family:var(--ff-serif);font-size:18px;font-weight:400;margin-bottom:3px;letter-spacing:-.3px;}
+.ms{font-size:12px;color:var(--muted);margin-bottom:18px;}
+.mc{float:right;background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;margin-top:-4px;}
+.mf{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;}
+
+/* ─── ALERT ─── */
+.alert{padding:9px 12px;border-radius:var(--r);font-size:12px;margin-bottom:10px;}
+.a-ok{background:var(--emerald-bg);color:var(--emerald);border:1px solid var(--emerald-border);}
+.a-info{background:var(--sapphire-bg);color:var(--sapphire);border:1px solid var(--sapphire-border);}
+
+/* ─── SUCCESS ─── */
+#successWrap{min-height:100vh;display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;text-align:center;background:var(--bg);}
+.suc-icon{width:60px;height:60px;border-radius:50%;background:var(--emerald-bg);border:1px solid var(--emerald-border);display:flex;align-items:center;justify-content:center;font-size:26px;}
+.suc-title{font-family:var(--ff-serif);font-size:28px;font-weight:300;letter-spacing:-.5px;}
+.suc-sub{font-size:14px;color:var(--muted);max-width:360px;font-weight:300;}
+
+/* ─── GRID ─── */
+/* g2 g3 defined in responsive section */
+/* ── RESPONSIVE ── */
+.kgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;}
+.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;}
+.g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;}
+.pgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;}
+.egrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:12px;}
+
+@media (max-width:1100px){
+  .kgrid{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .pgrid{grid-template-columns:repeat(2,minmax(0,1fr));}
+}
+
+@media (max-width:860px){
+  .sidebar{width:140px;min-width:140px;}
+  .nav-section{display:none;}
+  .kgrid{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .g2{grid-template-columns:minmax(0,1fr);}
+  .g3{grid-template-columns:minmax(0,1fr);}
+  .pgrid{grid-template-columns:minmax(0,1fr);}
+  .egrid{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .main{padding:14px;}
+  .ph{flex-direction:column;gap:8px;}
+  .ph-a{display:flex;gap:6px;}
+}
+
+@media (max-width:600px){
+  .sidebar{display:none;}
+  .app-body{left:0;}
+  .kgrid{grid-template-columns:minmax(0,1fr);}
+  .t-search{display:none;}
+  .ai-pill{display:none;}
+  .plan-pill{display:none;}
+  .t-role{display:none;}
+  .main{padding:12px;}
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>emailjs.init("_-4mT2E6pg3sgFt2M");</script>
+</head>
+<body>
+
+<!-- ═══ AUTH ═══ -->
+<div id="authScreen">
+  <div class="auth-inner">
+    <div class="auth-left">
+      <div class="auth-brand">Collect<em>IQ</em></div>
+      <div class="auth-pitch">AI-powered B2B revenue recovery. Score, prioritize, and negotiate with debtors — automatically.</div>
+      <div class="auth-stats">
+        <div><div class="auth-stat-num">67<em>%</em></div><div class="auth-stat-label">recovery rate</div></div>
+        <div><div class="auth-stat-num">3.2<em>×</em></div><div class="auth-stat-label">faster payment</div></div>
+        <div><div class="auth-stat-num">$2.4<em>M</em></div><div class="auth-stat-label">recovered in beta</div></div>
+      </div>
+    </div>
+    <div class="auth-card">
+      <!-- LOADING -->
+      <div id="authLoading" style="display:none;text-align:center;padding:40px 0;">
+        <div style="font-size:13px;color:var(--muted);">Loading…</div>
+      </div>
+      <!-- LOGIN -->
+      <div id="loginF" style="">
+        <div class="auth-card-title">Welcome back</div>
+        <div class="auth-card-sub">Sign in to your workspace</div>
+        <div class="auth-err" id="authErr"></div>
+        <div class="f"><label>Work email</label><input id="lE" type="email" placeholder="you@company.com"/></div>
+        <div class="f"><label>Password</label><input id="lP" type="password" placeholder="••••••••"/></div>
+        <button class="auth-submit" onclick="doLogin()">Sign in →</button>
+        <div style="text-align:center;margin-top:12px;font-size:12px;color:var(--muted);">No account? <a onclick="showRegister()" style="color:var(--accent);cursor:pointer;">Create one free</a></div>
+        <div class="auth-demos">
+          <div class="demo-chip" onclick="demoLogin('admin')">Demo as Admin</div>
+          <div class="demo-chip" onclick="demoLogin('agent')">Demo as Agent</div>
+        </div>
+      </div>
+      <!-- REGISTER -->
+      <div id="registerF" style="display:none;">
+        <div class="auth-card-title">Create account</div>
+        <div class="auth-card-sub">Start your 14-day free trial</div>
+        <div class="auth-err" id="regErr"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <div class="f"><label>First name</label><input id="rFirst" placeholder="Jordan"/></div>
+          <div class="f"><label>Last name</label><input id="rLast" placeholder="Rivera"/></div>
+        </div>
+        <div class="f"><label>Work email</label><input id="rEmail" type="email" placeholder="you@company.com"/></div>
+        <div class="f"><label>Password</label><input id="rPass" type="password" placeholder="Min 8 characters"/></div>
+        <div class="f"><label>Company name</label><input id="rCompany" placeholder="Acme Collections Inc."/></div>
+        <button class="auth-submit" onclick="doRegister()">Create account →</button>
+        <div style="text-align:center;margin-top:12px;font-size:12px;color:var(--muted);">Already have an account? <a onclick="showLogin()" style="color:var(--accent);cursor:pointer;">Sign in</a></div>
+      </div>
+      <!-- EMAIL CONFIRM -->
+      <div id="confirmMsg" style="display:none;text-align:center;padding:20px 0;">
+        <div style="font-size:32px;margin-bottom:12px;">✉️</div>
+        <div style="font-family:var(--ff-serif);font-size:20px;margin-bottom:8px;">Check your email</div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.6;">We sent a confirmation link to <strong id="confirmEmail"></strong>. Click it to activate your account then come back to sign in.</div>
+        <div style="margin-top:16px;"><a onclick="showLogin()" style="color:var(--accent);cursor:pointer;font-size:12px;">← Back to sign in</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SUCCESS ═══ -->
+<div id="successWrap">
+  <div class="suc-icon">✓</div>
+  <div class="suc-title">You're all set.</div>
+  <div class="suc-sub">Your CollectIQ workspace is now active and recovering revenue automatically.</div>
+  <button class="btn btn-ink" style="padding:11px 24px;font-size:13px;" onclick="goBack()">Go to dashboard →</button>
+</div>
+
+<!-- ═══ PAYWALL ═══ -->
+<div id="paywallScreen">
+  <div class="pw-icon">🔒</div>
+  <div class="pw-title">Your trial has <em>ended</em></div>
+  <div class="pw-sub">Your 7-day free trial is over. Choose a plan below to continue recovering revenue with CollectIQ. Your data is safe and ready when you upgrade.</div>
+  <div class="pw-days" id="pwDaysMsg"></div>
+  <div class="pw-plans">
+    <div class="pw-plan" onclick="startCO('https://buy.stripe.com/5kQbJ3a3Decj3Mu29k24002', CU?.email||'')">
+      <div class="pw-plan-name">Starter</div>
+      <div class="pw-plan-price">$299</div>
+      <div class="pw-plan-period">per month</div>
+      <button class="pw-plan-btn">Start Starter →</button>
+    </div>
+    <div class="pw-plan pop" onclick="startCO('https://buy.stripe.com/4gM4gBejT2tBbeWeW624001', CU?.email||'')">
+      <div class="pw-plan-name">Growth · Most Popular</div>
+      <div class="pw-plan-price">$799</div>
+      <div class="pw-plan-period">per month</div>
+      <button class="pw-plan-btn">Start Growth →</button>
+    </div>
+  </div>
+  <button class="pw-logout" onclick="doLogout()">Sign out</button>
+</div>
+
+
+<div id="shell">
+  <div class="topbar">
+    <div class="t-logo">Collect<em>IQ</em></div>
+    <div class="ai-pill"><div class="ai-dot"></div>AI active</div>
+    <div class="t-search"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="7" cy="7" r="4"/><path d="M10.5 10.5l3 3"/></svg><input type="text" placeholder="Search accounts…"/></div>
+    <span class="plan-pill pp-premium" id="tPlan">PREMIUM</span>
+    <div class="t-av" id="tAv">JR</div>
+    <div><div class="t-name" id="tName">Jordan Rivera</div><div class="t-role" id="tRole">ADMIN</div></div>
+    <button class="t-signout" onclick="doLogout()">sign out</button>
+  </div>
+  <div class="app-body">
+    <nav class="sidebar">
+      <div class="nav-section">Main</div>
+      <div class="nav-item on" onclick="sv('dashboard',this)">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>Dashboard
+      </div>
+      <div class="nav-item" onclick="sv('accounts',this)">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg>Accounts <span class="nav-ct" id="acBadge">6</span>
+      </div>
+      <div class="nav-item" onclick="sv('plans',this)">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M2 8h8M2 12h5"/></svg>Payment plans
+      </div>
+      <div class="nav-section">AI Tools</div>
+      <div class="nav-item" onclick="sv('negotiator',this)">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h12v7H2zM5 13l3-3 3 3"/></svg>AI negotiator
+      </div>
+      <div class="nav-item" onclick="sv('outreach',this)">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h12v8H2zM2 3l6 5 6-5"/></svg>Outreach
+      </div>
+      <div class="nav-section">Data</div>
+      <div class="nav-item" onclick="sv('import',this)">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 11v2a1 1 0 001 1h10a1 1 0 001-1v-2M8 2v8M5 9l3 3 3-3"/></svg>Import data
+      </div>
+      <div class="nav-item" onclick="sv('audit',this)">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 6h8M4 9h5M3 2h10a1 1 0 011 1v10a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1z"/></svg>Audit log
+      </div>
+      <div class="nav-section">Admin</div>
+      <div class="nav-item" onclick="sv('billing',this)">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="4" width="14" height="9" rx="1"/><path d="M1 7h14"/></svg>Billing
+      </div>
+      <div class="nav-item" onclick="sv('users',this)">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="5" r="3"/><path d="M1 14c0-3 2-5 5-5M11 11l2 2 3-3"/></svg>Users &amp; roles
+      </div>
+      <div class="nav-item" onclick="sv('integrations',this)">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="4" cy="8" r="2"/><circle cx="12" cy="4" r="2"/><circle cx="12" cy="12" r="2"/><path d="M6 7.5l4-2.5M6 8.5l4 2.5"/></svg>Integrations
+      </div>
+      <div class="sidebar-bot">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="t-av" id="sAv" style="background:var(--ink2);">JR</div>
+          <div><div style="font-size:11px;font-weight:600;" id="sN">Jordan Rivera</div><div style="font-size:10px;color:var(--muted);font-family:var(--ff-mono);" id="sR">admin</div></div>
+        </div>
+      </div>
+    </nav>
+    <div class="main">
+
+      <!-- DASHBOARD -->
+      <div id="vw-dashboard" class="view on">
+        <div class="ph">
+          <div><div class="ph-t">Good morning, <em id="dName">Jordan</em></div><div class="ph-s">PREMIUM plan · Demo tenant · AI scoring live</div></div>
+          <div class="ph-a">
+            <button class="btn" onclick="sv('import',document.querySelectorAll('.nav-item')[7])">Import data</button>
+            <button class="btn btn-ink" onclick="document.getElementById('addModal').classList.add('open')">+ Add account</button>
+          </div>
+        </div>
+        <div class="kgrid">
+          <div class="kpi"><div class="kpi-accent">$</div><div class="kpi-label">AR Outstanding</div><div class="kpi-val"><em>$4.2M</em></div><div class="kpi-delta kn">▼ 8.3% vs last month</div></div>
+          <div class="kpi"><div class="kpi-accent">✓</div><div class="kpi-label">Recovered This Month</div><div class="kpi-val"><em>$847K</em></div><div class="kpi-delta kp">▲ 22% vs last month</div></div>
+          <div class="kpi"><div class="kpi-accent">✉</div><div class="kpi-label">Messages Sent</div><div class="kpi-val" id="kMsg">35</div><div class="kpi-delta kp">▲ 9 this week</div></div>
+          <div class="kpi"><div class="kpi-accent">%</div><div class="kpi-label">AI Recovery Rate</div><div class="kpi-val"><em>67%</em></div><div class="kpi-delta kp">▲ 11pts vs manual</div></div>
+        </div>
+        <div class="g2">
+          <div class="card">
+            <div class="ch"><div class="ct">Priority accounts</div><span class="ca" onclick="sv('accounts',document.querySelectorAll('.nav-item')[1])">View all →</span></div>
+            <div class="tw" style="padding:0 18px 14px;"><table id="dTbl"></table></div>
+          </div>
+          <div class="card">
+            <div class="ch"><div class="ct">Recovery pipeline</div></div>
+            <div style="padding:0 18px 14px;" id="dPipe"></div>
+          </div>
+        </div>
+        <div class="g2">
+          <div class="card">
+            <div class="ch"><div class="ct">AI negotiator</div><div class="ai-pill" style="font-size:10px;padding:2px 8px;"><div class="ai-dot"></div>Live</div></div>
+            <div style="padding:0 18px 16px;">
+              <div class="cw">
+                <div class="cm" id="dChat"></div>
+                <div class="cir"><input id="dChatIn" type="text" placeholder="Ask AI to prioritize, draft email, suggest strategy…" onkeydown="if(event.key==='Enter')sendC('d')"/><button onclick="sendC('d')">→</button></div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="ch"><div class="ct">Active payment plans</div><span class="ca" onclick="sv('plans',document.querySelectorAll('.nav-item')[2])">Manage →</span></div>
+            <div style="padding:0 18px 14px;" id="dPlans"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="ch"><div class="ct">Recent audit activity</div><span class="ca" onclick="sv('audit',document.querySelectorAll('.nav-item')[8])">Full log →</span></div>
+          <div style="padding:0 18px 12px;" id="dAudit"></div>
+        </div>
+      </div>
+
+      <!-- ACCOUNTS -->
+      <div id="vw-accounts" class="view">
+        <div class="ph">
+          <div><div class="ph-t">Accounts</div><div class="ph-s">AI-scored and sorted by recovery probability</div></div>
+          <div class="ph-a">
+            <select onchange="fAccts(this.value)" style="padding:7px 11px;border:1px solid var(--border);border-radius:var(--r);font-size:12px;background:var(--surface);color:var(--ink);outline:none;font-family:var(--ff-body);">
+              <option value="all">All statuses</option><option value="OVERDUE">Overdue</option><option value="hot">Hot (80+)</option><option value="warm">Warm (55–79)</option><option value="cold">Cold (&lt;55)</option>
+            </select>
+            <button class="btn btn-ink" onclick="document.getElementById('addModal').classList.add('open')">+ Add account</button>
+          </div>
+        </div>
+        <div class="card"><div class="tw" style="padding:16px 18px;"><table id="aTbl"></table></div></div>
+      </div>
+
+      <!-- PAYMENT PLANS -->
+      <div id="vw-plans" class="view">
+        <div class="ph"><div><div class="ph-t">Payment <em>plans</em></div><div class="ph-s">Active recovery arrangements and their progress</div></div><button class="btn btn-ink btn-sm" onclick="sv('accounts',document.querySelectorAll('.nav-item')[1])">+ New plan</button></div>
+        <div class="g2" id="plGrid"></div>
+      </div>
+
+      <!-- AI NEGOTIATOR -->
+      <div id="vw-negotiator" class="view">
+        <div class="ph"><div><div class="ph-t">AI <em>negotiator</em></div><div class="ph-s">Claude-powered B2B collections strategy engine</div></div><div class="ai-pill"><div class="ai-dot"></div>Connected to Claude</div></div>
+        <div class="g2">
+          <div class="card" style="height:480px;display:flex;flex-direction:column;">
+            <div class="ch"><div class="ct">Strategy chat</div></div>
+            <div style="flex:1;padding:0 18px;overflow:hidden;display:flex;flex-direction:column;">
+              <div class="cm" id="nChat" style="flex:1;"></div>
+              <div class="cir" style="margin-bottom:14px;"><input id="nChatIn" type="text" placeholder="Draft email, analyze account, suggest plan structure…" onkeydown="if(event.key==='Enter')sendC('n')"/><button onclick="sendC('n')">→</button></div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div class="card cp">
+              <div class="ct" style="margin-bottom:10px;">Quick actions</div>
+              <div style="display:flex;flex-direction:column;gap:6px;">
+                <button class="btn" style="justify-content:flex-start;font-size:11px;" onclick="nAct('Score and prioritize all accounts by recovery probability and give top 3 actions')">Prioritize full queue →</button>
+                <button class="btn" style="justify-content:flex-start;font-size:11px;" onclick="nAct('Draft a firm payment reminder email for Acme Corp, $12,000 overdue 30 days, risk score 82')">Draft top priority email →</button>
+                <button class="btn" style="justify-content:flex-start;font-size:11px;" onclick="nAct('Suggest a 6-month payment plan structure for Globe Industries, $45,200 overdue 58 days')">Design payment plan →</button>
+                <button class="btn" style="justify-content:flex-start;font-size:11px;" onclick="nAct('Best escalation strategy for accounts over 90 days past due with balances above $50,000?')">Escalation strategy →</button>
+                <button class="btn" style="justify-content:flex-start;font-size:11px;" onclick="nAct('Analyze this month recovery performance and give 3 concrete recommendations to improve')">Analyze performance →</button>
+              </div>
+            </div>
+            <div class="card cp">
+              <div class="ct" style="margin-bottom:10px;">AI stats · this month</div>
+              <div style="display:flex;flex-direction:column;gap:7px;font-size:12px;">
+                <div style="display:flex;justify-content:space-between;"><span style="color:var(--muted);">Emails drafted</span><span style="font-family:var(--ff-mono);font-weight:600;">47</span></div>
+                <div style="display:flex;justify-content:space-between;"><span style="color:var(--muted);">Plans configured</span><span style="font-family:var(--ff-mono);font-weight:600;">12</span></div>
+                <div style="display:flex;justify-content:space-between;"><span style="color:var(--muted);">Dispute briefs</span><span style="font-family:var(--ff-mono);font-weight:600;">8</span></div>
+                <div style="display:flex;justify-content:space-between;"><span style="color:var(--muted);">Recovery rate</span><span style="font-family:var(--ff-mono);font-weight:600;color:var(--emerald);">67%</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- OUTREACH -->
+      <div id="vw-outreach" class="view">
+        <div class="ph"><div><div class="ph-t">Outreach</div><div class="ph-s">AI-drafted email via SendGrid · SMS via Twilio</div></div></div>
+        <div class="g2">
+          <div class="card cp">
+            <div style="display:flex;gap:6px;margin-bottom:14px;">
+              <button class="btn btn-ink btn-sm" id="oTE" onclick="setOT('e')">Email (SendGrid)</button>
+              <button class="btn btn-sm" id="oTS" onclick="setOT('s')">SMS (Twilio)</button>
+            </div>
+            <div id="eCmp">
+              <div class="f"><label>To</label><select id="oTo" onchange="fTmpl()"><option value="Acme Corp|billing@acme.com|12000|30">Acme Corp — billing@acme.com</option><option value="Globe Industries|ar@globe.com|45200|58">Globe Industries — ar@globe.com</option><option value="Nexus Partners|finance@nexus.com|8900|22">Nexus Partners — finance@nexus.com</option></select></div>
+              <div class="f"><label>Template</label><select id="oTm" onchange="fTmpl()"><option value="reminder">Payment reminder</option><option value="final">Final notice</option><option value="plan">Payment plan offer</option><option value="legal">Pre-legal notice</option></select></div>
+              <div class="f"><label>Subject</label><input id="oSj" type="text"/></div>
+              <div class="f"><label>Body (AI-drafted)</label><textarea id="oBd" style="height:140px;"></textarea></div>
+              <div style="display:flex;gap:7px;justify-content:flex-end;">
+                <button class="btn btn-sm" onclick="regenE()">↻ Regenerate with AI</button>
+                <button class="btn btn-ink btn-sm" onclick="sendE()">Send via SendGrid →</button>
+              </div>
+            </div>
+            <div id="sCmp" style="display:none;">
+              <div class="f"><label>To</label><select id="sTo" onchange="updateSmsPhone(this)"><option value="">— Select account —</option></select></div>
+              <div class="f"><label>Phone number</label><input type="tel" id="sPhone" placeholder="+1 (305) 555-0000" style="font-family:var(--ff-mono);"/></div>
+              <div class="f"><label>Message</label><textarea id="sBd" oninput="uSms()" style="height:90px;">Hi, this is CollectIQ. Your invoice is overdue. Reply PLAN to arrange payment or call 1-800-COLLECT.</textarea></div>
+              <div style="font-size:10px;color:var(--muted2);text-align:right;margin-bottom:8px;font-family:var(--ff-mono);"><span id="sCc">0</span>/160 · <span id="sSg">1</span> segment</div>
+              <div style="background:var(--surface2);border-radius:var(--r);padding:9px 12px;font-size:12px;line-height:1.6;margin-bottom:10px;color:var(--ink);" id="sPrev"></div>
+              <div style="display:flex;justify-content:flex-end;"><button class="btn btn-ink btn-sm" onclick="sendS()">Send via Twilio →</button></div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div class="card cp">
+              <div class="ct" style="margin-bottom:10px;">Channel status</div>
+              <div class="ir"><div class="il" style="color:var(--sapphire);">SG</div><div class="ii"><div class="in">SendGrid</div><div class="id-"><span id="eCnt">24</span> emails sent this month</div></div><span class="tag t-ok">Connected</span></div>
+              <div class="ir"><div class="il" style="color:var(--amber);">TW</div><div class="ii"><div class="in">Twilio</div><div class="id-"><span id="sCnt">11</span> SMS sent this month</div></div><span class="tag t-ok">Connected</span></div>
+              <div class="ir"><div class="il" style="color:var(--accent);">AI</div><div class="ii"><div class="in">Claude AI</div><div class="id-">1,204 AI actions logged</div></div><span class="tag t-ok">Connected</span></div>
+            </div>
+            <div class="card cp">
+              <div class="ct" style="margin-bottom:10px;">Sent history</div>
+              <div id="oHist"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- IMPORT -->
+      <div id="vw-import" class="view">
+        <div class="ph"><div><div class="ph-t">Data <em>import</em></div><div class="ph-s">Upload CSV or connect your ERP system</div></div></div>
+        <div class="g2">
+          <div class="card cp">
+            <div class="ct" style="margin-bottom:10px;">CSV upload</div>
+            <div class="dz" onclick="document.getElementById('fi').click()">
+              <div class="dz-i"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg></div>
+              <div class="dz-t">Drop CSV here or click to browse</div>
+              <div class="dz-s">.csv · .xlsx · auto column mapping</div>
+            </div>
+            <input type="file" id="fi" accept=".csv,.xlsx" style="display:none" onchange="hFile(this)"/>
+            <div id="iPrev" style="display:none;margin-top:12px;">
+              <div class="alert a-ok" id="iMsg"></div>
+              <div style="font-size:11px;font-weight:600;margin-bottom:7px;color:var(--muted);font-family:var(--ff-mono);letter-spacing:.05em;text-transform:uppercase;">Column mapping</div>
+              <div id="mRows"></div>
+              <div style="display:flex;gap:7px;justify-content:flex-end;margin-top:10px;">
+                <button class="btn btn-sm" onclick="cxImport()">Cancel</button>
+                <button class="btn btn-ink btn-sm" onclick="cfImport()">Import records →</button>
+              </div>
+            </div>
+          </div>
+          <div class="card cp">
+            <div class="ct" style="margin-bottom:10px;">ERP &amp; accounting</div>
+            <div class="egrid">
+              <div class="ec" onclick="connectQBO()" id="qbCard" style="border-color:var(--green-border);background:var(--green-bg);">
+                <div style="font-size:16px;margin-bottom:4px;">📊</div>
+                <div class="ec-n" style="color:var(--green);">QuickBooks</div>
+                <div class="ec-t" id="qbStatus">Click to connect</div>
+              </div>
+              <div class="ec" onclick="erpC('Xero')"><div class="ec-n">Xero</div><div class="ec-t">Accounting</div></div>
+              <div class="ec" onclick="erpC('SAP')"><div class="ec-n">SAP</div><div class="ec-t">ERP</div></div>
+              <div class="ec" onclick="erpC('NetSuite')"><div class="ec-n">NetSuite</div><div class="ec-t">ERP</div></div>
+              <div class="ec" onclick="erpC('Salesforce')"><div class="ec-n">Salesforce</div><div class="ec-t">CRM</div></div>
+              <div class="ec" onclick="erpC('HubSpot')"><div class="ec-n">HubSpot</div><div class="ec-t">CRM</div></div>
+            </div>
+            <div id="erpMsg" style="font-size:12px;color:var(--muted);margin-top:10px;"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="ch"><div class="ct">Account records</div><span class="tag t-blue" id="iCt">6 records</span></div>
+          <div class="tw" style="padding:0 18px 14px;"><table id="iTbl"></table></div>
+        </div>
+      </div>
+
+      <!-- AUDIT -->
+      <div id="vw-audit" class="view">
+        <div class="ph">
+          <div><div class="ph-t">Audit <em>log</em></div><div class="ph-s">Every agent and AI action, immutably recorded</div></div>
+          <div class="ph-a">
+            <select id="aFilt" onchange="rAudit()" style="padding:7px 11px;border:1px solid var(--border);border-radius:var(--r);font-size:12px;background:var(--surface);color:var(--ink);outline:none;font-family:var(--ff-body);">
+              <option value="all">All events</option><option value="ai">AI actions</option><option value="email">Email</option><option value="sms">SMS</option><option value="import">Imports</option><option value="auth">Auth</option>
+            </select>
+            <button class="btn btn-sm" onclick="exAudit()">Export CSV</button>
+          </div>
+        </div>
+        <div class="card cp"><div id="auditEl"></div></div>
+      </div>
+
+      <!-- BILLING -->
+      <div id="vw-billing" class="view">
+        <div class="ph"><div><div class="ph-t">Billing</div><div class="ph-s">Subscription management · Stripe powered</div></div></div>
+        <div class="card cp" style="margin-bottom:14px;">
+          <div style="display:flex;align-items:center;gap:16px;">
+            <div style="flex:1;"><div style="font-family:var(--ff-serif);font-size:16px;font-weight:400;margin-bottom:3px;">Current plan: <em style="color:var(--amber);" id="currentPlanName">STARTER</em></div><div style="font-size:12px;color:var(--muted);" id="currentPlanDesc">Upgrade to Growth or Enterprise to unlock more features</div></div>
+            <button class="btn btn-sm" onclick="alert('Opening Stripe customer portal…')">Manage subscription</button>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:center;gap:7px;margin-bottom:16px;">
+          <button class="btn btn-sm" id="bM" onclick="setBill('monthly')">Monthly</button>
+          <button class="btn btn-ink btn-sm" id="bA" onclick="setBill('annual')">Annual (Save 20%)</button>
+        </div>
+        <div class="pgrid" id="pGrid"></div>
+        <div style="font-size:12px;color:var(--muted);text-align:center;margin-top:14px;">7-day free trial on all plans · Cancel anytime · Secured by Stripe</div>
+      </div>
+
+      <!-- USERS -->
+      <div id="vw-users" class="view">
+        <div class="ph"><div><div class="ph-t">Users &amp; <em>roles</em></div><div class="ph-s">Team access and permissions</div></div><button class="btn btn-ink btn-sm" onclick="inviteU()">+ Invite user</button></div>
+        <div class="g2">
+          <div class="card cp"><div class="ct" style="margin-bottom:12px;">Team members</div><div id="uList"></div></div>
+          <div class="card cp">
+            <div class="ct" style="margin-bottom:12px;">Role permissions</div>
+            <table style="width:100%;border-collapse:collapse;font-size:11px;">
+              <thead><tr style="border-bottom:1px solid var(--border2);">
+                <th style="padding:5px 7px;text-align:left;color:var(--muted2);font-weight:500;font-family:var(--ff-mono);font-size:10px;text-transform:uppercase;letter-spacing:.05em;">Permission</th>
+                <th style="padding:5px 7px;text-align:center;color:var(--muted2);font-weight:500;font-family:var(--ff-mono);font-size:10px;">Admin</th>
+                <th style="padding:5px 7px;text-align:center;color:var(--muted2);font-weight:500;font-family:var(--ff-mono);font-size:10px;">User</th>
+              </tr></thead>
+              <tbody>
+                <tr><td style="padding:5px 7px;border-bottom:1px solid var(--border2);">View accounts</td><td style="text-align:center;border-bottom:1px solid var(--border2);"><span class="tag t-ok">Yes</span></td><td style="text-align:center;border-bottom:1px solid var(--border2);"><span class="tag t-ok">Yes</span></td></tr>
+                <tr><td style="padding:5px 7px;border-bottom:1px solid var(--border2);">Send outreach</td><td style="text-align:center;border-bottom:1px solid var(--border2);"><span class="tag t-ok">Yes</span></td><td style="text-align:center;border-bottom:1px solid var(--border2);"><span class="tag t-ok">Yes</span></td></tr>
+                <tr><td style="padding:5px 7px;border-bottom:1px solid var(--border2);">Import data</td><td style="text-align:center;border-bottom:1px solid var(--border2);"><span class="tag t-ok">Yes</span></td><td style="text-align:center;border-bottom:1px solid var(--border2);"><span class="tag t-warm">Limited</span></td></tr>
+                <tr><td style="padding:5px 7px;border-bottom:1px solid var(--border2);">Manage users</td><td style="text-align:center;border-bottom:1px solid var(--border2);"><span class="tag t-ok">Yes</span></td><td style="text-align:center;border-bottom:1px solid var(--border2);"><span class="tag t-hot">No</span></td></tr>
+                <tr><td style="padding:5px 7px;">View audit log</td><td style="text-align:center;"><span class="tag t-ok">Yes</span></td><td style="text-align:center;"><span class="tag t-hot">No</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- INTEGRATIONS -->
+      <div id="vw-integrations" class="view">
+        <div class="ph"><div><div class="ph-t">Integrations</div><div class="ph-s">Connected services and API credentials</div></div></div>
+        <div class="g2">
+          <div class="card cp">
+            <div class="ct" style="margin-bottom:12px;">Communication</div>
+            <div class="ir"><div class="il" style="color:var(--sapphire);">SG</div><div class="ii"><div class="in">SendGrid</div><div class="id-">Transactional email delivery</div></div><span class="tag t-ok">Connected</span></div>
+            <div class="ir"><div class="il" style="color:var(--amber);">TW</div><div class="ii"><div class="in">Twilio</div><div class="id-">SMS and voice calls</div></div><span class="tag t-ok">Connected</span></div>
+            <div class="ir"><div class="il" style="color:var(--accent);">AI</div><div class="ii"><div class="in">Claude AI (Anthropic)</div><div class="id-">AI negotiation and drafting</div></div><span class="tag t-ok">Connected</span></div>
+          </div>
+          <div class="card cp">
+            <div class="ct" style="margin-bottom:12px;">ERP &amp; accounting</div>
+            <div class="ir"><div class="il" style="color:#2CA01C;border-color:rgba(44,160,28,0.3);">QB</div><div class="ii"><div class="in">QuickBooks Online</div><div class="id-" id="qbIntgStatus">Click Connect to sync your AR data</div></div><button class="btn btn-ink btn-sm" id="qbIntgBtn" onclick="connectQBO()">Connect</button></div>
+            <div class="ir"><div class="il">XR</div><div class="ii"><div class="in">Xero</div><div class="id-">Real-time AR sync</div></div><button class="btn btn-ink btn-sm" onclick="erpC('Xero')">Connect</button></div>
+            <div class="ir"><div class="il">NS</div><div class="ii"><div class="in">NetSuite</div><div class="id-">Enterprise ERP</div></div><button class="btn btn-sm" onclick="erpC('NetSuite')">Configure</button></div>
+            <div class="ir"><div class="il" style="color:var(--emerald);">ST</div><div class="ii"><div class="in">Stripe</div><div class="id-">Billing and subscriptions</div></div><span class="tag t-ok">Connected</span></div>
+            <div class="ir"><div class="il" style="color:#635bff;border-color:rgba(99,91,255,0.2);">$</div><div class="ii"><div class="in">Stripe Connect</div><div class="id-">Receive debtor payments directly</div></div><button class="btn btn-ink btn-sm" onclick="window.open('https://trycollectiq.com/connect','_blank')">Connect bank →</button></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ADD ACCOUNT MODAL -->
+<div class="modal-bg" id="addModal">
+  <div class="modal">
+    <button class="mc" onclick="cModal('addModal')">✕</button>
+    <div class="mt">Add account</div>
+    <div class="ms">AI will automatically compute the risk score on creation.</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+      <div class="f"><label>Company name</label><input id="mN" placeholder="Acme Corp"/></div>
+      <div class="f"><label>Balance ($)</label><input id="mB" type="number" placeholder="12000"/></div>
+    </div>
+    <div class="f"><label>Email</label><input id="mE" type="email" placeholder="billing@company.com"/></div>
+    <div class="f"><label>Invoice status</label><select id="mS"><option value="OVERDUE">Overdue</option><option value="PENDING">Pending</option><option value="PAID">Paid</option></select></div>
+    <div class="mf">
+      <button class="btn btn-sm" onclick="cModal('addModal')">Cancel</button>
+      <button class="btn btn-ink btn-sm" onclick="addAcct()">Add &amp; score with AI →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── DATA ─────────────────────────────────────────────────────────────
+const PLANS_CFG={
+  STARTER:{name:'Starter',monthly:299,annual:2990,annualId:'https://buy.stripe.com/eVqeVfb7H0ltgzgaFQ24003',monthlyId:'https://buy.stripe.com/5kQbJ3a3Decj3Mu29k24002',feats:['Up to 250 accounts','AI debtor scoring','Email outreach (SendGrid)','CSV import','Payment plan configurator','Audit log 30 days','Email support']},
+  GROWTH:{name:'Growth',monthly:799,annual:7990,annualId:'https://buy.stripe.com/9B64gBcbL9W3aaS4hs24000',monthlyId:'https://buy.stripe.com/4gM4gBejT2tBbeWeW624001',pop:true,feats:['Unlimited accounts','Full AI negotiator','Email + SMS outreach','ERP integrations','Dispute management','Audit log 1 year','Priority support + onboarding']},
+  ENTERPRISE:{name:'Enterprise',monthly:1500,annual:null,annualId:null,monthlyId:null,feats:['Unlimited agents','SAP / NetSuite / custom ERP','White-label option','Custom AI compliance rules','SSO / SAML','Dedicated success manager','SLA support']},
+};
+
+let ACCTS=[
+  {id:1,name:'Acme Corp',email:'billing@acme.com',balance:12000,risk:82,status:'OVERDUE',days:30},
+  {id:2,name:'Globe Industries',email:'ar@globe.com',balance:45200,risk:91,status:'OVERDUE',days:58},
+  {id:3,name:'Nexus Partners',email:'finance@nexus.com',balance:8900,risk:44,status:'OVERDUE',days:22},
+  {id:4,name:'Titan Holdings',email:'billing@titan.com',balance:128000,risk:88,status:'OVERDUE',days:74},
+  {id:5,name:'Vortex Solutions',email:'ap@vortex.com',balance:5600,risk:29,status:'PENDING',days:12},
+  {id:6,name:'Summit Co',email:'accounts@summit.com',balance:33400,risk:67,status:'OVERDUE',days:41},
+];
+const PIPE=[
+  {lb:'Identified',ct:138,am:'$4.2M',pc:100,cl:'#78716c'},
+  {lb:'Contacted',ct:94,am:'$3.1M',pc:74,cl:'#1d4ed8'},
+  {lb:'Negotiating',ct:47,am:'$1.6M',pc:38,cl:'#b45309'},
+  {lb:'Payment plan',ct:23,am:'$780K',pc:19,cl:'#7c3aed'},
+  {lb:'Recovered',ct:38,am:'$847K',pc:20,cl:'#047857'},
+];
+const ACTIVE_PLANS=[
+  {name:'Acme Corp',total:12000,paid:4000,inst:2000,next:'May 7, 2026'},
+  {name:'Summit Co',total:33400,paid:8350,inst:5567,next:'May 14, 2026'},
+];
+let AUDIT=[
+  {time:'2m ago',type:'ai',actor:'AI',txt:'Risk score computed for Globe Industries — score 91'},
+  {time:'14m ago',type:'email',actor:'Jordan R.',txt:'Email sent to billing@acme.com via SendGrid'},
+  {time:'31m ago',type:'sms',actor:'Jordan R.',txt:'SMS sent to Globe Industries via Twilio'},
+  {time:'1h ago',type:'ai',actor:'AI',txt:'Payment plan activated for Acme Corp — 6-month standard'},
+  {time:'2h ago',type:'import',actor:'Sarah M.',txt:'CSV imported — 12 account records from QuickBooks'},
+  {time:'3h ago',type:'auth',actor:'Tom K.',txt:'Signed in from 192.168.1.45'},
+  {time:'4h ago',type:'ai',actor:'AI',txt:'Dispute brief generated for Titan Holdings — 74% win probability'},
+  {time:'Yesterday',type:'import',actor:'Jordan R.',txt:'ERP sync — NetSuite — 47 invoices updated'},
+];
+let OUT=[
+  {time:'14m ago',to:'Acme Corp',ch:'Email',st:'Delivered'},
+  {time:'31m ago',to:'Globe Industries',ch:'SMS',st:'Delivered'},
+  {time:'5h ago',to:'Titan Holdings',ch:'Email',st:'Opened'},
+  {time:'Yesterday',to:'Summit Co',ch:'Email',st:'Delivered'},
+];
+const TEAM=[
+  {i:'JR',name:'Jordan Rivera',email:'jordan@trycollectiq.com',role:'ADMIN',c:'#1c1917'},
+  {i:'SM',name:'Sarah Mitchell',email:'sarah@trycollectiq.com',role:'USER',c:'#1d4ed8'},
+  {i:'TK',name:'Tom Kim',email:'tom@trycollectiq.com',role:'USER',c:'#047857'},
+];
+// ── SUPABASE INIT ─────────────────────────────────────────────────────
+const SUPABASE_URL = 'https://cnpcefikmgjxlykbjfpl.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNucGNlZmlrbWdqeGx5a2JqZnBsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAxNDg5MzMsImV4cCI6MjA5NTcyNDkzM30.l61qRYljWP3nu2TJNsVn7aBz98TKFC0coFqw7Daiplc';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// Fallback: show login form after 3 seconds if Supabase hasn't responded
+setTimeout(() => {
+  const loading = document.getElementById('authLoading');
+  const loginF = document.getElementById('loginF');
+  if (loading && loading.style.display !== 'none') {
+    loading.style.display = 'none';
+    if (loginF) loginF.style.display = '';
+  }
+}, 3000);
+
+let CU=null,billMode='annual';
+let dChats=[{r:'ai',t:"Hi! I'm your AI collections assistant. I've scored all accounts — your highest priorities are at the top of the queue. Want me to draft outreach or model a payment plan?"}];
+let nChats=[{r:'ai',t:"I'm CollectIQ AI. I can prioritize accounts, draft outreach, configure payment plans, analyze disputes, and build recovery strategies. What would you like to work on?"}];
+let eCt=24,sCt=11;
+
+// ── SUPABASE DIRECT FETCH ─────────────────────────────────────────────
+// Use direct fetch with auth token instead of sb client which has session issues
+async function sbFetch(table, method='GET', body=null, filters='') {
+  // Read token directly from localStorage since sb.auth.getSession() hangs
+  let token = SUPABASE_KEY;
+  try {
+    const stored = localStorage.getItem('sb-cnpcefikmgjxlykbjfpl-auth-token');
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      token = parsed.access_token || SUPABASE_KEY;
+    }
+  } catch(e) { console.log('Token read error:', e); }
+  const url = `${SUPABASE_URL}/rest/v1/${table}${filters ? '?' + filters : ''}`;
+  const opts = {
+    method,
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+      'Prefer': method === 'POST' ? 'return=representation' : ''
+    }
+  };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(url, opts);
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`Supabase ${method} ${table}: ${res.status} ${err}`);
+  }
+  return res.status === 204 ? null : res.json();
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────────
+const fmt=n=>'$'+Math.round(n).toLocaleString();
+const pct=(a,b)=>Math.round(a/b*100);
+const rc=s=>s>=80?'var(--rose)':s>=55?'var(--amber)':'var(--emerald)';
+const stTag=s=>{if(s==='OVERDUE')return'<span class="tag t-hot">OVERDUE</span>';if(s==='PENDING')return'<span class="tag t-warm">PENDING</span>';return'<span class="tag t-ok">PAID</span>';};
+const rtTag=s=>{if(s>=80)return'<span class="tag t-hot">HIGH</span>';if(s>=55)return'<span class="tag t-warm">MED</span>';return'<span class="tag t-cold">LOW</span>';};
+const addAudit=(type,actor,txt)=>AUDIT.unshift({time:'Just now',type,actor,txt});
+
+// ── SUPABASE AUTH STATE ────────────────────────────────────────────────
+let authLaunched = false;
+sb.auth.onAuthStateChange(async (event, session) => {
+  document.getElementById('authLoading').style.display='none';
+  if(session && session.user){
+    if(!authLaunched){
+      authLaunched = true;
+      await loadUserAndLaunch(session.user);
+    }
+  } else {
+    authLaunched = false;
+    document.getElementById('loginF').style.display='';
+  }
+});
+
+async function loadUserAndLaunch(authUser){
+  console.log('loadUserAndLaunch called for:', authUser.email);
+  
+  // Build user from auth data directly - don't rely on DB query for launch
+  const fullName = authUser.user_metadata?.full_name || authUser.email.split('@')[0];
+  const initials = fullName.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  
+  CU = {
+    name: fullName,
+    email: authUser.email,
+    role: 'ADMIN',
+    plan: 'STARTER',
+    tenantId: authUser.id, // use auth user id as tenant reference
+    i: initials
+  };
+
+  // Use sbFetch with localStorage token to get real user + tenant data
+  try {
+    const userRows = await Promise.race([
+      sbFetch('users', 'GET', null, `email=eq.${encodeURIComponent(authUser.email)}&select=full_name,role,tenant_id`),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 8000))
+    ]);
+    if(userRows && userRows.length > 0){
+      const userRow = userRows[0];
+      CU.name = userRow.full_name || fullName;
+      CU.role = userRow.role || 'ADMIN';
+      CU.tenantId = userRow.tenant_id;
+      CU.i = CU.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+      console.log('DB user loaded - tenantId:', CU.tenantId);
+      
+      // Now get tenant plan
+      try {
+        const tenantRows = await sbFetch('tenants', 'GET', null, `id=eq.${userRow.tenant_id}&select=plan,subscription_status,trial_ends_at`);
+        if(tenantRows && tenantRows.length > 0) {
+          CU.plan = tenantRows[0].plan || 'STARTER';
+        }
+      } catch(e) { console.log('Tenant fetch error:', e.message); }
+    }
+  } catch(e) {
+    console.log('DB query failed or timed out, using auth data:', e.message);
+  }
+
+  // ── ACCESS CONTROL ──────────────────────────────────────────────────
+  // Check subscription status before showing dashboard
+  const isDemo = CU.tenantId === 'demo';
+  
+  if (!isDemo) {
+    try {
+      // Get tenant subscription status from DB
+      const {data: tenantData} = await Promise.race([
+        sb.from('tenants').select('subscription_status,trial_ends_at,plan').eq('id', CU.tenantId).single(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 8000))
+      ]);
+      
+      if (tenantData) {
+        // Update plan from tenant data
+        if (tenantData.plan) {
+          CU.plan = tenantData.plan;
+        }
+        
+        const status = tenantData.subscription_status || 'trialing';
+        const trialEnd = tenantData.trial_ends_at ? new Date(tenantData.trial_ends_at) : null;
+        const now = new Date();
+        const isActive = status === 'active' || status === 'trialing';
+        const trialExpired = trialEnd && now > trialEnd;
+        
+        // Block access if trial expired and not on paid plan
+        if (trialExpired && status !== 'active') {
+          document.getElementById('authScreen').style.display='none';
+          const pw = document.getElementById('paywallScreen');
+          pw.style.display='flex';
+          const daysAgo = Math.floor((now - trialEnd) / (1000 * 60 * 60 * 24));
+          document.getElementById('pwDaysMsg').textContent = 
+            daysAgo === 0 ? 'Your trial ended today.' : 
+            `Your trial ended ${daysAgo} day${daysAgo > 1 ? 's' : ''} ago.`;
+          return;
+        }
+      }
+    } catch(e) {
+      console.log('Subscription check error:', e.message);
+      // On error, allow access (fail open for better UX)
+    }
+  }
+
+  // Launch dashboard with whatever data we have
+  document.getElementById('authScreen').style.display='none';
+  document.getElementById('shell').style.display='flex';
+  ['tAv','sAv'].forEach(id=>document.getElementById(id).textContent=CU.i);
+  ['tName','sN'].forEach(id=>document.getElementById(id).textContent=CU.name);
+  ['tRole','sR'].forEach(id=>document.getElementById(id).textContent=CU.role.toLowerCase());
+  document.getElementById('dName').textContent=CU.name.split(' ')[0];
+  document.getElementById('tPlan').textContent=CU.plan;
+  document.getElementById('tPlan').className='plan-pill '+(CU.plan==='PREMIUM'?'pp-premium':'pp-growth');
+  
+  try { await loadAccountsFromDB(); } catch(e) { console.log('loadAccounts error:', e); }
+  init();
+}
+
+async function doLogin(){
+  const e=document.getElementById('lE').value.trim();
+  const p=document.getElementById('lP').value;
+  if(!e||!p){showAuthErr('authErr','Enter email and password.');return;}
+  const btn=document.querySelector('#loginF .auth-submit');
+  btn.textContent='Signing in…';btn.disabled=true;
+  const {data,error}=await sb.auth.signInWithPassword({email:e,password:p});
+  if(error){
+    btn.textContent='Sign in →';btn.disabled=false;
+    showAuthErr('authErr',error.message==='Invalid login credentials'?'Incorrect email or password.':error.message);
+    return;
+  }
+  // Manually trigger launch since onAuthStateChange may not fire
+  if(data && data.user && !authLaunched){
+    authLaunched = true;
+    await loadUserAndLaunch(data.user);
+  }
+  btn.textContent='Sign in →';btn.disabled=false;
+}
+
+async function doRegister(){
+  const first=document.getElementById('rFirst').value.trim();
+  const last=document.getElementById('rLast').value.trim();
+  const email=document.getElementById('rEmail').value.trim();
+  const pass=document.getElementById('rPass').value;
+  const company=document.getElementById('rCompany').value.trim();
+  if(!first||!email){showAuthErr('regErr','Please fill in all required fields.');return;}
+  if(pass.length<8){showAuthErr('regErr','Password must be at least 8 characters.');return;}
+  const btn=document.querySelector('#registerF .auth-submit');
+  btn.textContent='Creating account…';btn.disabled=true;
+  const {error}=await sb.auth.signUp({email,password:pass,options:{data:{full_name:`${first} ${last}`.trim(),company}}});
+  btn.textContent='Create account →';btn.disabled=false;
+  if(error){showAuthErr('regErr',error.message);return;}
+  document.getElementById('registerF').style.display='none';
+  document.getElementById('confirmMsg').style.display='';
+  document.getElementById('confirmEmail').textContent=email;
+}
+
+function demoLogin(r){
+  const m={admin:{name:'Jordan Rivera',email:'jordan@trycollectiq.com',role:'ADMIN',i:'JR',plan:'PREMIUM',tenantId:'demo'},agent:{name:'Tom Kim',email:'tom@trycollectiq.com',role:'USER',i:'TK',plan:'GROWTH',tenantId:'demo'}};
+  CU=m[r];
+  document.getElementById('authScreen').style.display='none';
+  document.getElementById('shell').style.display='flex';
+  ['tAv','sAv'].forEach(id=>document.getElementById(id).textContent=CU.i);
+  ['tName','sN'].forEach(id=>document.getElementById(id).textContent=CU.name);
+  ['tRole','sR'].forEach(id=>document.getElementById(id).textContent=CU.role.toLowerCase());
+  document.getElementById('dName').textContent=CU.name.split(' ')[0];
+  document.getElementById('tPlan').textContent=CU.plan;
+  document.getElementById('tPlan').className='plan-pill '+(CU.plan==='PREMIUM'?'pp-premium':'pp-growth');
+  addAudit('auth',CU.name,`Demo login as ${CU.role}`);
+  init();
+}
+
+async function doLogout(){
+  try { await sb.auth.signOut(); } catch(e) { console.log('signOut error:', e); }
+  localStorage.clear();
+  sessionStorage.clear();
+  window.location.href = '/app';
+}
+
+async function loadAccountsFromDB(){
+  if(!CU?.tenantId||CU.tenantId==='demo')return;
+  try {
+    const data = await sbFetch('accounts', 'GET', null, `tenant_id=eq.${CU.tenantId}&order=risk_score.desc`);
+    if(data&&data.length>0) ACCTS=data.map(a=>({id:a.id,name:a.name,email:a.email||'',balance:a.balance,risk:a.risk_score,status:a.status,days:a.days_overdue}));
+    console.log('Accounts loaded from DB:', data?.length);
+    populateSmsDropdown();
+  } catch(e) {
+    console.log('loadAccountsFromDB error:', e.message);
+  }
+}
+
+async function saveAccountToDB(acct){
+  if(!CU?.tenantId||CU.tenantId==='demo')return;
+  try {
+    await sbFetch('accounts','POST',{tenant_id:CU.tenantId,name:acct.name,email:acct.email,balance:acct.balance,risk_score:acct.risk,status:acct.status,days_overdue:acct.days});
+    await sbFetch('audit_log','POST',{tenant_id:CU.tenantId,actor:CU.name,action_type:'account',description:`Account added: ${acct.name}`});
+  } catch(e) { console.log('saveAccountToDB error:', e.message); }
+}
+
+async function saveOutreachToDB(accountName,channel,subject,body){
+  if(!CU?.tenantId||CU.tenantId==='demo')return;
+  try {
+    const acct=ACCTS.find(a=>a.name===accountName);
+    await sbFetch('outreach_log','POST',{tenant_id:CU.tenantId,account_id:acct?.id||null,channel,subject,body,status:'sent'});
+    await sbFetch('audit_log','POST',{tenant_id:CU.tenantId,actor:CU.name,action_type:channel.toLowerCase(),description:`${channel} sent to ${accountName}`});
+  } catch(e) { console.log('saveOutreachToDB error:', e.message); }
+}
+
+function showAuthErr(id,msg){const e=document.getElementById(id);e.textContent=msg;e.style.display='block';setTimeout(()=>e.style.display='none',4000);}
+function showRegister(){document.getElementById('loginF').style.display='none';document.getElementById('registerF').style.display='';}
+function showLogin(){document.getElementById('loginF').style.display='';document.getElementById('registerF').style.display='none';document.getElementById('confirmMsg').style.display='none';}
+function goBack(){document.getElementById('successWrap').style.display='none';document.getElementById('shell').style.display='flex';sv('dashboard',document.querySelectorAll('.nav-item')[0]);}
+
+// ── NAV ───────────────────────────────────────────────────────────────
+function sv(n,el){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
+  document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('on'));
+  const v=document.getElementById('vw-'+n);if(v)v.classList.add('on');
+  if(el)el.classList.add('on');
+  if(n==='audit')rAudit();if(n==='users')rUsers();if(n==='billing')rBilling();
+  if(n==='import')rImpTbl();if(n==='outreach'){fTmpl();uSms();rOutHist();}
+  if(n==='negotiator')rNChat();if(n==='accounts')rAcctTbl(ACCTS);if(n==='plans')rPlans();
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────
+function init(){
+  rDashTbl();rPipe();rDashPlans();rDashAudit();rDChat();
+  fTmpl();uSms();rOutHist();rImpTbl();rUsers();rNChat();rBilling();rAcctTbl(ACCTS);rPlans();
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────────────
+function rDashTbl(){
+  const t=document.getElementById('dTbl');if(!t)return;
+  t.innerHTML='<thead><tr><th>Company</th><th>Balance</th><th>Risk score</th><th>Status</th></tr></thead><tbody>'+
+    ACCTS.slice(0,4).map(a=>`<tr><td><div class="tn">${a.name}</div><div class="ts-">${a.days}d overdue</div></td><td style="font-family:var(--ff-mono);font-size:11px;">${fmt(a.balance)}</td><td><div class="sw"><span class="sn" style="color:${rc(a.risk)}">${a.risk}</span><div class="sb"><div class="sf" style="width:${a.risk}%;background:${rc(a.risk)}"></div></div></div></td><td>${stTag(a.status)}</td></tr>`).join('')+'</tbody>';
+}
+function rPipe(){document.getElementById('dPipe').innerHTML=PIPE.map(p=>`<div class="prow"><div class="pdot" style="background:${p.cl}"></div><div class="plb">${p.lb}</div><div class="pct">${p.ct}</div><div class="pbb"><div class="pbf" style="width:${p.pc}%;background:${p.cl}"></div></div><div class="pam" style="color:${p.cl}">${p.am}</div></div>`).join('');}
+function rDashPlans(){document.getElementById('dPlans').innerHTML=ACTIVE_PLANS.map(p=>{const pp=pct(p.paid,p.total);return`<div style="padding:8px 0;border-bottom:1px solid var(--border2);"><div style="display:flex;justify-content:space-between;margin-bottom:3px;"><div style="font-size:12px;font-weight:600;">${p.name}</div><div style="font-size:11px;color:var(--muted);font-family:var(--ff-mono);">${fmt(p.inst)}/mo</div></div><div class="prog-bar"><div class="prog-fill" style="width:${pp}%"></div></div><div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted2);font-family:var(--ff-mono);""><span>${fmt(p.paid)} paid of ${fmt(p.total)}</span><span>Next: ${p.next}</span></div></div>`;}).join('');}
+function rDashAudit(){const el=document.getElementById('dAudit');if(el)el.innerHTML=AUDIT.slice(0,4).map(aRow).join('');}
+
+// ── ACCOUNTS ──────────────────────────────────────────────────────────
+function fAccts(v){const d=v==='all'?ACCTS:v==='OVERDUE'?ACCTS.filter(a=>a.status==='OVERDUE'):v==='hot'?ACCTS.filter(a=>a.risk>=80):v==='warm'?ACCTS.filter(a=>a.risk>=55&&a.risk<80):ACCTS.filter(a=>a.risk<55);rAcctTbl(d);}
+function rAcctTbl(data){
+  const t=document.getElementById('aTbl');if(!t)return;
+  t.innerHTML='<thead><tr><th>Company</th><th>Balance</th><th>Risk score</th><th>Days</th><th>Risk</th><th>Actions</th></tr></thead><tbody>'+
+    data.map(a=>`<tr><td><div class="tn">${a.name}</div><div class="ts-">${a.email}</div></td><td style="font-family:var(--ff-mono);font-size:11px;">${fmt(a.balance)}</td><td><div class="sw"><span class="sn" style="color:${rc(a.risk)}">${a.risk}</span><div class="sb"><div class="sf" style="width:${a.risk}%;background:${rc(a.risk)}"></div></div></div></td><td style="font-family:var(--ff-mono);font-size:11px;">${a.days}d</td><td>${rtTag(a.risk)}</td><td><div class="actb"><button class="ab-" onclick="nAct('Best strategy to recover payment from ${a.name}, ${fmt(a.balance)} overdue ${a.days} days, risk score ${a.risk}')">AI</button><button class="ab-" onclick="sv('outreach',document.querySelectorAll('.nav-item')[4])">Email</button><button class="ab- hi">Plan</button></div></td></tr>`).join('')+'</tbody>';
+}
+
+// ── PAYMENT PLANS ─────────────────────────────────────────────────────
+function rPlans(){
+  document.getElementById('plGrid').innerHTML=ACTIVE_PLANS.map(p=>{const pp=pct(p.paid,p.total);return`<div class="card cp"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;"><div style="font-family:var(--ff-serif);font-size:16px;font-weight:400;letter-spacing:-.3px;">${p.name}</div><span class="tag t-ok">Active</span></div><div class="prog-bar" style="height:6px;margin-bottom:10px;"><div class="prog-fill" style="width:${pp}%"></div></div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px;">${['Paid|'+fmt(p.paid),'Remaining|'+fmt(p.total-p.paid),'Monthly|'+fmt(p.inst)].map(x=>{const[l,v]=x.split('|');return`<div style="background:var(--surface2);border-radius:var(--r);padding:8px 10px;"><div style="font-size:10px;color:var(--muted);font-family:var(--ff-mono);margin-bottom:2px;text-transform:uppercase;letter-spacing:.04em;">${l}</div><div style="font-family:var(--ff-serif);font-size:18px;font-weight:300;">${v}</div></div>`;}).join('')}</div><div style="font-size:11px;color:var(--muted);font-family:var(--ff-mono);">Next: <strong style="color:var(--ink);">${p.next}</strong></div></div>`;}).join('');
+}
+
+// ── CHAT ──────────────────────────────────────────────────────────────
+function rDChat(){const el=document.getElementById('dChat');if(!el)return;el.innerHTML=dChats.map(m=>`<div class="mr ${m.r}">${m.r==='ai'?'<div class="mav">AI</div>':''}<div class="mb">${m.t}</div></div>`).join('');el.scrollTop=el.scrollHeight;}
+function rNChat(){const el=document.getElementById('nChat');if(!el)return;el.innerHTML=nChats.map(m=>`<div class="mr ${m.r}">${m.r==='ai'?'<div class="mav">AI</div>':''}<div class="mb">${m.t}</div></div>`).join('');el.scrollTop=el.scrollHeight;}
+async function sendC(ctx){
+  const iid=ctx==='d'?'dChatIn':'nChatIn';
+  const inp=document.getElementById(iid);const txt=inp.value.trim();if(!txt)return;inp.value='';
+  const hist=ctx==='d'?dChats:nChats;
+  hist.push({r:'user',t:txt});
+  addAudit('ai','AI',`Chat query: "${txt.slice(0,55)}${txt.length>55?'…':''}"`);
+  ctx==='d'?rDChat():rNChat();
+  const elId=ctx==='d'?'dChat':'nChat';
+  const el=document.getElementById(elId);
+  const tp=document.createElement('div');tp.className='mr ai';tp.id='typ-'+ctx;
+  tp.innerHTML='<div class="mav">AI</div><div class="mb"><div class="typing-dots"><div class="td-"></div><div class="td-"></div><div class="td-"></div></div></div>';
+  el.appendChild(tp);el.scrollTop=el.scrollHeight;
+  try{
+    const res=await fetch('/.netlify/functions/ai-proxy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:600,system:'You are CollectIQ AI, a B2B collections strategy assistant. Help agents recover overdue invoices. Be concise (2-3 sentences), strategic and professional.',messages:hist.map(m=>({role:m.r==='ai'?'assistant':'user',content:m.t}))})});
+    const data=await res.json();
+    document.getElementById('typ-'+ctx)?.remove();
+    hist.push({r:'ai',t:data.content?.[0]?.text||'Let me analyze that for you.'});
+  }catch{
+    document.getElementById('typ-'+ctx)?.remove();
+    hist.push({r:'ai',t:'Based on current portfolio data: prioritize accounts with risk score 80+ and 60+ days overdue for immediate outreach to maximize recovery this month.'});
+  }
+  ctx==='d'?rDChat():rNChat();
+}
+function nAct(p){sv('negotiator',document.querySelectorAll('.nav-item')[3]);document.getElementById('nChatIn').value=p;setTimeout(()=>sendC('n'),50);}
+
+// ── OUTREACH ──────────────────────────────────────────────────────────
+let oTab='e';
+function setOT(t){oTab=t;document.getElementById('eCmp').style.display=t==='e'?'':'none';document.getElementById('sCmp').style.display=t==='s'?'':'none';document.getElementById('oTE').className='btn btn-sm'+(t==='e'?' btn-ink':'');document.getElementById('oTS').className='btn btn-sm'+(t==='s'?' btn-ink':'');if(t==='s')setTimeout(populateSmsDropdown,100);}
+function buildPayLink(co, am, dy) {
+  const invoiceId = 'INV-' + Date.now().toString(36).toUpperCase().slice(-6);
+  const accountId = localStorage.getItem('stripe_account_id') || '';
+  return `https://trycollectiq.com/pay?invoice=\${invoiceId}&amount=\${am}&debtor=\${encodeURIComponent(co)}&days=\${dy}\${accountId ? '&account=' + accountId : ''}`;
+}
+
+function fTmpl(){
+  const to=(document.getElementById('oTo')?.value||'').split('|');const[co,,am,dy]=to;
+  const t=document.getElementById('oTm')?.value||'reminder';
+  const sj={reminder:'Overdue invoice — action required',final:'Final notice — immediate payment required',plan:'Payment plan offer',legal:'Pre-legal notice'};
+  const bd={
+    reminder:`Dear ${co} Finance Team,\n\nI hope this message finds you well. I'm writing about your outstanding invoice of ${am?'$'+Number(am).toLocaleString():'the balance'}, now ${dy} days past due.\n\nWe'd like to resolve this promptly. Could we schedule a brief call this week?\n\nPay securely online: \${buildPayLink(co, am, dy)}\n\nPay securely online: \${buildPayLink(co, am, dy)}\n\nPay securely online: \${buildPayLink(co, am, dy)}\n\nPay securely online: \${buildPayLink(co, am, dy)}\n\nBest regards,\nJordan Rivera · CollectIQ`,
+    final:`Dear ${co} Finance Team,\n\nFinal notice: your balance of ${am?'$'+Number(am).toLocaleString():'the outstanding amount'} is ${dy} days overdue. Payment required within 5 business days to avoid legal escalation.\n\nCollectIQ Collections`,
+    plan:`Dear ${co} Finance Team,\n\nWe'd like to offer a structured payment plan for your balance of ${am?'$'+Number(am).toLocaleString():'the outstanding amount'}. Our AI has modeled a 6-month arrangement at no additional interest. Please reply to discuss.\n\nCollectIQ Collections`,
+    legal:`Dear ${co} Finance Team,\n\nDespite prior communications, your balance of ${am?'$'+Number(am).toLocaleString():'the outstanding amount'} remains unpaid after ${dy} days. If payment is not received within 72 hours, this will be referred to our legal team.\n\nCollectIQ Collections`
+  };
+  if(document.getElementById('oSj'))document.getElementById('oSj').value=sj[t]||'';
+  if(document.getElementById('oBd'))document.getElementById('oBd').value=bd[t]||'';
+}
+async function regenE(){
+  const to=(document.getElementById('oTo')?.value||'').split('|');const[co,,am,dy]=to;
+  const t=document.getElementById('oTm')?.value||'reminder';
+  document.getElementById('oBd').value='Generating with AI…';
+  try{
+    const r=await fetch('/.netlify/functions/ai-proxy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:400,system:'Write concise professional B2B collection emails. Return only the email body under 100 words. No subject line.',messages:[{role:'user',content:`Write a ${t} collection email for ${co}, owed $${Number(am).toLocaleString()}, ${dy} days overdue.`}]})});
+    const d=await r.json();document.getElementById('oBd').value=d.content?.[0]?.text||'';
+    addAudit('ai','AI',`Email regenerated for ${co} — ${t} template`);
+  }catch{fTmpl();}
+}
+// ── EMAILJS CONFIG ────────────────────────────────────────────────────
+const EJS_SERVICE = 'service_8us2fum';
+const EJS_TEMPLATE = 'template_b84jmmg';
+
+async function sendE(){
+  const to=(document.getElementById('oTo')?.value||'').split('|');
+  const[co,email]=to;
+  const sj=document.getElementById('oSj')?.value||'Outreach';
+  const body=document.getElementById('oBd')?.value||'';
+  if(!email||!email.includes('@')){alert('No valid email address for this account.');return;}
+  const btn=document.querySelector('#eCmp .btn-ink');
+  if(btn){btn.textContent='Sending…';btn.disabled=true;}
+  try{
+    await emailjs.send(EJS_SERVICE,EJS_TEMPLATE,{
+      to_email:email,to_name:co,subject:sj,message:body,
+      from_name:'CollectIQ',reply_to:'hello@trycollectiq.com'
+    });
+    if(btn){btn.textContent='Send via SendGrid →';btn.disabled=false;}
+    eCt++;document.getElementById('eCnt').textContent=eCt;document.getElementById('kMsg').textContent=eCt+sCt;
+    OUT.unshift({time:'Just now',to:co,ch:'Email',st:'Delivered'});
+    saveOutreachToDB(co,'Email',sj,body);
+    addAudit('email',CU?.name||'Agent',`Email sent to ${email} (${co}) via SendGrid`);
+    rOutHist();rDashAudit();populateSmsDropdown();
+    alert('✓ Email sent to '+email+' successfully.');
+  }catch(e){
+    if(btn){btn.textContent='Send via SendGrid →';btn.disabled=false;}
+    console.error('EmailJS error:',e);
+    alert('Email error: '+(e.text||e.message||'Check EmailJS configuration'));
+  }
+}
+
+async function sendS(){
+  const toVal=(document.getElementById('sTo')?.value||'').split('|');
+  const co=toVal[0]||'';
+  const phone=(document.getElementById('sPhone')?.value||'').trim();
+  const body=document.getElementById('sBd')?.value||'';
+  if(!co){alert('Please select an account.');return;}
+  if(!phone||phone.replace(/\D/g,'').length < 10){alert('Please enter a valid phone number.');return;}
+
+  const btn=document.querySelector('#sCmp .btn-ink');
+  if(btn){btn.textContent='Sending…';btn.disabled=true;}
+
+  try{
+    const res=await fetch('/.netlify/functions/send-sms',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({to:phone,body,from:'+18635632386'})
+    });
+    const data=await res.json();
+    if(btn){btn.textContent='Send via Twilio →';btn.disabled=false;}
+
+    if(data.success){
+      sCt++;document.getElementById('sCnt').textContent=sCt;document.getElementById('kMsg').textContent=eCt+sCt;
+      OUT.unshift({time:'Just now',to:co,ch:'SMS',st:'Delivered'});
+      saveOutreachToDB(co,'SMS','Payment reminder SMS',body);
+      addAudit('sms',CU?.name||'Agent',`SMS sent to ${phone} (${co}) via Twilio`);
+      rOutHist();rDashAudit();
+      alert(`✓ SMS sent to ${phone} successfully via Twilio.`);
+    } else {
+      alert('SMS error: '+(data.error||'Check Twilio credentials and A2P registration'));
+    }
+  }catch(e){
+    if(btn){btn.textContent='Send via Twilio →';btn.disabled=false;}
+    alert('SMS error: '+e.message);
+  }
+}
+
+function populateSmsDropdown(){
+  const sel = document.getElementById('sTo');
+  if(!sel) return;
+  sel.innerHTML = '<option value="">— Select account —</option>' +
+    ACCTS.map(a => `<option value="${a.name}|${a.email||''}">${a.name}</option>`).join('');
+}
+
+function updateSmsPhone(sel){
+  const phoneEl = document.getElementById('sPhone');
+  if(!phoneEl) return;
+  // Phone not stored yet — just clear the field for manual entry
+  phoneEl.value = '';
+  phoneEl.placeholder = 'Enter phone number for ' + (sel.value.split('|')[0] || 'this account');
+}
+
+function uSms(){const b=document.getElementById('sBd')?.value||'';if(document.getElementById('sCc'))document.getElementById('sCc').textContent=b.length;if(document.getElementById('sSg'))document.getElementById('sSg').textContent=Math.ceil(b.length/160)||1;if(document.getElementById('sPrev'))document.getElementById('sPrev').textContent=b;}
+function rOutHist(){const el=document.getElementById('oHist');if(!el)return;el.innerHTML=OUT.slice(0,5).map(h=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border2);font-size:12px;"><div style="flex:1;"><div style="font-weight:600;">${h.to}</div><div style="font-size:11px;color:var(--muted);">${h.ch} · ${h.time}</div></div><span class="tag t-ok">${h.st}</span></div>`).join('');}
+
+// ── IMPORT ────────────────────────────────────────────────────────────
+// ── CSV IMPORT ────────────────────────────────────────────────────────
+let parsedCSVRows = []; // store parsed rows globally for import
+
+function hFile(inp) {
+  if (!inp.files[0]) return;
+  const file = inp.files[0];
+  const reader = new FileReader();
+  reader.onload = (e) => parseCSV(e.target.result, file.name);
+  reader.readAsText(file);
+}
+
+function parseCSV(text, fileName) {
+  const lines = text.trim().split('\n').filter(l => l.trim());
+  if (lines.length < 2) { alert('CSV must have at least a header row and one data row.'); return; }
+
+  // Parse headers
+  const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, '').toLowerCase());
+
+  // Parse data rows
+  parsedCSVRows = [];
+  for (let i = 1; i < lines.length; i++) {
+    const vals = lines[i].split(',').map(v => v.trim().replace(/"/g, ''));
+    const row = {};
+    headers.forEach((h, idx) => row[h] = vals[idx] || '');
+    parsedCSVRows.push(row);
+  }
+
+  // Auto-detect column mappings
+  const findCol = (...candidates) => {
+    for (const c of candidates) {
+      const match = headers.find(h => h.includes(c));
+      if (match) return match;
+    }
+    return headers[0]; // fallback to first column
+  };
+
+  const nameCol    = findCol('company', 'name', 'business', 'client', 'debtor');
+  const emailCol   = findCol('email', 'mail', 'contact');
+  const balanceCol = findCol('balance', 'amount', 'owed', 'invoice', 'total', 'due');
+  const daysCol    = findCol('days', 'overdue', 'age', 'aging');
+  const phoneCol   = findCol('phone', 'mobile', 'tel');
+
+  // Show preview
+  document.getElementById('iPrev').style.display = 'block';
+  document.getElementById('iMsg').textContent = `"${fileName}" loaded — ${parsedCSVRows.length} records detected. Review column mapping below.`;
+
+  const fields = [
+    ['Company Name', 'name', nameCol],
+    ['Balance / Amount', 'balance', balanceCol],
+    ['Days Overdue', 'days', daysCol],
+    ['Contact Email', 'email', emailCol],
+  ];
+
+  document.getElementById('mRows').innerHTML = fields.map(([label, field, detected]) => `
+    <div style="display:grid;grid-template-columns:1fr 20px 1.5fr;gap:7px;align-items:center;margin-bottom:8px;">
+      <div style="background:var(--surface2);padding:5px 9px;border-radius:var(--r);font-size:11px;color:var(--muted);font-family:var(--ff-mono);">${label}</div>
+      <div style="text-align:center;color:var(--muted2);">→</div>
+      <select id="map_${field}" style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:5px 8px;font-size:11px;color:var(--ink);font-family:var(--ff-body);">
+        ${headers.map(h => `<option value="${h}" ${h === detected ? 'selected' : ''}>${h}</option>`).join('')}
+        <option value="skip">— Skip this field —</option>
+      </select>
+    </div>`).join('');
+
+  // Show first 3 rows preview
+  if (parsedCSVRows.length > 0) {
+    const preview = parsedCSVRows.slice(0, 3).map(r =>
+      `<div style="font-size:11px;color:var(--muted);padding:4px 0;border-bottom:1px solid var(--border2);">${Object.values(r).slice(0,4).join(' · ')}</div>`
+    ).join('');
+    document.getElementById('mRows').innerHTML += `
+      <div style="margin-top:10px;font-size:10px;color:var(--muted2);font-family:var(--ff-mono);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;">Preview (first 3 rows)</div>
+      ${preview}`;
+  }
+}
+
+function cxImport() {
+  document.getElementById('iPrev').style.display = 'none';
+  document.getElementById('fi').value = '';
+  parsedCSVRows = [];
+}
+
+async function cfImport() {
+  if (!parsedCSVRows.length) { alert('No CSV data loaded.'); return; }
+
+  const nameCol    = document.getElementById('map_name')?.value;
+  const balanceCol = document.getElementById('map_balance')?.value;
+  const daysCol    = document.getElementById('map_days')?.value;
+  const emailCol   = document.getElementById('map_email')?.value;
+
+  const btn = document.querySelector('#iPrev .btn-ink');
+  if (btn) { btn.textContent = 'Importing…'; btn.disabled = true; }
+
+  const newAccts = [];
+  const dbInserts = [];
+
+  for (const row of parsedCSVRows) {
+    const name    = nameCol !== 'skip' ? (row[nameCol] || '').trim() : '';
+    const balance = balanceCol !== 'skip' ? parseFloat((row[balanceCol] || '0').replace(/[$,]/g, '')) || 0 : 0;
+    const days    = daysCol !== 'skip' ? parseInt(row[daysCol]) || 0 : 0;
+    const email   = emailCol !== 'skip' ? (row[emailCol] || '').trim() : '';
+
+    if (!name) continue; // skip rows with no company name
+
+    // AI-style risk score based on balance and days
+    const risk = Math.min(99, Math.max(10, Math.round(
+      (balance / 5000) * 20 + (days / 90) * 50 + Math.random() * 15
+    )));
+
+    const acct = {
+      id: ACCTS.length + newAccts.length + 1,
+      name, email,
+      balance, risk,
+      status: days > 30 ? 'OVERDUE' : 'PENDING',
+      days
+    };
+    newAccts.push(acct);
+
+    // Prepare for DB insert
+    if (CU?.tenantId && CU.tenantId !== 'demo') {
+      dbInserts.push({
+        tenant_id: CU.tenantId,
+        name, email,
+        balance,
+        risk_score: risk,
+        status: acct.status,
+        days_overdue: days
+      });
+    }
+  }
+
+  // Save to Supabase in batches of 50
+  let saved = 0;
+  if (dbInserts.length > 0) {
+    for (let i = 0; i < dbInserts.length; i += 50) {
+      const batch = dbInserts.slice(i, i + 50);
+      try {
+        const result = await sbFetch('accounts', 'POST', batch);
+        console.log('Insert result:', result?.length, 'records saved');
+        saved += batch.length;
+      } catch(e) {
+        console.error('Import batch error:', e.message);
+      }
+    }
+    // Log to audit
+    try {
+      await sbFetch('audit_log', 'POST', {
+        tenant_id: CU.tenantId,
+        actor: CU.name,
+        action_type: 'import',
+        description: `CSV imported — ${saved} accounts added and AI-scored`
+      });
+    } catch(e) { console.log('Audit log error:', e); }
+  }
+
+  // Update local state
+  ACCTS.unshift(...newAccts);
+  addAudit('import', CU?.name || 'Agent', `CSV imported — ${newAccts.length} records added and AI-scored`);
+  cxImport();
+  rImpTbl();
+  rDashTbl();
+  rAcctTbl(ACCTS);
+  document.getElementById('acBadge').textContent = ACCTS.length;
+
+  if (btn) { btn.textContent = 'Import records →'; btn.disabled = false; }
+
+  const msg = dbInserts.length > 0
+    ? `✓ ${newAccts.length} accounts imported and saved to your database. ${saved} saved successfully.`
+    : `✓ ${newAccts.length} accounts imported. Sign in to save permanently.`;
+  alert(msg);
+}
+
+function erpC(n){const el=document.getElementById('erpMsg');if(el)el.textContent=`Connecting to ${n}… In production this triggers OAuth. 47+ invoices sync automatically.`;addAudit('import',CU?.name||'Admin',`${n} ERP integration initiated`);}
+function rImpTbl(){
+  const t=document.getElementById('iTbl');if(!t)return;
+  t.innerHTML='<thead><tr><th>Company</th><th>Balance</th><th>Days</th><th>Risk score</th><th>Status</th></tr></thead><tbody>'+
+    ACCTS.map(a=>`<tr><td style="font-weight:600;">${a.name}</td><td style="font-family:var(--ff-mono);font-size:11px;">${fmt(a.balance)}</td><td style="font-family:var(--ff-mono);font-size:11px;">${a.days}d</td><td style="font-family:var(--ff-mono);font-size:11px;font-weight:600;color:${rc(a.risk)}">${a.risk}</td><td>${stTag(a.status)}</td></tr>`).join('')+'</tbody>';
+  document.getElementById('iCt').textContent=ACCTS.length+' records';
+}
+
+// ── AUDIT ─────────────────────────────────────────────────────────────
+const aDots={ai:'var(--sapphire)',email:'var(--emerald)',sms:'var(--amber)',import:'var(--muted)',auth:'var(--muted2)'};
+function aRow(l){return`<div class="arow"><div class="at">${l.time}</div><div class="adot" style="background:${aDots[l.type]||'var(--muted)'}"></div><div class="ab"><span class="aact">${l.actor}</span>${l.type==='ai'?'<span class="ai-chip">AI</span>':''} <span class="atxt">${l.txt}</span></div></div>`;}
+function rAudit(){const f=document.getElementById('aFilt')?.value||'all';const logs=f==='all'?AUDIT:AUDIT.filter(l=>l.type===f);const el=document.getElementById('auditEl');if(el)el.innerHTML=logs.map(aRow).join('');}
+function exAudit(){addAudit('auth',CU?.name||'Admin','Audit log exported to CSV');rAudit();rDashAudit();alert('Exported as collectiq-audit-'+new Date().toISOString().slice(0,10)+'.csv');}
+
+// ── BILLING ───────────────────────────────────────────────────────────
+function setBill(m){
+  billMode=m;
+  document.getElementById('bM').className='btn btn-sm'+(m==='monthly'?' btn-ink':'');
+  document.getElementById('bA').className='btn btn-sm'+(m==='annual'?' btn-ink':'');
+  rBilling();
+}
+function rBilling(){
+  const el=document.getElementById('pGrid');if(!el)return;
+
+  // Update current plan display
+  const planName=CU?.plan||'STARTER';
+  const planEl=document.getElementById('currentPlanName');
+  const planDesc=document.getElementById('currentPlanDesc');
+  if(planEl) planEl.textContent=planName;
+  if(planDesc){
+    if(planName==='STARTER') planDesc.textContent='$299/mo · Upgrade to Growth to unlock unlimited accounts and AI negotiator';
+    else if(planName==='GROWTH') planDesc.textContent='$799/mo · All features unlocked · Priority support included';
+    else if(planName==='PREMIUM'||planName==='ENTERPRISE') planDesc.textContent='Enterprise plan · All features · Dedicated success manager';
+    else planDesc.textContent='Upgrade to unlock more features';
+  }
+
+  el.innerHTML=Object.entries(PLANS_CFG).map(([k,p])=>{
+    const isEnterprise=k==='ENTERPRISE';
+    const price=isEnterprise?'Custom':billMode==='annual'?`$${p.annual.toLocaleString()}`:`$${p.monthly}`;
+    const period=isEnterprise?'tailored to your team':billMode==='annual'?'per year':'per month';
+    const savings=(!isEnterprise&&billMode==='annual')?`<div class="pc-savings">2 months free — save $${(p.monthly*2).toLocaleString()}/year</div>`:'';
+    const pid=isEnterprise?null:billMode==='annual'?p.annualId:p.monthlyId;
+    const btnLabel=isEnterprise?'Talk to sales →':`Start ${p.name}`;
+    return`<div class="pc${p.pop?' pop':''}">
+      ${p.pop?'<div class="pop-tag">MOST POPULAR</div>':''}
+      <div class="pc-name">${p.name}</div>
+      <div class="pc-price">${price}</div>
+      <div class="pc-period">${period}</div>
+      ${savings}
+      <div class="pc-div"></div>
+      <ul class="pc-feats">${p.feats.map(f=>`<li>${f}</li>`).join('')}</ul>
+      <button class="pc-btn" onclick="startCO('${pid||''}','${CU?.email||''}')">${btnLabel}</button>
+    </div>`;
+  }).join('');
+}
+function startCO(pid,email){
+  if(!pid){
+    window.location.href='mailto:hello@trycollectiq.com?subject=Enterprise Plan Enquiry&body=Hi, I\'m interested in the CollectIQ Enterprise plan.';
+    return;
+  }
+  const url = email ? `${pid}?prefilled_email=${encodeURIComponent(email)}` : pid;
+  window.open(url, '_blank');
+  addAudit('auth',CU?.name||'User',`Checkout started · ${pid.includes('growth')?'Growth':'Starter'} plan`);
+}
+
+// ── USERS ─────────────────────────────────────────────────────────────
+function rUsers(){
+  const el=document.getElementById('uList');if(!el)return;
+  el.innerHTML=TEAM.map(u=>`<div class="ur"><div class="uav" style="background:${u.c};color:#fff;">${u.i}</div><div style="flex:1;"><div style="font-size:12px;font-weight:600;">${u.name}</div><div style="font-size:11px;color:var(--muted);">${u.email}</div></div><span class="tag ${u.role==='ADMIN'?'t-hot':'t-blue'}">${u.role}</span></div>`).join('');
+}
+function inviteU(){const e=prompt('Email to invite:');if(!e)return;const r=prompt('Role? ADMIN or USER','USER');TEAM.push({i:e.slice(0,2).toUpperCase(),name:e,email:e,role:r||'USER',c:'#78716c'});addAudit('auth',CU?.name||'Admin',`Invited ${e} as ${r||'USER'}`);rUsers();}
+
+// ── MODAL ─────────────────────────────────────────────────────────────
+function cModal(id){document.getElementById(id).classList.remove('open');}
+document.getElementById('addModal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
+function addAcct(){
+  const name=document.getElementById('mN').value.trim(),bal=parseFloat(document.getElementById('mB').value)||0;
+  if(!name||!bal){alert('Company name and balance are required.');return;}
+  const risk=Math.min(99,Math.max(10,Math.round(50+bal/2000+Math.random()*15)));
+  const email=document.getElementById('mE').value.trim()||'billing@'+name.toLowerCase().replace(/\s+/g,'')+'.com';
+  const status=document.getElementById('mS').value;
+  const days=Math.round(Math.random()*60)+10;
+  const newAcct={id:ACCTS.length+1,name,email,balance:bal,risk,status,days};
+  ACCTS.unshift(newAcct);
+  saveAccountToDB(newAcct);
+  addAudit('ai','AI',`Account added and AI-scored: ${name} — risk score ${risk}`);
+  cModal('addModal');rDashTbl();rAcctTbl(ACCTS);rImpTbl();
+  document.getElementById('acBadge').textContent=ACCTS.length;
+  ['mN','mB','mE'].forEach(id=>document.getElementById(id).value='');
+}
+
+// ── SMS LIVE ──────────────────────────────────────────────────────────
+document.getElementById('sBd').addEventListener('input',uSms);
+
+// ── QUICKBOOKS INTEGRATION ─────────────────────────────────────────────
+function connectQBO() {
+  if (!CU?.tenantId || CU.tenantId === 'demo') {
+    alert('Please sign in to connect QuickBooks.');
+    return;
+  }
+  if (CU.tenantId === CU.email || CU.tenantId.length < 10) {
+    alert('Account not fully loaded. Please sign out and sign back in, then try again.');
+    return;
+  }
+  // Store tenant ID before redirect so success page can use it
+  localStorage.setItem('collectiq_tenant_id', CU.tenantId);
+  // Open QBO OAuth in same window
+  const authUrl = `/.netlify/functions/qbo-auth?tenantId=${CU.tenantId}`;
+  window.location.href = authUrl;
+}
+
+async function syncQBO() {
+  if (!CU?.tenantId || CU.tenantId === 'demo') return;
+  const btn = document.getElementById('qboSyncBtn');
+  if (btn) { btn.textContent = 'Syncing…'; btn.disabled = true; }
+  
+  console.log('Syncing QBO for tenantId:', CU.tenantId);
+  try {
+    const res = await fetch('/.netlify/functions/qbo-sync', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tenantId: CU.tenantId })
+    });
+    const data = await res.json();
+    
+    if (data.success) {
+      alert(`✓ QuickBooks sync complete! ${data.imported} invoices imported.`);
+      // Reload accounts
+      await loadAccountsFromDB();
+      rDashTbl(); rAcctTbl(ACCTS); rImpTbl();
+      addAudit('import', CU.name, `QuickBooks sync — ${data.imported} invoices imported`);
+    } else {
+      alert('QuickBooks sync failed: ' + (data.error || 'Unknown error'));
+    }
+  } catch(e) {
+    alert('Sync error: ' + e.message);
+  }
+  
+  if (btn) { btn.textContent = 'Sync now'; btn.disabled = false; }
+}
+
+// Check if QBO was just connected
+(function checkQBOConnection() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('qbo_error')) {
+    alert('QuickBooks connection failed: ' + params.get('qbo_error'));
+    window.history.replaceState({}, '', '/app');
+  }
+})();
+</script>
+</body>
+</html>
