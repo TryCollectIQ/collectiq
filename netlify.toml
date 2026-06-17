@@ -2,7 +2,7 @@
   directory = "netlify/functions"
 
 [build]
-  environment = { SECRETS_SCAN_OMIT_PATHS = "app/index.html,App/index.html" }
+  environment = { SECRETS_SCAN_OMIT_PATHS = "app/index.html,App/index.html,App/index (1).html" }
 
 [[redirects]]
   from = "/app"
