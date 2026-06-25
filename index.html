@@ -894,7 +894,7 @@ footer { background: var(--ink); color: var(--white); padding: 64px 48px 40px; }
   <div class="waitlist-perks">
     <div class="waitlist-perk"><span class="perk-dot"></span>40% off Growth — forever</div>
     <div class="waitlist-perk"><span class="perk-dot"></span>Free onboarding call</div>
-    <div class="waitlist-perk"><span class="perk-dot"></span>14-day free trial</div>
+    <div class="waitlist-perk"><span class="perk-dot"></span>7-day free trial</div>
     <div class="waitlist-perk"><span class="perk-dot"></span>First 50 teams only</div>
   </div>
   <div class="waitlist-count" id="wlCount"><strong>34</strong> teams on the waitlist · <strong>16</strong> spots remaining</div>
@@ -974,12 +974,12 @@ function fmtMoney(n) {
 }
 
 function calcROI() {
-  const ar = parseInt(document.getElementById('arSlider').value);
-  const days = parseInt(document.getElementById('daysSlider').value);
-  const currentRate = parseInt(document.getElementById('rateSlider').value) / 100;
-  const accounts = parseInt(document.getElementById('acctSlider').value);
-  const industry = document.getElementById('industrySelect').value;
-  const ind = INDUSTRY_DATA[industry];
+  const ar = parseInt(document.getElementById('arSlider').value) || 2000000;
+  const days = parseInt(document.getElementById('daysSlider').value) || 45;
+  const currentRate = parseInt(document.getElementById('rateSlider').value) / 100 || 0.41;
+  const accounts = parseInt(document.getElementById('acctSlider').value) || 150;
+  const industry = document.getElementById('industrySelect').value || 'staffing';
+  const ind = INDUSTRY_DATA[industry] || INDUSTRY_DATA['staffing'];
 
   // Update slider labels
   document.getElementById('arLabel').textContent = fmtMoney(ar);
@@ -988,46 +988,39 @@ function calcROI() {
   document.getElementById('acctLabel').textContent = accounts.toLocaleString() + ' accounts';
 
   // Core calculation
-  // Overdue portion estimate: more days overdue = larger stuck balance
   const overdueFactor = Math.min(0.35, 0.08 + (days / 180) * 0.27);
   const overdueBalance = ar * overdueFactor;
-
   const withoutAI = overdueBalance * currentRate;
-  const aiRate = Math.min(ind.aiRate, currentRate + 0.30); // AI improves by up to 30pts
+  const aiRate = Math.min(ind.aiRate, currentRate + 0.30);
   const withAI = overdueBalance * aiRate * ind.boost;
   const additional = Math.max(0, withAI - withoutAI);
 
-  // Plan cost - auto-select based on accounts
-  let planCost = 7990; // Growth annual default
+  // Plan cost
+  let planCost = 7990;
   let planLabel = '$7,990/yr';
-  if (accounts > 500 || ar > 10000000) { planCost = 7990; planLabel = '$7,990/yr'; }
-  else if (accounts <= 50 && ar < 500000) { planCost = 2990; planLabel = '$2,990/yr'; }
+  if (accounts <= 50 && ar < 500000) { planCost = 2990; planLabel = '$2,990/yr'; }
 
   const netROI = additional > 0 ? Math.round(additional / planCost) : 0;
 
-  // Payback period in days
+  // Payback period
   const dailyRecovery = additional / 365;
   const paybackDays = dailyRecovery > 0 ? Math.round(planCost / dailyRecovery) : 999;
   const paybackStr = paybackDays < 1 ? '< 1 day' : paybackDays < 7 ? '< ' + paybackDays + ' days' : paybackDays < 30 ? Math.round(paybackDays / 7) + ' weeks' : Math.round(paybackDays / 30) + ' months';
 
-  // Hours saved: ~20 min per account per month manually
-  const hoursSaved = Math.round(accounts * 0.33 / 60 * 60 / 60 * 4); // rough weekly hours
   const hoursDisplay = Math.max(3, Math.min(40, Math.round(accounts * 0.05 + days * 0.05)));
 
-  // Update UI
-  document.getElementById('roiVal').textContent = fmtMoney(additional).replace('$', '');
-  document.getElementById('roiBigNum').innerHTML = fmtMoney(additional).replace(/\d/, '<span style="font-size:48px;font-weight:300;">$</span>$&').replace('$', '');
-
-  // Cleaner approach:
+  // Update big number
   const bigEl = document.getElementById('roiBigNum');
   bigEl.innerHTML = '';
   const sup = document.createElement('sup');
-  sup.style.cssText = 'font-size:32px;vertical-align:top;margin-top:14px;display:inline-block;font-family:var(--font-sans);font-weight:300;opacity:.7;';
+  sup.style.cssText = 'font-size:32px;vertical-align:top;margin-top:14px;display:inline-block;font-weight:300;opacity:.7;';
   sup.textContent = '$';
   const num = document.createTextNode(fmtMoney(additional).replace('$',''));
   bigEl.appendChild(sup);
   bigEl.appendChild(num);
+  bigEl.style.color = additional > 500000 ? '#c84b1f' : additional > 100000 ? '#4ade80' : '#ffffff';
 
+  // Update all result fields
   document.getElementById('roiWithout').textContent = fmtMoney(withoutAI);
   document.getElementById('roiWith').textContent = fmtMoney(withAI);
   document.getElementById('roiCost').textContent = planLabel;
@@ -1038,15 +1031,8 @@ function calcROI() {
   document.getElementById('roiIndustryNote').textContent = 'Based on ' + ind.label + ' · CollectIQ beta data';
 
   // Animate bars
-  const withoutPct = Math.round(currentRate * 100);
-  const withPct = Math.round(aiRate * 100);
-  document.getElementById('barWithout').style.width = withoutPct + '%';
-  document.getElementById('barWith').style.width = withPct + '%';
-
-  // Color the big number based on magnitude
-  if (additional > 500000) bigEl.style.color = '#c84b1f';
-  else if (additional > 100000) bigEl.style.color = '#4ade80';
-  else bigEl.style.color = '#ffffff';
+  document.getElementById('barWithout').style.width = Math.round(currentRate * 100) + '%';
+  document.getElementById('barWith').style.width = Math.round(aiRate * 100) + '%';
 }
 
 // Init on load
