@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Outreach Sequence Review — The Frevola Law Firm × CollectIQ</title>
+<meta name="robots" content="noindex"/>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --navy:#0F1923; --gold:#8C6F3F; --green:#1E8E5A; --green-bg:#EAF6F0;
+  --amber:#B07A1E; --amber-bg:#FBF3E2; --red:#B4451F; --red-bg:#FBEAE3;
+  --page:#F4F5F7; --card:#FFFFFF; --line:#E3E7EC; --text:#25313E; --sub:#66717E;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--page);color:var(--text);font-family:'Inter',Arial,sans-serif;min-height:100vh;}
+.serif{font-family:'Source Serif 4',Georgia,serif;}
+
+.demo-banner{background:#1A2532;color:#C8A96E;text-align:center;padding:8px 16px;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;}
+.header{background:var(--navy);padding:34px 24px 28px;text-align:center;}
+.firm{color:#fff;font-size:24px;font-weight:700;font-family:'Source Serif 4',serif;}
+.firm-sub{color:#9FB0BF;font-size:12.5px;margin-top:6px;letter-spacing:.16em;text-transform:uppercase;}
+.gold-bar{background:var(--gold);padding:11px 24px;text-align:center;color:#fff;font-size:14px;font-weight:700;}
+
+.wrap{max-width:760px;margin:26px auto 0;padding:0 16px 70px;}
+
+.intro{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:24px 26px;margin-bottom:22px;box-shadow:0 2px 10px rgba(15,25,35,.06);}
+.intro h1{font-family:'Source Serif 4',serif;font-size:24px;margin-bottom:8px;}
+.intro p{font-size:14.5px;color:var(--sub);line-height:1.65;}
+
+.gate{background:var(--amber-bg);border:1px solid var(--amber);border-radius:12px;padding:16px 20px;margin-bottom:26px;font-size:13.5px;color:var(--amber);line-height:1.6;display:flex;gap:10px;}
+.gate b{font-weight:800;}
+
+/* STAGE CARDS */
+.stage{background:var(--card);border:1px solid var(--line);border-radius:14px;margin-bottom:22px;overflow:hidden;box-shadow:0 2px 10px rgba(15,25,35,.05);}
+.stage-head{display:flex;align-items:center;gap:14px;padding:18px 22px;border-bottom:1px solid var(--line);flex-wrap:wrap;}
+.stage-num{width:38px;height:38px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;flex-shrink:0;}
+.stage-num.flag{background:var(--red);}
+.stage-title{font-weight:800;font-size:16px;}
+.stage-meta{font-size:12px;color:var(--sub);margin-top:2px;}
+.chan{margin-left:auto;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:5px 12px;border-radius:100px;}
+.chan.email{background:var(--green-bg);color:var(--green);}
+.chan.both{background:var(--amber-bg);color:var(--amber);}
+.chan.flag{background:var(--red-bg);color:var(--red);}
+
+.email-preview{padding:22px;}
+.subj{font-size:13px;color:var(--sub);margin-bottom:4px;}
+.subj b{color:var(--text);}
+.divider{border-top:1px dashed var(--line);margin:14px 0;}
+.body-copy{font-family:'Source Serif 4',Georgia,serif;font-size:15px;line-height:1.75;white-space:pre-line;color:var(--text);}
+.var{background:#F0EBDF;color:var(--gold);border-radius:5px;padding:1px 7px;font-family:'Inter';font-size:12.5px;font-weight:700;white-space:nowrap;}
+.sms-box{margin:0 22px 22px;background:var(--page);border:1px solid var(--line);border-radius:12px;padding:16px 18px;}
+.sms-label{font-size:11px;font-weight:800;color:var(--sub);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;}
+.sms-bubble{background:var(--navy);color:#fff;border-radius:16px 16px 16px 4px;padding:12px 16px;font-size:14px;line-height:1.5;max-width:420px;}
+
+.flag-body{padding:22px;font-size:14.5px;line-height:1.7;color:var(--text);}
+.flag-body ul{margin:10px 0 0 20px;}
+.flag-body li{margin-bottom:6px;}
+
+/* RULES PANEL */
+.rules{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:24px 26px;margin-bottom:22px;}
+.rules h2{font-family:'Source Serif 4',serif;font-size:19px;margin-bottom:14px;}
+.rule{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px;line-height:1.55;}
+.rule:last-child{border-bottom:none;}
+.rule .ic{flex-shrink:0;}
+
+/* APPROVAL */
+.approve{background:var(--green-bg);border:1px solid var(--green);border-radius:14px;padding:26px;text-align:center;}
+.approve h2{font-family:'Source Serif 4',serif;font-size:20px;margin-bottom:8px;}
+.approve p{font-size:14px;color:var(--sub);margin-bottom:18px;line-height:1.6;}
+.approve a{display:inline-block;background:var(--green);color:#fff;text-decoration:none;font-weight:800;font-size:15px;padding:15px 34px;border-radius:10px;}
+.footer{text-align:center;font-size:12px;color:var(--sub);margin-top:24px;line-height:1.6;}
+</style>
+</head>
+<body>
+
+<div class="demo-banner">Attorney Review Copy · CollectIQ Legal Collections Module</div>
+
+<header class="header">
+  <div class="firm">The Frevola Law Firm PLLC</div>
+  <div class="firm-sub">Automated Outreach Sequence — Review &amp; Approval</div>
+</header>
+<div class="gold-bar">B2B Collections Only · Institutional Responsible Parties (Insurers · Defendants · Providers)</div>
+
+<div class="wrap">
+
+  <div class="intro">
+    <h1>The 4-Stage Sequence</h1>
+    <p>Every message below is sent automatically on your firm's behalf when a case balance goes past due — with the case number in every subject line and body. Highlighted <span class="var">tokens</span> are filled per case automatically. Nothing activates until you approve this sequence in writing.</p>
+  </div>
+
+  <div class="gate">⚖️ <span><b>Compliance gates active:</b> No legal threats appear in any automated message — demand language is attorney-drafted only. No medical details beyond case number and matter type are ever included (PHI minimization). A dispute filed at any stage pauses all outreach instantly and routes to your queue with the full record.</span></div>
+
+  <!-- ============ STAGE 1 ============ -->
+  <div class="stage">
+    <div class="stage-head">
+      <div class="stage-num">1</div>
+      <div>
+        <div class="stage-title">Courtesy Notice</div>
+        <div class="stage-meta">Sends automatically · Day 1 past due</div>
+      </div>
+      <span class="chan email">Email</span>
+    </div>
+    <div class="email-preview">
+      <div class="subj">Subject: <b>Outstanding balance — Case #<span class="var">case_number</span> — The Frevola Law Firm</b></div>
+      <div class="divider"></div>
+      <div class="body-copy">Dear <span class="var">responsible_party</span>,
+
+This is a courtesy notice from The Frevola Law Firm PLLC regarding an outstanding balance of <span class="var">amount_owed</span> on Case #<span class="var">case_number</span> (<span class="var">matter_type</span>).
+
+You may review the balance, remit payment, or submit a question through our secure case portal:
+
+<span class="var">portal_link</span>
+
+The portal offers payment in full, an early-resolution option, and structured payment plans. If your records reflect a payment we have not yet applied, the portal includes a direct channel to the attorney of record.
+
+Regards,
+<span class="var">attorney_assigned</span>
+The Frevola Law Firm PLLC · 954-820-7830</div>
+    </div>
+  </div>
+
+  <!-- ============ STAGE 2 ============ -->
+  <div class="stage">
+    <div class="stage-head">
+      <div class="stage-num">2</div>
+      <div>
+        <div class="stage-title">Second Notice</div>
+        <div class="stage-meta">Sends automatically · Day 10 past due</div>
+      </div>
+      <span class="chan email">Email</span>
+    </div>
+    <div class="email-preview">
+      <div class="subj">Subject: <b>Second notice — Case #<span class="var">case_number</span> — balance of <span class="var">amount_owed</span></b></div>
+      <div class="divider"></div>
+      <div class="body-copy">Dear <span class="var">responsible_party</span>,
+
+Our records indicate the balance of <span class="var">amount_owed</span> on Case #<span class="var">case_number</span> (<span class="var">matter_type</span>) remains open, now <span class="var">days_outstanding</span> days outstanding.
+
+To resolve this matter efficiently, the secure portal below remains available for payment in full, early-resolution settlement, or a structured plan:
+
+<span class="var">portal_link</span>
+
+If there is a discrepancy in our records, please flag it through the portal so it can be reviewed promptly by <span class="var">attorney_assigned</span>.
+
+Regards,
+The Frevola Law Firm PLLC · 954-820-7830</div>
+    </div>
+  </div>
+
+  <!-- ============ STAGE 3 ============ -->
+  <div class="stage">
+    <div class="stage-head">
+      <div class="stage-num">3</div>
+      <div>
+        <div class="stage-title">Time-Sensitive Escalation</div>
+        <div class="stage-meta">Sends automatically · Day 25 past due</div>
+      </div>
+      <span class="chan both">Email + SMS</span>
+    </div>
+    <div class="email-preview">
+      <div class="subj">Subject: <b>Time-sensitive — Case #<span class="var">case_number</span> requires resolution</b></div>
+      <div class="divider"></div>
+      <div class="body-copy">Dear <span class="var">responsible_party</span>,
+
+The balance of <span class="var">amount_owed</span> on Case #<span class="var">case_number</span> is now <span class="var">days_outstanding</span> days outstanding despite prior notices.
+
+The Frevola Law Firm PLLC requests resolution of this matter within ten (10) business days. All resolution options — including settlement and structured payment plans — remain available through the secure portal:
+
+<span class="var">portal_link</span>
+
+Absent resolution or communication, this file will be escalated for attorney review regarding available next steps.
+
+<span class="var">attorney_assigned</span>
+The Frevola Law Firm PLLC · 954-820-7830</div>
+    </div>
+    <div class="sms-box">
+      <div class="sms-label">Companion SMS</div>
+      <div class="sms-bubble">The Frevola Law Firm: Balance of <span class="var" style="background:rgba(255,255,255,.18);color:#E8D9B8;">amount_owed</span> on Case #<span class="var" style="background:rgba(255,255,255,.18);color:#E8D9B8;">case_number</span> is <span class="var" style="background:rgba(255,255,255,.18);color:#E8D9B8;">days_outstanding</span> days outstanding. Resolve or respond: <span class="var" style="background:rgba(255,255,255,.18);color:#E8D9B8;">portal_link</span></div>
+    </div>
+  </div>
+
+  <!-- ============ STAGE 4 ============ -->
+  <div class="stage">
+    <div class="stage-head">
+      <div class="stage-num flag">4</div>
+      <div>
+        <div class="stage-title">Attorney Escalation — Nothing Sends</div>
+        <div class="stage-meta">Day 40 past due · Internal flag only</div>
+      </div>
+      <span class="chan flag">Flag Only</span>
+    </div>
+    <div class="flag-body">
+      <b>Automated outreach ends here — permanently.</b> At day 40, the case moves to your Attorney Review queue with the complete file attached:
+      <ul>
+        <li>Every notice sent, with timestamps and delivery status</li>
+        <li>All portal activity — opens, clicks, payment attempts, messages</li>
+        <li>Any captured settlement offers from the negotiation assistant</li>
+      </ul>
+      <br>Any demand letter, lien action, or litigation step is drafted and sent by you directly — <b>never automated.</b>
+    </div>
+  </div>
+
+  <!-- ============ STANDING RULES ============ -->
+  <div class="rules">
+    <h2>Standing Rules (Always Active)</h2>
+    <div class="rule"><span class="ic">⏸️</span><span><b>Dispute = instant pause.</b> The moment a responsible party files a question or dispute at any stage, all outreach on that case stops and the matter routes to your queue with a 48-business-hour review target.</span></div>
+    <div class="rule"><span class="ic">🛡️</span><span><b>Bounded settlement authority.</b> The portal and negotiation assistant can accept resolutions only within the discount ceiling you approve per case at intake (e.g., 10%). Offers below your floor are captured and routed — never accepted or declined by AI.</span></div>
+    <div class="rule"><span class="ic">📋</span><span><b>Complete audit trail.</b> Every message, response, and portal event is timestamped to the case file — dispute-ready documentation, automatically.</span></div>
+    <div class="rule"><span class="ic">🔒</span><span><b>PHI minimization.</b> Case number and matter type only. No diagnosis, treatment, or patient detail ever appears in outreach.</span></div>
+  </div>
+
+  <!-- ============ APPROVAL CTA ============ -->
+  <div class="approve">
+    <h2>Ready to activate?</h2>
+    <p>Reply with your written approval — or any edits to the language above — and the sequence configures for your live cases. Every word is yours to change.</p>
+    <a href="mailto:hello@trycollectiq.com?subject=Frevola%20Outreach%20Sequence%20—%20Approval%20%2F%20Edits">Send Approval or Edits →</a>
+  </div>
+
+  <div class="footer">
+    Prepared for Albert L. Frevola, Jr. · The Frevola Law Firm PLLC<br>
+    CollectIQ Technologies LLC · trycollectiq.com · hello@trycollectiq.com · (954) 270-1678
+  </div>
+
+</div>
+</body>
+</html>
