@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CollectIQ — Find Your Cash Flow Bottleneck</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@125,500..900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0F1923; --navy-deep: #0B131B; --card: #131F2B; --edge: #1E3040;
+    --gold: #C8A96E; --gold-dim: rgba(200,169,110,0.14);
+    --orange: #C8490A; --steel: #8FA3B3; --green: #2FBF71; --white: #FFFFFF;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--navy); color: var(--white); font-family: 'Inter', sans-serif; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+  .display { font-family: 'Archivo', sans-serif; font-stretch: 125%; }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 70px 24px 90px; }
+
+  .eyebrow { display:inline-block; font-size:13px; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color:var(--gold); border:1px solid rgba(200,169,110,0.35); padding:8px 18px; border-radius:100px; margin-bottom:24px; }
+  h1.display { font-weight:900; font-size:clamp(32px,5.5vw,52px); line-height:1.05; letter-spacing:-0.02em; }
+  h1 .gold { color: var(--gold); }
+  .sub { margin-top:16px; color:var(--steel); font-size:17px; max-width:560px; }
+
+  /* Progress */
+  .prog { display:flex; gap:8px; margin:42px 0 30px; }
+  .prog span { flex:1; height:5px; border-radius:5px; background:var(--edge); transition:background 0.3s; }
+  .prog span.on { background:var(--gold); }
+
+  /* Question card */
+  .qcard { background:var(--card); border:1px solid var(--edge); border-radius:20px; padding:clamp(26px,4vw,42px); animation:in 0.35s ease; }
+  @keyframes in { from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:translateY(0);} }
+  .qnum { font-size:13px; font-weight:700; color:var(--gold); letter-spacing:0.12em; text-transform:uppercase; margin-bottom:12px; }
+  .qtext { font-family:'Archivo'; font-stretch:125%; font-weight:800; font-size:clamp(20px,3vw,26px); line-height:1.25; margin-bottom:26px; }
+
+  .opt {
+    display:block; width:100%; text-align:left; background:var(--navy-deep);
+    border:1px solid var(--edge); border-radius:14px; padding:18px 20px; margin-bottom:12px;
+    color:var(--white); font-family:'Inter'; font-size:15.5px; font-weight:500; cursor:pointer;
+    transition:border-color 0.15s, background 0.15s, transform 0.12s;
+  }
+  .opt:hover { border-color:var(--gold); background:var(--gold-dim); transform:translateX(4px); }
+  .opt b { color:var(--gold); }
+
+  /* Result */
+  .result { animation:in 0.4s ease; }
+  .diag-tag { display:inline-block; background:rgba(200,73,10,0.15); border:1px solid var(--orange); color:#F0A882; font-size:12px; font-weight:800; letter-spacing:0.12em; text-transform:uppercase; padding:7px 16px; border-radius:100px; margin-bottom:18px; }
+  .diag-name { font-family:'Archivo'; font-stretch:125%; font-weight:900; font-size:clamp(28px,4.5vw,40px); line-height:1.08; }
+  .diag-mirror { margin-top:18px; background:var(--navy-deep); border-left:3px solid var(--orange); border-radius:0 12px 12px 0; padding:20px 22px; color:#D7DEE4; font-size:15.5px; font-style:italic; }
+  .diag-cost { margin-top:22px; font-size:15px; color:var(--steel); }
+  .diag-cost b { color:var(--orange); font-size:17px; }
+
+  .fix { margin-top:30px; background:rgba(47,191,113,0.07); border:1px solid rgba(47,191,113,0.45); border-radius:16px; padding:24px 26px; }
+  .fix-head { color:var(--green); font-weight:800; font-size:13px; letter-spacing:0.12em; text-transform:uppercase; margin-bottom:12px; }
+  .fix ul { list-style:none; }
+  .fix li { display:flex; gap:12px; padding:7px 0; font-size:15px; color:#D7DEE4; }
+  .fix li::before { content:'✓'; color:var(--green); font-weight:900; flex-shrink:0; }
+
+  .cta-btn { display:block; text-align:center; text-decoration:none; background:var(--orange); color:var(--white); font-family:'Archivo'; font-stretch:125%; font-weight:800; font-size:18px; padding:20px 28px; border-radius:14px; margin-top:26px; box-shadow:0 8px 30px rgba(200,73,10,0.35); transition:transform 0.15s; }
+  .cta-btn:hover { transform:translateY(-2px); }
+  .cta-sub { text-align:center; font-size:13px; color:var(--steel); margin-top:12px; }
+
+  .capture { margin-top:22px; display:flex; gap:10px; }
+  .capture input { flex:1; background:var(--navy-deep); border:1px solid var(--edge); border-radius:12px; padding:15px 18px; color:var(--white); font-family:'Inter'; font-size:15px; outline:none; }
+  .capture input:focus { border-color:var(--gold); }
+  .capture button { background:transparent; border:2px solid var(--gold); color:var(--gold); border-radius:12px; padding:0 22px; font-weight:800; font-size:14px; cursor:pointer; font-family:'Inter'; }
+  .capture-note { font-size:12px; color:var(--steel); margin-top:8px; }
+
+  .restart { background:none; border:none; color:var(--steel); font-size:14px; text-decoration:underline; cursor:pointer; margin-top:26px; font-family:'Inter'; display:block; }
+
+  @media (prefers-reduced-motion: reduce) { * { animation:none !important; transition:none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <span class="eyebrow">30-second diagnostic</span>
+  <h1 class="display">What's actually <span class="gold">slowing down</span> your cash?</h1>
+  <p class="sub">Four quick questions. No email required to see your result. Find the bottleneck costing you the most — and exactly how to remove it.</p>
+
+  <div class="prog" id="prog"><span class="on"></span><span></span><span></span><span></span></div>
+
+  <div id="stage"></div>
+</div>
+
+<script>
+// ============ DIAGNOSTIC LOGIC ============
+// Each answer adds weight to one or more bottleneck profiles.
+// Highest score at the end = the diagnosis shown.
+
+const QUESTIONS = [
+  {
+    q: "When an invoice goes past due, what usually happens next?",
+    opts: [
+      { t: "We send <b>one reminder</b>… then it kind of falls through the cracks", w: { consistency: 3, bandwidth: 1 } },
+      { t: "Someone means to follow up, but <b>we're too busy</b> running the business", w: { bandwidth: 3 } },
+      { t: "We <b>don't push</b> — that client controls our future work", w: { relationship: 3 } },
+      { t: "It goes to our <b>factoring company</b>… we assume they handle it", w: { factoring: 3 } },
+    ],
+  },
+  {
+    q: "Which sentence sounds most like your money situation?",
+    opts: [
+      { t: "I pay <b>payroll and vendors weekly</b> but get paid in 60-90 days", w: { gap: 3 } },
+      { t: "We hand over <b>2-4% of every invoice</b> just to access our own money", w: { factoring: 3 } },
+      { t: "Honestly, I <b>couldn't tell you</b> which overdue invoices are actually at risk", w: { visibility: 3 } },
+      { t: "Willing payers still take forever — <b>there's no easy way to pay us</b>", w: { friction: 3 } },
+    ],
+  },
+  {
+    q: "When a payment dispute or write-off happens, how prepared are you?",
+    opts: [
+      { t: "We have <b>no real paper trail</b> — it's emails and memory", w: { documentation: 3 } },
+      { t: "We <b>never know when to escalate</b> vs. write it off — so we write it off", w: { escalation: 3, documentation: 1 } },
+      { t: "We'd fight it, but <b>chasing it burns hours</b> we don't have", w: { bandwidth: 2, escalation: 1 } },
+      { t: "Disputes rarely happen — our problem is <b>plain slow payment</b>", w: { gap: 2, consistency: 1 } },
+    ],
+  },
+  {
+    q: "Whose job is collections at your company?",
+    opts: [
+      { t: "<b>Mine</b> — on top of everything else I do", w: { ownership: 2, bandwidth: 2 } },
+      { t: "<b>Nobody's</b>, officially. Whoever remembers", w: { ownership: 3, consistency: 1 } },
+      { t: "The <b>factoring company's</b>… I think?", w: { factoring: 2, visibility: 1 } },
+      { t: "We'd hire for it, but a <b>collections hire costs $50K+</b>", w: { ownership: 3 } },
+    ],
+  },
+];
+
+const DIAGNOSES = {
+  bandwidth: {
+    name: "The Bandwidth Bottleneck",
+    mirror: "\"Chasing invoices is a full-time job nobody was hired for. So it gets done in the gaps — which means it barely gets done at all.\"",
+    cost: "Businesses that follow up inconsistently wait <b>2-3x longer</b> to get paid than those with systematic outreach. On $200K monthly AR, that's six figures of trapped cash.",
+    fixes: [
+      "AI runs professional follow-up on every invoice, 24/7 — your hours go back to revenue",
+      "Outreach starts day 1 past due, not whenever someone remembers",
+      "You review a dashboard, not a to-do list",
+    ],
+    cta: "Give collections back its hours",
+  },
+  consistency: {
+    name: "The Consistency Bottleneck",
+    mirror: "\"We send the invoice, one reminder… then silence. And our clients have learned exactly whose invoices can wait.\"",
+    cost: "Recovery probability drops sharply after 90 days. Inconsistent follow-up is precisely what lets invoices age into the danger zone.",
+    fixes: [
+      "Automated sequences fire on schedule — every invoice, every time",
+      "Escalating professional touchpoints that never skip a beat",
+      "Debtors learn your invoices are the ones that DON'T wait",
+    ],
+    cta: "Make follow-up automatic",
+  },
+  relationship: {
+    name: "The Relationship Bottleneck",
+    mirror: "\"The client who owes me the most also controls my next contract. Pushing hard on payment feels like risking the pipeline.\"",
+    cost: "Silence protects the relationship but funds their patience with your cash. The average business absorbs <b>weeks of extra float</b> on its most important accounts.",
+    fixes: [
+      "Outreach branded as YOUR company — professional, courteous, systematic",
+      "A payment portal handles resolution — no awkward personal calls",
+      "The system plays 'bad cop' consistently so you never have to",
+    ],
+    cta: "Get paid without burning bridges",
+  },
+  gap: {
+    name: "The Cash Flow Gap Bottleneck",
+    mirror: "\"My costs run on a 7-day cycle. My revenue runs on a 75-day cycle. I float the difference — every week, forever.\"",
+    cost: "On $300K monthly volume with a 75-day payment cycle, you're carrying <b>$750,000</b> in trapped receivables at all times.",
+    fixes: [
+      "Beta customers averaged 14 days to first payment — the gap compresses fast",
+      "SmartDiscount early-pay incentives motivate faster payment automatically",
+      "Bridge capital options for the gap that remains",
+    ],
+    cta: "Close the gap",
+  },
+  factoring: {
+    name: "The Factoring Dependency Bottleneck",
+    mirror: "\"We hand over 3% of everything just to access money we already earned. And after 90 days, the factoring company charges the hard invoices back to us anyway.\"",
+    cost: "On $300K monthly volume, 3% factoring costs <b>$108,000 per year</b>. CollectIQ's Growth plan: $9,588. You keep the other $98,412.",
+    fixes: [
+      "Collect independently — factor only what actually needs factoring",
+      "Recover the recourse-period chargebacks factoring gave up on",
+      "Build the documented track record to renegotiate exclusivity",
+    ],
+    cta: "Keep your 3%",
+  },
+  visibility: {
+    name: "The Visibility Bottleneck",
+    mirror: "\"Our AR report is a list of amounts and dates. Which ones are actually at risk? Genuinely no idea.\"",
+    cost: "Without prioritization, effort goes to whoever complained last — while the accounts sliding toward write-off age quietly.",
+    fixes: [
+      "AI scores every account by payment probability",
+      "High-risk invoices flagged before they become write-offs",
+      "Dashboard shows exactly where your attention matters today",
+    ],
+    cta: "See your AR clearly",
+  },
+  documentation: {
+    name: "The Documentation Bottleneck",
+    mirror: "\"When a dispute lands, our evidence is scattered emails and somebody's memory. We usually just eat it.\"",
+    cost: "Disputes, chargebacks, lien deadlines, and Prompt Payment Act interest all die without a paper trail. That's real money forfeited to bad record-keeping.",
+    fixes: [
+      "Timestamped audit trail on every outreach, response, and payment event",
+      "Dispute-ready case files generated automatically",
+      "The documented performance record lenders and factors actually respect",
+    ],
+    cta: "Build the paper trail automatically",
+  },
+  escalation: {
+    name: "The Escalation Bottleneck",
+    mirror: "\"When do we fight for it vs. write it off? There's no trigger — so it happens too late, or never.\"",
+    cost: "Even well-staffed factoring companies write off invoices monthly. Without clear escalation triggers, collectible money quietly becomes bad debt.",
+    fixes: [
+      "AI flags accounts the moment they need human or legal escalation",
+      "Full case file attached — history, responses, portal activity",
+      "You decide fight-or-write-off with evidence, not guesswork",
+    ],
+    cta: "Stop writing off collectible money",
+  },
+  friction: {
+    name: "The Payment Friction Bottleneck",
+    mirror: "\"Even the clients who WANT to pay us take forever. Mail a check. Call for wire details. Wait for the AP batch.\"",
+    cost: "Every step between 'willing to pay' and 'paid' adds days. Friction alone can add <b>30-45 days</b> to your average collection cycle.",
+    fixes: [
+      "One-click portal: pay in full, settle at a discount, or start a plan",
+      "SmartDiscount rewards paying now — visibly",
+      "Stripe-powered payment in seconds, not cycles",
+    ],
+    cta: "Remove the friction",
+  },
+  ownership: {
+    name: "The 'Nobody's Job' Bottleneck",
+    mirror: "\"Sales has an owner. Delivery has an owner. Collections has… whoever remembers. Usually me. Usually late.\"",
+    cost: "A dedicated collections hire runs <b>$50,000+</b> a year. Doing it yourself costs your highest-value hours. Not doing it costs the most of all.",
+    fixes: [
+      "CollectIQ IS the collections department — from $299/month",
+      "AI scoring, outreach, negotiation, and documentation in one system",
+      "Set up in 24 hours — someone finally owns getting you paid",
+    ],
+    cta: "Hire the AI instead",
+  },
+};
+
+// ============ QUIZ ENGINE ============
+let step = 0;
+const scores = {};
+const stage = document.getElementById('stage');
+const prog = document.getElementById('prog').children;
+
+function renderQ() {
+  const q = QUESTIONS[step];
+  stage.innerHTML = `
+    <div class="qcard">
+      <div class="qnum">Question ${step + 1} of ${QUESTIONS.length}</div>
+      <div class="qtext">${q.q}</div>
+      ${q.opts.map((o, i) => `<button class="opt" data-i="${i}">${o.t}</button>`).join('')}
+    </div>`;
+  stage.querySelectorAll('.opt').forEach(btn => btn.addEventListener('click', () => answer(+btn.dataset.i)));
+  [...prog].forEach((p, i) => p.classList.toggle('on', i <= step));
+}
+
+function answer(i) {
+  const w = QUESTIONS[step].opts[i].w;
+  for (const k in w) scores[k] = (scores[k] || 0) + w[k];
+  step++;
+  if (step < QUESTIONS.length) renderQ();
+  else renderResult();
+}
+
+function renderResult() {
+  [...prog].forEach(p => p.classList.add('on'));
+  const top = Object.entries(scores).sort((a, b) => b[1] - a[1])[0][0];
+  const d = DIAGNOSES[top];
+  stage.innerHTML = `
+    <div class="result">
+      <span class="diag-tag">Your primary bottleneck</span>
+      <div class="diag-name display">${d.name}</div>
+      <div class="diag-mirror">${d.mirror}</div>
+      <div class="diag-cost">What it's costing you: ${d.cost}</div>
+      <div class="fix">
+        <div class="fix-head">How CollectIQ removes it</div>
+        <ul>${d.fixes.map(f => `<li>${f}</li>`).join('')}</ul>
+      </div>
+      <a class="cta-btn" href="https://trycollectiq.com/app">${d.cta} — Free 7-Day Trial</a>
+      <div class="cta-sub">No credit card required · Setup in 24 hours</div>
+      <div class="capture">
+        <input type="email" id="em" placeholder="Email me my diagnosis + the fix playbook">
+        <button onclick="captureEmail()">Send</button>
+      </div>
+      <div class="capture-note" id="capNote">Optional. We'll send your result plus the full 10-bottleneck playbook.</div>
+      <button class="restart" onclick="restart()">↺ Retake the diagnostic</button>
+    </div>`;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function captureEmail() {
+  const em = document.getElementById('em').value.trim();
+  if (!em || !em.includes('@')) return;
+  // TODO: wire to your Netlify Forms / Zapier / Klaviyo pipeline
+  // fetch('/api/diagnostic-lead', { method:'POST', body: JSON.stringify({ email: em, diagnosis: topDiagnosis }) })
+  document.getElementById('capNote').textContent = '✓ Sent! Check your inbox for your diagnosis and playbook.';
+  document.getElementById('em').value = '';
+}
+
+function restart() { step = 0; for (const k in scores) delete scores[k]; renderQ(); }
+
+renderQ();
+</script>
+</body>
+</html>
