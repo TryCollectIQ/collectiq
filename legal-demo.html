@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>The Frevola Law Firm — Secure Case Balance Portal</title>
+<meta name="robots" content="noindex"/>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --navy:#0F1923; --gold:#8C6F3F; --green:#1E8E5A; --green-bg:#EAF6F0;
+  --amber:#B07A1E; --amber-bg:#FBF3E2; --red:#B4451F; --red-bg:#FBEAE3;
+  --page:#F4F5F7; --card:#FFFFFF; --line:#E3E7EC; --text:#25313E; --sub:#66717E;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--page);color:var(--text);font-family:'Source Serif 4',Georgia,serif;min-height:100vh;}
+.sans{font-family:'Inter',Arial,sans-serif;}
+
+/* DEMO BANNER */
+.demo-banner{background:#1A2532;color:#C8A96E;text-align:center;padding:8px 16px;font-family:'Inter';font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;}
+
+/* HEADER */
+.header{background:var(--navy);padding:34px 24px 28px;text-align:center;}
+.firm{color:#fff;font-size:26px;font-weight:700;letter-spacing:.02em;}
+.firm-sub{color:#9FB0BF;font-size:12.5px;margin-top:6px;font-family:'Inter';letter-spacing:.16em;text-transform:uppercase;}
+.case-bar{background:var(--gold);padding:11px 24px;text-align:center;color:#fff;font-family:'Inter';font-size:14.5px;font-weight:700;letter-spacing:.04em;}
+
+.wrap{max-width:640px;margin:26px auto 0;padding:0 16px 60px;}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:30px 28px;box-shadow:0 2px 10px rgba(15,25,35,.06);}
+
+/* CASE INFO */
+.row{display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--line);font-size:15px;}
+.row-l{color:var(--sub);font-family:'Inter';font-size:12px;text-transform:uppercase;letter-spacing:.08em;padding-top:3px;}
+.row-v{font-weight:700;}
+.amount{text-align:center;padding:24px 0 6px;}
+.amount-num{font-size:44px;font-weight:700;color:var(--navy);font-family:'Inter';}
+.amount-l{color:var(--sub);font-size:13.5px;margin-top:4px;}
+
+/* SMARTDISCOUNT LADDER */
+.ladder{background:var(--green-bg);border:1px solid var(--green);border-radius:12px;padding:18px 18px 12px;margin-top:18px;}
+.ladder-h{font-family:'Inter';font-size:12px;font-weight:800;color:var(--green);letter-spacing:.08em;text-transform:uppercase;text-align:center;}
+.ladder-s{font-family:'Inter';font-size:12.5px;color:var(--sub);text-align:center;margin:4px 0 12px;}
+.tier{display:flex;justify-content:space-between;align-items:center;padding:11px 13px;border-radius:9px;margin-bottom:6px;font-family:'Inter';border:1px solid transparent;}
+.tier.active{background:#fff;border-color:var(--green);}
+.tier.expired{opacity:.35;text-decoration:line-through;}
+.tier-w{font-size:13.5px;font-weight:700;}
+.tier-p{font-size:14px;font-weight:900;color:var(--sub);}
+.tier.active .tier-p{color:var(--green);}
+.tier-a{font-size:13.5px;font-weight:700;}
+.now{background:var(--green);color:#fff;font-size:9.5px;font-weight:900;letter-spacing:.08em;padding:3px 8px;border-radius:100px;margin-left:8px;vertical-align:middle;}
+
+/* BUTTONS */
+.btn{display:block;width:100%;padding:15px;margin-top:12px;border-radius:10px;border:none;font-family:'Inter';font-size:15.5px;font-weight:700;cursor:pointer;color:#fff;transition:transform .12s;}
+.btn:hover{transform:translateY(-1px);}
+.btn-green{background:var(--green);}
+.btn-navy{background:var(--navy);}
+.btn-gold{background:transparent;color:var(--gold);border:2px solid var(--gold);}
+.btn-sub{background:transparent;color:var(--sub);border:2px solid var(--sub);}
+.fine{font-size:12.5px;color:var(--sub);text-align:center;margin-top:14px;font-family:'Inter';}
+
+/* CHAT (NEGOTIATOR) */
+.hidden{display:none;}
+.back{background:none;border:none;color:var(--sub);font-family:'Inter';font-size:13.5px;cursor:pointer;text-decoration:underline;margin-bottom:16px;padding:0;}
+.envelope{background:var(--green-bg);border:1px solid var(--green);border-radius:10px;padding:10px 14px;font-family:'Inter';font-size:12px;color:var(--green);display:flex;gap:8px;align-items:flex-start;margin-bottom:16px;line-height:1.45;}
+.chat{max-height:380px;overflow-y:auto;padding:4px 2px 8px;}
+.bub{max-width:84%;padding:12px 16px;border-radius:15px;margin-bottom:10px;font-family:'Inter';font-size:14px;line-height:1.5;white-space:pre-wrap;}
+.bub.ai{background:#F0F2F5;color:var(--text);border-bottom-left-radius:4px;}
+.bub.me{background:var(--navy);color:#fff;margin-left:auto;border-bottom-right-radius:4px;}
+.tag{font-family:'Inter';font-size:10.5px;font-weight:800;border-radius:100px;padding:4px 11px;display:inline-block;margin:-4px 0 10px;}
+.tag.ok{color:var(--green);background:var(--green-bg);}
+.tag.route{color:var(--amber);background:var(--amber-bg);}
+.tag.esc{color:var(--red);background:var(--red-bg);}
+.typing{color:var(--sub);font-family:'Inter';font-size:12.5px;font-style:italic;margin-bottom:8px;}
+.chips{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0;}
+.chip{font-family:'Inter';font-size:11.5px;color:var(--sub);border:1px solid var(--line);border-radius:100px;padding:6px 12px;cursor:pointer;background:#fff;}
+.chip:hover{border-color:var(--gold);color:var(--gold);}
+.inrow{display:flex;gap:9px;margin-top:8px;}
+.inrow input{flex:1;border:1px solid var(--line);border-radius:100px;padding:13px 18px;font-family:'Inter';font-size:14px;outline:none;}
+.inrow input:focus{border-color:var(--gold);}
+.send{background:var(--navy);color:#fff;border:none;border-radius:100px;padding:0 24px;font-family:'Inter';font-size:14px;font-weight:700;cursor:pointer;}
+.audit{text-align:center;font-family:'Inter';font-size:11px;color:var(--sub);margin-top:14px;}
+.esc-note{background:var(--red-bg);border:1px solid var(--red);border-radius:10px;padding:10px 14px;font-family:'Inter';font-size:12px;color:var(--red);display:flex;gap:8px;margin-top:10px;}
+
+/* PLAN + DISPUTE + CONFIRM */
+h2{font-size:21px;margin-bottom:8px;}
+.p-sub{color:var(--sub);font-size:14.5px;margin-bottom:16px;}
+textarea{width:100%;min-height:110px;border:1px solid var(--line);border-radius:8px;padding:13px;font-family:'Inter';font-size:14px;resize:vertical;}
+.confirm{text-align:center;padding:16px 0;}
+.check{font-size:50px;color:var(--green);}
+.footer{max-width:640px;margin:20px auto 0;padding:0 16px;text-align:center;font-family:'Inter';font-size:12px;color:var(--sub);line-height:1.6;}
+</style>
+</head>
+<body>
+
+<div class="demo-banner">Demonstration Environment · CollectIQ Legal Collections Module</div>
+
+<header class="header">
+  <div class="firm">The Frevola Law Firm PLLC</div>
+  <div class="firm-sub">Secure Case Balance Portal</div>
+</header>
+<div class="case-bar">Case #FLF-2026-0417 · Medical Lien · Balance $48,500</div>
+
+<div class="wrap">
+<div class="card">
+
+  <!-- ============ MAIN OPTIONS VIEW ============ -->
+  <div id="vMain">
+    <div class="row"><span class="row-l">Responsible Party</span><span class="row-v">Acme Insurance Group</span></div>
+    <div class="row"><span class="row-l">Attorney of Record</span><span class="row-v">Albert L. Frevola, Jr.</span></div>
+    <div class="row"><span class="row-l">Days Outstanding</span><span class="row-v" style="color:var(--red)">62 days</span></div>
+
+    <div class="amount">
+      <div class="amount-num">$48,500</div>
+      <div class="amount-l">Outstanding balance on Case #FLF-2026-0417</div>
+    </div>
+
+    <!-- SmartDiscount decay ladder -->
+    <div class="ladder">
+      <div class="ladder-h">Early Resolution Credit</div>
+      <div class="ladder-s">The credit decreases the longer this balance remains open.</div>
+      <div class="tier active"><span class="tier-w">Today<span class="now">AVAILABLE NOW</span></span><span class="tier-p">10% credit</span><span class="tier-a">$43,650</span></div>
+      <div class="tier"><span class="tier-w">Within 7 days</span><span class="tier-p">7% credit</span><span class="tier-a">$45,105</span></div>
+      <div class="tier"><span class="tier-w">Within 14 days</span><span class="tier-p">5% credit</span><span class="tier-a">$46,075</span></div>
+      <div class="tier"><span class="tier-w">Within 21 days</span><span class="tier-p">3% credit</span><span class="tier-a">$47,045</span></div>
+    </div>
+
+    <button class="btn btn-green" onclick="confirmAction('settle')">Resolve Now for $43,650 — Save $4,850</button>
+    <button class="btn btn-navy" onclick="confirmAction('full')">Pay $48,500 in Full</button>
+    <button class="btn btn-gold" onclick="show('vChat')">💬 Discuss This Balance</button>
+    <button class="btn btn-gold" onclick="show('vPlan')">Set Up a Payment Plan</button>
+    <button class="btn btn-sub" onclick="show('vDispute')">Question or Dispute This Balance</button>
+
+    <div class="fine">All activity on this portal is recorded to the case file.<br>Questions? 954-820-7830 · al@frevolalaw.com</div>
+  </div>
+
+  <!-- ============ AI NEGOTIATOR CHAT ============ -->
+  <div id="vChat" class="hidden">
+    <button class="back" onclick="show('vMain')">← Back to options</button>
+    <div class="envelope">🛡️ <span>This assistant negotiates within terms pre-approved by Albert L. Frevola, Jr. Offers outside those terms are routed to the attorney directly — never accepted or declined by AI.</span></div>
+    <div class="chat" id="chatLog"></div>
+    <div id="escNote"></div>
+    <div class="chips" id="chips">
+      <button class="chip" onclick="fill('We can pay $45,000 today')">We can pay $45,000 today</button>
+      <button class="chip" onclick="fill('Would you take $38,000?')">Would you take $38,000?</button>
+      <button class="chip" onclick="fill('Can we spread this over 6 months?')">Spread over 6 months?</button>
+      <button class="chip" onclick="fill('We dispute the lien validity')">We dispute the lien validity</button>
+    </div>
+    <div class="inrow">
+      <input id="msgIn" placeholder="Type a message or offer…" onkeydown="if(event.key==='Enter')send()"/>
+      <button class="send" onclick="send()">Send</button>
+    </div>
+    <div class="audit">Every message is recorded to the Case #FLF-2026-0417 audit trail with timestamps.</div>
+  </div>
+
+  <!-- ============ PAYMENT PLAN ============ -->
+  <div id="vPlan" class="hidden">
+    <button class="back" onclick="show('vMain')">← Back to options</button>
+    <h2>Payment Plan — Case #FLF-2026-0417</h2>
+    <div class="p-sub">Select an installment schedule. First installment due at confirmation. Plans settle at the full balance — the Early Resolution Credit applies to immediate resolution only.</div>
+    <button class="btn btn-navy" onclick="confirmAction('plan3')">3 monthly payments of $16,167</button>
+    <button class="btn btn-navy" onclick="confirmAction('plan6')">6 monthly payments of $8,084</button>
+  </div>
+
+  <!-- ============ DISPUTE ============ -->
+  <div id="vDispute" class="hidden">
+    <button class="back" onclick="show('vMain')">← Back to options</button>
+    <h2>Question or Dispute — Case #FLF-2026-0417</h2>
+    <div class="p-sub">Your message routes directly to Albert L. Frevola, Jr. with the complete case communication record attached.</div>
+    <textarea id="dispText" placeholder="e.g., This balance was paid via check #4417 on June 3, 2026..."></textarea>
+    <button class="btn btn-navy" onclick="confirmAction('dispute')">Submit to Attorney for Review</button>
+  </div>
+
+  <!-- ============ CONFIRMED ============ -->
+  <div id="vConfirm" class="hidden">
+    <div class="confirm">
+      <div class="check">✓</div>
+      <h2 id="confTitle">Confirmed</h2>
+      <div class="p-sub">A confirmation for Case #FLF-2026-0417 has been recorded to the case file and emailed to all parties of record.</div>
+      <button class="btn btn-gold" onclick="show('vMain')" style="max-width:280px;margin:10px auto 0;">← Return to portal</button>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<div class="footer">
+  This portal is operated on behalf of The Frevola Law Firm PLLC. Payments processed securely via Stripe.<br>
+  Communication records maintained in a timestamped audit trail. · Powered by CollectIQ
+</div>
+
+<script>
+// ============ VIEW ROUTER ============
+const views=['vMain','vChat','vPlan','vDispute','vConfirm'];
+function show(id){views.forEach(v=>document.getElementById(v).classList.add('hidden'));document.getElementById(id).classList.remove('hidden');if(id==='vChat'&&!chatStarted)startChat();}
+function confirmAction(type){
+  const t=document.getElementById('confTitle');
+  if(type==='settle')t.textContent='Resolved for $43,650 — you saved $4,850.';
+  if(type==='full')t.textContent='Payment of $48,500 received.';
+  if(type==='plan3')t.textContent='3-month plan confirmed — $16,167/month.';
+  if(type==='plan6')t.textContent='6-month plan confirmed — $8,084/month.';
+  if(type==='dispute')t.textContent='Submitted for attorney review.';
+  show('vConfirm');
+}
+
+// ============ ATTORNEY ENVELOPE (enforced in code) ============
+const CASE={num:'FLF-2026-0417',amount:48500,party:'Acme Insurance Group',attorney:'Albert L. Frevola, Jr.',
+  env:{maxDiscountPct:10,planMaxMonths:6,hardStops:['lien validity','liability','coverage denial'],sla:48}};
+const FLOOR=Math.round(CASE.amount*(1-CASE.env.maxDiscountPct/100)); // 43,650
+const fmt=n=>'$'+Math.round(n).toLocaleString();
+
+function evaluate(text){
+  const lower=text.toLowerCase();
+  for(const stop of CASE.env.hardStops){
+    if(lower.includes(stop))return{d:'ESCALATE',
+      r:`You've raised a matter regarding ${stop} — that requires direct attorney attention. I've routed this conversation with the complete case record to ${CASE.attorney}, who will respond within ${CASE.env.sla} business hours. Automated outreach on this case is paused in the meantime.`};
+  }
+  let offer=null;
+  const k=lower.match(/\$?\s?(\d{2,3})\s?k\b/);
+  const n=text.replace(/,/g,'').match(/\$?\s?(\d{4,7})(?:\.\d{2})?/);
+  if(k)offer=parseInt(k[1],10)*1000;else if(n)offer=parseInt(n[1],10);
+  const wantsPlan=/plan|installment|months|monthly|spread|over time/i.test(text);
+  const mm=lower.match(/(\d{1,2})\s*(?:month|mo)/);
+  const months=mm?parseInt(mm[1],10):null;
+  if(wantsPlan){
+    if(months&&months>CASE.env.planMaxMonths)return{d:'COUNTER',
+      r:`I'm not able to extend a schedule to ${months} months on this case. What I can offer today is up to ${CASE.env.planMaxMonths} monthly installments of ${fmt(Math.ceil(CASE.amount/CASE.env.planMaxMonths))}, first installment due at confirmation. Would that schedule work for ${CASE.party}?`};
+    const m=months||CASE.env.planMaxMonths;
+    return{d:'OK',r:`Certainly. On Case #${CASE.num} I can confirm a ${m}-month schedule of ${fmt(Math.ceil(CASE.amount/m))} per month, first installment due at confirmation. Shall I set that up now? You'll receive written confirmation immediately.`};
+  }
+  if(offer!==null){
+    if(offer>=CASE.amount)return{d:'OK',r:`Excellent — I can process payment of ${fmt(CASE.amount)} on Case #${CASE.num} right now. Generating a secure payment link; written confirmation records to the case file the moment payment clears.`};
+    if(offer>=FLOOR)return{d:'OK',r:`I can accept ${fmt(offer)} as full resolution of Case #${CASE.num} under the firm's current early-resolution terms. Once payment is received you'll get written confirmation that the balance is resolved in full. Generating your secure payment link — shall I proceed?`};
+    return{d:'ROUTE',r:`Thank you — I've recorded ${CASE.party}'s offer of ${fmt(offer)} on Case #${CASE.num}. An offer at that level requires review by ${CASE.attorney} directly. It has been submitted with the full negotiation record; you'll receive a response within ${CASE.env.sla} business hours. Anything else I can note for the attorney alongside the offer?`};
+  }
+  return{d:'INFO',r:`Happy to help. The outstanding balance on Case #${CASE.num} (Medical Lien) is ${fmt(CASE.amount)}. I'm able to discuss immediate resolution, a structured plan of up to ${CASE.env.planMaxMonths} months, or record a question for ${CASE.attorney}. How would ${CASE.party} like to proceed?`}
+}
+
+// ============ CHAT UI ============
+let chatStarted=false,escalated=false;
+const log=document.getElementById('chatLog');
+function bubble(role,text){const b=document.createElement('div');b.className='bub '+role;b.textContent=text;log.appendChild(b);log.scrollTop=log.scrollHeight;}
+function tagFor(d){
+  const map={OK:['✓ Within attorney-approved terms','ok'],COUNTER:['↩ Countered — outside approved schedule','route'],ROUTE:['→ Offer captured · routed to attorney','route'],ESCALATE:['⚑ Escalated to attorney · outreach paused','esc']};
+  if(!map[d])return;
+  const t=document.createElement('div');t.className='tag '+map[d][1];t.textContent=map[d][0];log.appendChild(t);log.scrollTop=log.scrollHeight;
+}
+function startChat(){chatStarted=true;
+  bubble('ai',`Good afternoon. This is the Frevola Law Firm case resolution assistant for Case #${CASE.num} (Medical Lien). The outstanding balance is ${fmt(CASE.amount)}. I'm authorized to discuss immediate resolution options and payment schedules on the record. How can I help ${CASE.party} resolve this matter today?`);}
+function fill(t){document.getElementById('msgIn').value=t;}
+function send(){
+  if(escalated)return;
+  const inp=document.getElementById('msgIn');const text=inp.value.trim();if(!text)return;
+  bubble('me',text);inp.value='';
+  const typ=document.createElement('div');typ.className='typing';typ.textContent='Assistant is reviewing…';log.appendChild(typ);log.scrollTop=log.scrollHeight;
+  setTimeout(()=>{typ.remove();const res=evaluate(text);bubble('ai',res.r);tagFor(res.d);
+    if(res.d==='ESCALATE'){escalated=true;
+      document.getElementById('escNote').innerHTML='<div class="esc-note">⚑ <span>This conversation has been escalated to '+CASE.attorney+'. The assistant is paused pending attorney review.</span></div>';
+      document.getElementById('msgIn').disabled=true;document.getElementById('chips').style.display='none';}
+  },850);
+}
+</script>
+</body>
+</html>
