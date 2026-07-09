@@ -386,7 +386,7 @@ footer { background: var(--ink); color: var(--white); padding: 64px 48px 40px; }
   <div class="hero-bg"></div>
   <div class="hero-eyebrow">
     <span class="eyebrow-dot"></span>
-    AI-powered B2B collections — now in early access
+    AI-powered B2B collections — now in Founding member offer
   </div>
   <h1 class="hero-headline">
     Recover overdue revenue.<br><em>Automatically.</em>
@@ -409,7 +409,7 @@ footer { background: var(--ink); color: var(--white); padding: 64px 48px 40px; }
       <div class="social-av">+</div>
     </div>
     <div>
-      <div class="hero-social-label">Trusted by early access teams</div>
+      <div class="hero-social-label">Trusted by Founding member offer teams</div>
       <div class="hero-stat"><strong>$2.4M+</strong> recovered in beta</div>
     </div>
   </div>
@@ -528,7 +528,7 @@ footer { background: var(--ink); color: var(--white); padding: 64px 48px 40px; }
 <section class="section" id="pricing">
   <div class="section-label">Pricing</div>
   <h2 class="section-title">Simple, transparent <em>pricing</em></h2>
-  <p class="section-sub">No setup fees. No per-seat surprises. Cancel anytime. Early access teams lock in founding rates forever.</p>
+  <p class="section-sub">No setup fees. No per-seat surprises. Cancel anytime. Founding member offer teams lock in founding rates forever.</p>
   <div class="pricing-grid">
     <div class="pricing-card reveal">
       <div class="pricing-name">Starter</div>
@@ -585,7 +585,7 @@ footer { background: var(--ink); color: var(--white); padding: 64px 48px 40px; }
       <button class="pricing-btn" style="background:var(--ink);color:#fff;border-color:var(--ink);" onclick="document.getElementById('enterprise-form').scrollIntoView({behavior:'smooth'})">Talk to sales →</button>
     </div>
   </div>
-  <p class="pricing-note">All plans include a 7-day free trial. No credit card required to start.</p>
+  <p class="pricing-note">All plans include a 30-day free trial. No credit card required to start.</p>
 </section>
 
 <!-- ENTERPRISE SALES SECTION -->
@@ -858,9 +858,9 @@ footer { background: var(--ink); color: var(--white); padding: 64px 48px 40px; }
 </section>
 
 <section class="section waitlist-section" id="waitlist">
-  <div class="section-label" style="justify-content:center;">Early access</div>
-  <h2 class="section-title">Join the waitlist.<br>Lock in your <em>founding rate.</em></h2>
-  <p class="section-sub">We're onboarding teams in batches. Join now to secure 40% off Growth — forever.</p>
+  <div class="section-label" style="justify-content:center;">Founding member offer</div>
+  <h2 class="section-title">We're live.<br>Lock in your <em>founding rate.</em></h2>
+  <p class="section-sub">For a limited time, founding customers get 40% off Growth — locked in forever. Start your 30-day free trial today.</p>
   <div id="wlForm" class="waitlist-form">
     <div class="waitlist-row">
       <input class="wl-input" id="wlFirst" type="text" placeholder="First name"/>
@@ -881,7 +881,7 @@ footer { background: var(--ink); color: var(--white); padding: 64px 48px 40px; }
       <option>Growth ($799/mo)</option>
       <option>Enterprise (custom)</option>
     </select>
-    <button class="wl-btn" onclick="submitWaitlist()">Reserve my spot →</button>
+    <button class="wl-btn" onclick="submitWaitlist()">Claim founding rate →</button>
     <div style="font-size:11px;color:var(--muted);text-align:center;">No credit card required · Cancel anytime · GDPR compliant</div>
   </div>
   <div class="wl-success" id="wlSuccess">
@@ -889,12 +889,12 @@ footer { background: var(--ink); color: var(--white); padding: 64px 48px 40px; }
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1a6644" stroke-width="2.5"><path d="M5 12l5 5L20 7"/></svg>
     </div>
     <div class="wl-success-title">You're on the list!</div>
-    <div class="wl-success-sub" id="wlMsg">We'll reach out within 2 business days with your early access invite and founding rate. Questions? <a href="mailto:hello@trycollectiq.com" style="color:var(--accent);">hello@trycollectiq.com</a></div>
+    <div class="wl-success-sub" id="wlMsg">We'll reach out within 2 business days with your Founding member offer invite and founding rate. Questions? <a href="mailto:hello@trycollectiq.com" style="color:var(--accent);">hello@trycollectiq.com</a></div>
   </div>
   <div class="waitlist-perks">
     <div class="waitlist-perk"><span class="perk-dot"></span>40% off Growth — forever</div>
     <div class="waitlist-perk"><span class="perk-dot"></span>Free onboarding call</div>
-    <div class="waitlist-perk"><span class="perk-dot"></span>7-day free trial</div>
+    <div class="waitlist-perk"><span class="perk-dot"></span>30-day free trial</div>
     <div class="waitlist-perk"><span class="perk-dot"></span>First 50 teams only</div>
   </div>
   <div class="waitlist-count" id="wlCount"><strong>34</strong> teams on the waitlist · <strong>16</strong> spots remaining</div>
@@ -961,7 +961,7 @@ footer { background: var(--ink); color: var(--white); padding: 64px 48px 40px; }
     </div>
     <div>
       <div class="footer-col-title">Product</div>
-      <ul class="footer-links"><li><a href="#how">How it works</a></li><li><a href="#features">Features</a></li><li><a href="#pricing">Pricing</a></li><li><a href="#waitlist">Early access</a></li></ul>
+      <ul class="footer-links"><li><a href="#how">How it works</a></li><li><a href="#features">Features</a></li><li><a href="#pricing">Pricing</a></li><li><a href="#waitlist">Founding member offer</a></li></ul>
     </div>
     <div>
       <div class="footer-col-title">Company</div>
@@ -1112,7 +1112,7 @@ function submitWaitlist() {
   if (!first || !email || !email.includes('@')) { alert('Please enter your name and a valid work email.'); return; }
   document.getElementById('wlForm').style.display = 'none';
   document.getElementById('wlSuccess').style.display = 'block';
-  document.getElementById('wlMsg').textContent = `Thanks ${first}! We'll reach out to ${email} within 2 business days with your early access invite and founding rate.`;
+  document.getElementById('wlMsg').textContent = `Thanks ${first}! We'll reach out to ${email} within 2 business days with your Founding member offer invite and founding rate.`;
   document.getElementById('wlCount').innerHTML = '<strong>35</strong> teams on the waitlist · <strong>15</strong> spots remaining';
 }
 
