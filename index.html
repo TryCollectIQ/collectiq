@@ -1131,4 +1131,8 @@ function submitWaitlist() {
   document.getElementById('wlSuccess').style.display = 'block';
   document.getElementById('wlMsg').textContent = `Thanks ${first}! Your founding rate is locked in — we'll reach out to ${email} within 1 business day with your trial access.`;
   document.getElementById('wlCount').innerHTML = '<strong>Live now</strong> — onboarding new teams daily';
-}
+}const obs = new IntersectionObserver(entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }), { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>
