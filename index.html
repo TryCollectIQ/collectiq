@@ -897,7 +897,15 @@ footer { background: var(--ink); color: var(--white); padding: 64px 48px 40px; }
     <div class="waitlist-perk"><span class="perk-dot"></span>30-day free trial</div>
     <div class="waitlist-perk"><span class="perk-dot"></span>Founding rates — limited time</div>
   </div>
-  <div class="waitlist-count" id="wlCount"><strong>Live now</strong> — onboarding new teams daily</div>
+  <div class="waitlist-count" id="wlCount"><strong>Live now</strong> — onboarding new teams daily</div><!-- Hidden form for Netlify detection — do not remove -->
+<form name="founding-rate" data-netlify="true" hidden>
+  <input type="text" name="first"/>
+  <input type="text" name="last"/>
+  <input type="email" name="email"/>
+  <input type="text" name="company"/>
+  <input type="text" name="size"/>
+  <input type="text" name="plan"/>
+</form>
 </section>
 
 <section class="section" id="faq">
@@ -1108,17 +1116,19 @@ async function submitEnterprise() {
 
 function submitWaitlist() {
   const first = document.getElementById('wlFirst').value.trim();
+  const last = document.getElementById('wlLast').value.trim();
   const email = document.getElementById('wlEmail').value.trim();
+  const company = document.getElementById('wlCompany').value.trim();
+  const size = document.getElementById('wlSize').value;
+  const plan = document.getElementById('wlPlan').value;
   if (!first || !email || !email.includes('@')) { alert('Please enter your name and a valid work email.'); return; }
+  fetch('/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({ 'form-name': 'founding-rate', first, last, email, company, size, plan }).toString()
+  }).catch(() => {});
   document.getElementById('wlForm').style.display = 'none';
   document.getElementById('wlSuccess').style.display = 'block';
-  document.getElementById('wlMsg').textContent = `Thanks ${first}! We'll reach out to ${email} within 2 business days with Your founding rate is locked in — check your email for your trial access.`;
+  document.getElementById('wlMsg').textContent = `Thanks ${first}! Your founding rate is locked in — we'll reach out to ${email} within 1 business day with your trial access.`;
   document.getElementById('wlCount').innerHTML = '<strong>Live now</strong> — onboarding new teams daily';
 }
-
-const obs = new IntersectionObserver(entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }), { threshold: 0.1 });
-document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
-
-</script>
-</body>
-</html>
