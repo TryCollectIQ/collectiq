@@ -905,6 +905,13 @@ footer { background: var(--ink); color: var(--white); padding: 64px 48px 40px; }
   <input type="text" name="company"/>
   <input type="text" name="size"/>
   <input type="text" name="plan"/>
+</form><form name="enterprise-quote" data-netlify="true" hidden>
+  <input type="text" name="name"/>
+  <input type="email" name="email"/>
+  <input type="text" name="company"/>
+  <input type="text" name="accounts"/>
+  <input type="text" name="interest"/>
+  <input type="text" name="message"/>
 </form>
 </section>
 
@@ -1095,13 +1102,11 @@ async function submitEnterprise() {
   btn.disabled = true;
 
   try {
-    await emailjs.send('service_8us2fum', 'template_b84jmmg', {
-      from_name: name,
-      from_email: email,
-      message: `ENTERPRISE INQUIRY\n\nCompany: ${company}\nAccounts: ${accounts}\nInterest: ${interest}\nMessage: ${message}\nEmail: ${email}`,
-      to_email: 'hello@trycollectiq.com'
-    });
-    msgEl.style.display = 'block';
+    await fetch('/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ 'form-name': 'enterprise-quote', name, email, company, accounts, interest, message }).toString()
+    });    msgEl.style.display = 'block';
     msgEl.style.color = '#4ade80';
     msgEl.textContent = `✓ Thanks ${name.split(' ')[0]}! We'll reach out to ${email} within 1 business day with your custom quote.`;
     btn.textContent = 'Request sent ✓';
