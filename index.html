@@ -895,9 +895,9 @@ footer { background: var(--ink); color: var(--white); padding: 64px 48px 40px; }
     <div class="waitlist-perk"><span class="perk-dot"></span>40% off Growth — forever</div>
     <div class="waitlist-perk"><span class="perk-dot"></span>Free onboarding call</div>
     <div class="waitlist-perk"><span class="perk-dot"></span>30-day free trial</div>
-    <div class="waitlist-perk"><span class="perk-dot"></span>First 50 teams only</div>
+    <div class="waitlist-perk"><span class="perk-dot"></span>Founding rates — limited time</div>
   </div>
-  <div class="waitlist-count" id="wlCount"><strong>34</strong> teams on the waitlist · <strong>16</strong> spots remaining</div>
+  <div class="waitlist-count" id="wlCount"><strong>Live now</strong> — onboarding new teams daily</div>
 </section>
 
 <section class="section" id="faq">
@@ -1112,8 +1112,8 @@ function submitWaitlist() {
   if (!first || !email || !email.includes('@')) { alert('Please enter your name and a valid work email.'); return; }
   document.getElementById('wlForm').style.display = 'none';
   document.getElementById('wlSuccess').style.display = 'block';
-  document.getElementById('wlMsg').textContent = `Thanks ${first}! We'll reach out to ${email} within 2 business days with your Founding member offer invite and founding rate.`;
-  document.getElementById('wlCount').innerHTML = '<strong>35</strong> teams on the waitlist · <strong>15</strong> spots remaining';
+  document.getElementById('wlMsg').textContent = `Thanks ${first}! We'll reach out to ${email} within 2 business days with Your founding rate is locked in — check your email for your trial access.`;
+  document.getElementById('wlCount').innerHTML = '<strong>Live now</strong> — onboarding new teams daily';
 }
 
 const obs = new IntersectionObserver(entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }), { threshold: 0.1 });
