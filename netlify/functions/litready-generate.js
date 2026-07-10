@@ -69,12 +69,19 @@ exports.handler = async function (event) {
     }
 
     // ---- Pull live data ----
-    const [acctRows, outreach, audit, tenantRows] = await Promise.all([
+    const raw = await Promise.all([
       sbGet(`accounts?id=eq.${encodeURIComponent(account)}&tenant_id=eq.${encodeURIComponent(tenant)}&limit=1`),
-      sbGet(`outreach_log?account_id=eq.${encodeURIComponent(account)}&tenant_id=eq.${encodeURIComponent(tenant)}&order=created_at.asc`),
-      sbGet(`audit_log?tenant_id=eq.${encodeURIComponent(tenant)}&order=created_at.asc&limit=500`),
+      sbGet(`outreach_log?account_id=eq.${encodeURIComponent(account)}&tenant_id=eq.${encodeURIComponent(tenant)}`),
+      sbGet(`audit_log?tenant_id=eq.${encodeURIComponent(tenant)}&limit=500`),
       sbGet(`tenants?id=eq.${encodeURIComponent(tenant)}&limit=1`)
     ]);
+    // Coerce everything to arrays — PostgREST returns error OBJECTS on bad queries
+    const asArr = (x) => Array.isArray(x) ? x : [];
+    const acctRows = asArr(raw[0]);
+    const byDate = (a, b) => new Date(a.created_at || 0) - new Date(b.created_at || 0);
+    const outreach = asArr(raw[1]).sort(byDate);
+    const audit = asArr(raw[2]).sort(byDate);
+    const tenantRows = asArr(raw[3]);
 
     const acct = acctRows && acctRows[0];
     if (!acct) {
