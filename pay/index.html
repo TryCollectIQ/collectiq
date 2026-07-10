@@ -385,9 +385,9 @@ body { font-family: var(--ff-body); background: var(--soft); color: var(--ink); 
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#b5380a" stroke-width="2"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             </div>
             <div>
-              <div class="option-name">Early settlement — 10% off</div>
-              <div class="option-desc">Pay $114,750 today to fully close the account</div>
-              <div><span class="option-badge ob-pop">Save $12,750</span></div>
+              <div class="option-name" id="settleName">Early settlement — 10% off</div>
+              <div class="option-desc" id="settleDesc">Pay $114,750 today to fully close the account</div>
+              <div><span class="option-badge ob-pop" id="settleBadge">Save $12,750</span></div>
             </div>
             <div class="option-price">
               <div class="option-price-num">$114,750</div>
@@ -532,6 +532,20 @@ const PARAM_EMAIL     = urlParams.get('email')                 || 'billing@compa
 const PARAM_DAYS      = parseInt(urlParams.get('days'))        || 92;
 const PARAM_ACCOUNT   = urlParams.get('account')               || '';
 const PARAM_REF       = urlParams.get('ref')                   || 'CONTRACT-REF';
+const PARAM_OFFER_DAYS = parseInt(urlParams.get('offer_days'))  || 0;
+
+// ── SMARTDISCOUNT ENGINE — sliding-scale early resolution ────────────
+// Discount decays based on days since this payment link was sent.
+const DISCOUNT_TIERS = [
+  { withinDays: 0,  pct: 10, label: 'Today' },
+  { withinDays: 7,  pct: 7,  label: 'Within 7 days' },
+  { withinDays: 14, pct: 5,  label: 'Within 14 days' },
+  { withinDays: 21, pct: 3,  label: 'Within 21 days' }
+];
+function getActiveTier(){ for (const t of DISCOUNT_TIERS){ if (PARAM_OFFER_DAYS <= t.withinDays) return t; } return null; }
+const SETTLE_TIER = getActiveTier();
+const SETTLE_PCT  = SETTLE_TIER ? SETTLE_TIER.pct : 0;
+const SETTLE_MULT = 1 - SETTLE_PCT / 100;
 
 const INVOICE_AMOUNT = PARAM_AMOUNT;
 
@@ -561,8 +575,42 @@ document.addEventListener('DOMContentLoaded', () => {
   // Payment options amounts
   document.querySelectorAll('.option-price-num').forEach((el, i) => {
     if(i === 0) el.textContent = '$' + PARAM_AMOUNT.toLocaleString();       // Full
-    if(i === 1) el.textContent = '$' + Math.round(PARAM_AMOUNT * 0.9).toLocaleString(); // Settlement
+    if(i === 1) el.textContent = '$' + Math.round(PARAM_AMOUNT * SETTLE_MULT).toLocaleString(); // Settlement
   });
+
+  // SmartDiscount: update settlement option text + inject decay ladder
+  const settleOpt = document.getElementById('opt-settle');
+  if (!SETTLE_TIER) {
+    if (settleOpt) settleOpt.style.display = 'none';
+  } else if (settleOpt) {
+    const settleAmt = Math.round(PARAM_AMOUNT * SETTLE_MULT);
+    const saveAmt = PARAM_AMOUNT - settleAmt;
+    const nameEl = document.getElementById('settleName');
+    const descEl = document.getElementById('settleDesc');
+    const badgeEl = document.getElementById('settleBadge');
+    if (nameEl) nameEl.textContent = `Early settlement — ${SETTLE_PCT}% off`;
+    if (descEl) descEl.textContent = `Pay $${settleAmt.toLocaleString()} today to fully close the account`;
+    if (badgeEl) badgeEl.textContent = `Save $${saveAmt.toLocaleString()}`;
+
+    // Build the decay ladder
+    const ladder = document.createElement('div');
+    ladder.style.cssText = 'margin-top:12px;padding:12px 14px 8px;background:#f0faf5;border:1px solid #cde9d8;border-radius:10px;';
+    let rows = '<div style="font-size:10px;font-weight:700;color:#0f6b3e;letter-spacing:.08em;text-transform:uppercase;text-align:center;margin-bottom:2px;">Early resolution credit — decreases the longer you wait</div>';
+    DISCOUNT_TIERS.forEach(t => {
+      const amt = Math.round(PARAM_AMOUNT * (1 - t.pct / 100));
+      const state = PARAM_OFFER_DAYS > t.withinDays ? 'expired' : (t.withinDays === SETTLE_TIER.withinDays ? 'active' : 'future');
+      const rowStyle = state === 'active'
+        ? 'background:#fff;border:1.5px solid #0f6b3e;'
+        : (state === 'expired' ? 'opacity:.38;text-decoration:line-through;' : '');
+      const nowBadge = state === 'active' ? '<span style="background:#0f6b3e;color:#fff;font-size:8.5px;font-weight:800;letter-spacing:.06em;padding:2px 7px;border-radius:100px;margin-left:6px;vertical-align:middle;">NOW</span>' : '';
+      rows += `<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 10px;border-radius:7px;margin-top:4px;font-size:12.5px;${rowStyle}">` +
+        `<span style="font-weight:600;">${t.label}${nowBadge}</span>` +
+        `<span style="font-weight:800;color:${state === 'active' ? '#0f6b3e' : '#6b7b74'};">${t.pct}% off</span>` +
+        `<span style="font-weight:700;">$${amt.toLocaleString()}</span></div>`;
+    });
+    ladder.innerHTML = rows;
+    settleOpt.appendChild(ladder);
+  }
 
   // Pre-fill company name and email in payment form
   const compEl  = document.getElementById('companyName');
@@ -601,7 +649,7 @@ function selectOption(opt) {
 function updatePayButton() {
   const btn = document.getElementById('payBtnText');
   if (selectedOption === 'full') btn.textContent = `Pay $${INVOICE_AMOUNT.toLocaleString()} — full balance`;
-  else if (selectedOption === 'settle') btn.textContent = `Pay $${(INVOICE_AMOUNT * 0.9).toLocaleString()} — settlement`;
+  else if (selectedOption === 'settle') btn.textContent = `Pay $${Math.round(INVOICE_AMOUNT * SETTLE_MULT).toLocaleString()} — settlement`;
   else {
     const inst = calcInstalment();
     btn.textContent = `Pay $${Math.round(inst).toLocaleString()} now — first instalment`;
@@ -730,7 +778,7 @@ async function processPayment() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'create_payment_intent',
-          amount: selectedOption === 'settle' ? (parseFloat(amount) * 0.9).toFixed(2) : amount,
+          amount: selectedOption === 'settle' ? (parseFloat(amount) * SETTLE_MULT).toFixed(2) : amount,
           currency: 'usd',
           connectedAccountId: connectedAccount,
           invoiceId,
@@ -783,13 +831,13 @@ function showSuccess(email) {
   ss.style.display = 'block';
   let paymentDesc, paymentAmt, nextStep;
   if(selectedOption === 'full') {
-    paymentAmt = '$127,500.00';
+    paymentAmt = '$' + INVOICE_AMOUNT.toLocaleString() + '.00';
     paymentDesc = 'Full payment';
     nextStep = 'Account closed. You will receive a paid-in-full confirmation shortly.';
   } else if(selectedOption === 'settle') {
-    paymentAmt = '$114,750.00';
+    paymentAmt = '$' + Math.round(INVOICE_AMOUNT * SETTLE_MULT).toLocaleString() + '.00';
     paymentDesc = 'Settlement payment';
-    nextStep = 'Account settled and closed. $12,750 has been waived. Confirmation sent.';
+    nextStep = 'Account settled and closed. $' + Math.round(INVOICE_AMOUNT * (1 - SETTLE_MULT)).toLocaleString() + ' has been waived. Confirmation sent.';
   } else {
     const inst = calcInstalment();
     paymentAmt = '$' + Math.round(inst).toLocaleString() + '.00';
