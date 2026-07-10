@@ -129,7 +129,7 @@ exports.handler = async function(event, context) {
     }
 
     if (action === 'create_payment_intent') {
-      const { amount, currency, connectedAccountId, invoiceId, debtorEmail } = body;
+      const { amount, currency, connectedAccountId, invoiceId, debtorEmail, paymentType, settlementPct, offerDays, originalAmount, planMonths } = body;
       const amountCents = Math.round(parseFloat(amount) * 100);
       const platformFee = Math.round(amountCents * 0.02);
 
@@ -140,7 +140,15 @@ exports.handler = async function(event, context) {
         application_fee_amount: platformFee,
         transfer_data: { destination: connectedAccountId },
         receipt_email: debtorEmail,
-        metadata: { invoice_id: invoiceId, platform: 'collectiq' }
+        metadata: {
+          invoice_id: invoiceId,
+          platform: 'collectiq',
+          payment_type: paymentType || 'full',
+          settlement_pct: String(settlementPct || 0),
+          offer_days: String(offerDays || 0),
+          original_amount: String(originalAmount || amount),
+          plan_months: String(planMonths || 0)
+        }
       });
 
       return {

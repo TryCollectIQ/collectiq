@@ -443,7 +443,7 @@ body { font-family: var(--ff-body); background: var(--soft); color: var(--ink); 
           <div class="card-icon">VISA</div>
           <div class="card-icon">MC</div>
           <div class="card-icon">AMEX</div>
-          <div class="card-icon">ACH</div>
+          
         </div>
       </div>
       <div class="payment-body">
@@ -778,11 +778,18 @@ async function processPayment() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'create_payment_intent',
-          amount: selectedOption === 'settle' ? (parseFloat(amount) * SETTLE_MULT).toFixed(2) : amount,
+          amount: selectedOption === 'settle' ? (parseFloat(amount) * SETTLE_MULT).toFixed(2)
+                : selectedOption === 'plan' ? Math.round(calcInstalment()).toFixed(2)
+                : amount,
           currency: 'usd',
           connectedAccountId: connectedAccount,
           invoiceId,
-          debtorEmail: email
+          debtorEmail: email,
+          paymentType: selectedOption,
+          settlementPct: selectedOption === 'settle' ? SETTLE_PCT : 0,
+          offerDays: PARAM_OFFER_DAYS,
+          originalAmount: amount,
+          planMonths: selectedOption === 'plan' ? planMonths : 0
         })
       });
       
