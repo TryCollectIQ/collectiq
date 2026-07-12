@@ -294,7 +294,7 @@
   <div class="wrap">
     <div class="sec-head">
       <h2 class="display">Built for the businesses that wait the longest.</h2>
-      <p class="sec-sub">Eight industries. One shared problem: the work is done, the invoice is out, and the money hasn't moved. Select yours.</p>
+      <p class="sec-sub">Nine industries. One shared problem: the work is done, the invoice is out, and the money hasn't moved. Select yours.</p>
     </div>
 
     <div class="v-grid" role="tablist" aria-label="Industries">
@@ -306,6 +306,7 @@
       <button class="v-tab" role="tab" aria-selected="false" data-v="government"><span class="v-icon">🏛️</span><span class="v-name">Government Contractors</span></button>
       <button class="v-tab" role="tab" aria-selected="false" data-v="cleaning"><span class="v-icon">🧽</span><span class="v-name">Commercial Cleaning</span></button>
       <button class="v-tab" role="tab" aria-selected="false" data-v="medical"><span class="v-icon">🚑</span><span class="v-name">Medical Logistics</span></button>
+      <button class="v-tab" role="tab" aria-selected="false" data-v="foodservice"><span class="v-icon">🍽️</span><span class="v-name">Foodservice &amp; Catering</span></button>
     </div>
 
     <div class="v-panel" id="vPanel">
@@ -388,6 +389,17 @@ calc();
 
 // ==================== VERTICALS ====================
 const V = {
+  foodservice: {
+    stat: '60+ days', statLabel: 'typical institutional payment on catering and event invoices',
+    headline: 'You fed the event months ago. CollectIQ gets it paid.',
+    cta: 'Automate catering collections →',
+    pains: [
+      'Hospitals, universities, and corporate clients run AP on their calendar — not yours',
+      'Event and catering invoices pile up across departments with no single payer contact',
+      'Food and labor costs were paid weeks before the invoice even lands in their queue',
+      'Chasing institutional clients personally risks contracts renewals depend on'
+    ]
+  },
   freight: {
     stat: '75 days', statLabel: 'average shipper payment while you pay carriers in 10',
     headline: 'You float every load. CollectIQ closes the gap.',
