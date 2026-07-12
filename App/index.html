@@ -345,14 +345,16 @@ tbody tr:hover td{background:var(--bg);}
         <button class="auth-submit" onclick="doLogin()">Sign in →</button>
         <div style="text-align:center;margin-top:12px;font-size:12px;color:var(--muted);">No account? <a onclick="showRegister()" style="color:var(--accent);cursor:pointer;">Create one free</a></div>
         <div class="auth-demos">
+          <div id="demoChips" style="display:none;">
           <div class="demo-chip" onclick="demoLogin('admin')">Demo as Admin</div>
           <div class="demo-chip" onclick="demoLogin('agent')">Demo as Agent</div>
+          </div>
         </div>
       </div>
       <!-- REGISTER -->
       <div id="registerF" style="display:none;">
         <div class="auth-card-title">Create account</div>
-        <div class="auth-card-sub">Start your 14-day free trial</div>
+        <div class="auth-card-sub">Start your 30-day free trial</div>
         <div class="auth-err" id="regErr"></div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
           <div class="f"><label>First name</label><input id="rFirst" placeholder="Jordan"/></div>
@@ -387,7 +389,7 @@ tbody tr:hover td{background:var(--bg);}
 <div id="paywallScreen">
   <div class="pw-icon">🔒</div>
   <div class="pw-title">Your trial has <em>ended</em></div>
-  <div class="pw-sub">Your 7-day free trial is over. Choose a plan below to continue recovering revenue with CollectIQ. Your data is safe and ready when you upgrade.</div>
+  <div class="pw-sub">Your 30-day free trial is over. Choose a plan below to continue recovering revenue with CollectIQ. Your data is safe and ready when you upgrade.</div>
   <div class="pw-days" id="pwDaysMsg"></div>
   <div class="pw-plans">
     <div class="pw-plan" onclick="startCO('https://buy.stripe.com/5kQbJ3a3Decj3Mu29k24002', CU?.email||'')">
@@ -679,7 +681,7 @@ tbody tr:hover td{background:var(--bg);}
           <button class="btn btn-ink btn-sm" id="bA" onclick="setBill('annual')">Annual (Save 20%)</button>
         </div>
         <div class="pgrid" id="pGrid"></div>
-        <div style="font-size:12px;color:var(--muted);text-align:center;margin-top:14px;">7-day free trial on all plans · Cancel anytime · Secured by Stripe</div>
+        <div style="font-size:12px;color:var(--muted);text-align:center;margin-top:14px;">30-day free trial on all plans · Cancel anytime · Secured by Stripe</div>
       </div>
 
       <!-- USERS -->
@@ -754,9 +756,9 @@ tbody tr:hover td{background:var(--bg);}
 <script>
 // ── DATA ─────────────────────────────────────────────────────────────
 const PLANS_CFG={
-  STARTER:{name:'Starter',monthly:299,annual:2990,annualId:'https://buy.stripe.com/eVqeVfb7H0ltgzgaFQ24003',monthlyId:'https://buy.stripe.com/5kQbJ3a3Decj3Mu29k24002',feats:['Up to 250 accounts','AI debtor scoring','Email outreach (SendGrid)','CSV import','Payment plan configurator','Audit log 30 days','Email support']},
-  GROWTH:{name:'Growth',monthly:799,annual:7990,annualId:'https://buy.stripe.com/9B64gBcbL9W3aaS4hs24000',monthlyId:'https://buy.stripe.com/4gM4gBejT2tBbeWeW624001',pop:true,feats:['Unlimited accounts','Full AI negotiator','Email + SMS outreach','ERP integrations','Dispute management','Audit log 1 year','Priority support + onboarding']},
-  ENTERPRISE:{name:'Enterprise',monthly:1500,annual:null,annualId:null,monthlyId:null,feats:['Unlimited agents','SAP / NetSuite / custom ERP','White-label option','Custom AI compliance rules','SSO / SAML','Dedicated success manager','SLA support']},
+  STARTER:{name:'Starter',monthly:299,annual:2990,annualId:'https://buy.stripe.com/eVqeVfb7H0ltgzgaFQ24003',monthlyId:'https://buy.stripe.com/5kQbJ3a3Decj3Mu29k24002',feats:['Up to 250 accounts','AI debtor scoring','Email outreach (SendGrid)','CSV import','Payment plan configurator','Audit log 30 days','LitReady™ case files (add-on)','Email support']},
+  GROWTH:{name:'Growth',monthly:799,annual:7990,annualId:'https://buy.stripe.com/9B64gBcbL9W3aaS4hs24000',monthlyId:'https://buy.stripe.com/4gM4gBejT2tBbeWeW624001',pop:true,feats:['Unlimited accounts','Full AI negotiator','Email + SMS outreach','ERP integrations','Dispute management','Audit log 1 year','LitReady™ case files (add-on)','Priority support + onboarding']},
+  ENTERPRISE:{name:'Enterprise',monthly:1500,annual:null,annualId:null,monthlyId:null,feats:['Unlimited agents','SAP / NetSuite / custom ERP','White-label option','Custom AI compliance rules','SSO / SAML','LitReady™ court-ready case files — included','Dedicated success manager','SLA support']},
 };
 
 let ACCTS=[
@@ -1009,7 +1011,20 @@ async function doRegister(){
   document.getElementById('confirmEmail').textContent=email;
 }
 
+// ── DEMO ACCESS GATE ──────────────────────────────────────────
+// Demo buttons only appear with secret URL: /app?demo=collectron
+const DEMO_KEY = 'collectron';
+try {
+  if (new URLSearchParams(window.location.search).get('demo') === DEMO_KEY) {
+    document.addEventListener('DOMContentLoaded', function(){
+      const chips = document.getElementById('demoChips');
+      if (chips) chips.style.display = '';
+    });
+  }
+} catch(e) {}
+
 function demoLogin(r){
+  if (new URLSearchParams(window.location.search).get('demo') !== DEMO_KEY) { return; }
   const m={admin:{name:'Jordan Rivera',email:'jordan@trycollectiq.com',role:'ADMIN',i:'JR',plan:'PREMIUM',tenantId:'demo'},agent:{name:'Tom Kim',email:'tom@trycollectiq.com',role:'USER',i:'TK',plan:'GROWTH',tenantId:'demo'}};
   CU=m[r];
   document.getElementById('authScreen').style.display='none';
