@@ -758,6 +758,7 @@ footer { background: var(--ink); color: var(--white); padding: 64px 48px 40px; }
           <option value="logistics">Logistics &amp; freight</option>
           <option value="professional">Professional services</option>
           <option value="manufacturing">Manufacturing</option>
+<option value="foodservice">Foodservice &amp; catering</option>
         </select>
       </div>
 
@@ -1020,6 +1021,7 @@ const INDUSTRY_DATA = {
   logistics:    { aiRate: 0.70, label: 'logistics & freight data', boost: 1.06 },
   professional: { aiRate: 0.65, label: 'professional services data', boost: 1.03 },
   manufacturing:{ aiRate: 0.67, label: 'manufacturing sector data', boost: 1.05 },
+foodservice:  { aiRate: 0.68, label: 'foodservice & catering data', boost: 1.05 },
 };
 
 function fmtMoney(n) {
