@@ -170,6 +170,76 @@ exports.handler = async function(event, context) {
     const stripeEvent = JSON.parse(event.body);
     console.log('Stripe event:', stripeEvent.type);
 
+
+    // ── DEBTOR PAYMENT RECEIVED: close the loop in the database ──
+    if (stripeEvent.type === 'payment_intent.succeeded') {
+      const pi = stripeEvent.data.object;
+      const md = pi.metadata || {};
+      if (md.platform === 'collectiq' && md.tenant_id) {
+        const supabaseUrl = process.env.SUPABASE_URL;
+        const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
+        const sbReq = (method, path, bodyObj) => new Promise((resolve) => {
+          const data = bodyObj ? JSON.stringify(bodyObj) : null;
+          const req = https.request({
+            hostname: new URL(supabaseUrl).hostname,
+            path: '/rest/v1/' + path,
+            method,
+            headers: {
+              'apikey': supabaseKey,
+              'Authorization': `Bearer ${supabaseKey}`,
+              'Content-Type': 'application/json',
+              'Prefer': 'return=minimal'
+            }
+          }, (res) => { let b=''; res.on('data',c=>b+=c); res.on('end',()=>resolve({status:res.statusCode, body:b})); });
+          req.on('error', ()=>resolve({status:0}));
+          if (data) req.write(data);
+          req.end();
+        });
+
+        const amountPaid = (pi.amount_received || pi.amount || 0) / 100;
+        const ptype = md.payment_type || 'full';
+
+        // 1. Update the account row
+        if (md.account_row_id) {
+          const newStatus = ptype === 'plan' ? 'PLAN' : 'RECOVERED';
+          await sbReq('PATCH', `accounts?id=eq.${md.account_row_id}`, { status: newStatus });
+        }
+
+        // 2. Audit trail
+        await sbReq('POST', 'audit_log', {
+          tenant_id: md.tenant_id,
+          actor: 'Debtor Portal',
+          action_type: 'payment',
+          description: `Payment received: $${amountPaid.toLocaleString()} (${ptype}${ptype==='plan' ? `, installment 1 of ${md.plan_months}` : ''}) — ${md.invoice_id || 'no invoice ref'} — ${md.debtor_name || md.debtor_email || 'debtor'}`
+        });
+
+        // 3. Payment plans: schedule the remaining installments
+        if (ptype === 'plan' && pi.customer && parseInt(md.plan_months) > 1) {
+          const next = new Date(); next.setMonth(next.getMonth() + 1);
+          await sbReq('POST', 'plan_schedules', {
+            tenant_id: md.tenant_id,
+            account_row_id: md.account_row_id || null,
+            invoice_id: md.invoice_id || '',
+            debtor_name: md.debtor_name || '',
+            debtor_email: md.debtor_email || '',
+            stripe_customer_id: pi.customer,
+            payment_method_id: pi.payment_method || '',
+            connected_account_id: md.connected_account || '',
+            installment_amount: parseFloat(md.installment_amount || amountPaid),
+            total_amount: parseFloat(md.original_amount || 0),
+            months: parseInt(md.plan_months),
+            paid_count: 1,
+            next_charge_at: next.toISOString(),
+            status: 'active'
+          });
+        }
+
+        console.log(`CollectIQ payment recorded: $${amountPaid} ${ptype} tenant=${md.tenant_id}`);
+        return { statusCode: 200, headers, body: JSON.stringify({ received: true, recorded: true }) };
+      }
+      return { statusCode: 200, headers, body: JSON.stringify({ received: true }) };
+    }
+
     if (stripeEvent.type === 'checkout.session.completed') {
       const session = stripeEvent.data.object;
       const email = session.customer_email || session.metadata?.email;

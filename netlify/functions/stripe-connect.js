@@ -129,11 +129,22 @@ exports.handler = async function(event, context) {
     }
 
     if (action === 'create_payment_intent') {
-      const { amount, currency, connectedAccountId, invoiceId, debtorEmail, paymentType, settlementPct, offerDays, originalAmount, planMonths } = body;
+      const { amount, currency, connectedAccountId, invoiceId, debtorEmail, paymentType, settlementPct, offerDays, originalAmount, planMonths, accountRowId, tenantId, debtorName } = body;
       const amountCents = Math.round(parseFloat(amount) * 100);
       const platformFee = Math.round(amountCents * 0.02);
 
-      const result = await stripeRequest('/v1/payment_intents', 'POST', {
+      // For payment plans: create a Customer so the card can be reused for future installments
+      let customerId = '';
+      if ((paymentType || '') === 'plan') {
+        const custRes = await stripeRequest('/v1/customers', 'POST', {
+          email: debtorEmail || undefined,
+          name: debtorName || undefined,
+          metadata: { platform: 'collectiq', invoice_id: invoiceId || '' }
+        });
+        if (custRes.status === 200 && custRes.data && custRes.data.id) customerId = custRes.data.id;
+      }
+
+      const piParams = {
         amount: amountCents,
         currency: currency || 'usd',
         automatic_payment_methods: { enabled: true },
@@ -147,9 +158,20 @@ exports.handler = async function(event, context) {
           settlement_pct: String(settlementPct || 0),
           offer_days: String(offerDays || 0),
           original_amount: String(originalAmount || amount),
-          plan_months: String(planMonths || 0)
+          plan_months: String(planMonths || 0),
+          installment_amount: String(amount),
+          account_row_id: accountRowId || '',
+          tenant_id: tenantId || '',
+          connected_account: connectedAccountId || '',
+          debtor_name: debtorName || '',
+          debtor_email: debtorEmail || '',
+          debtor_name: debtorName || '',
+          debtor_email: debtorEmail || ''
         }
-      });
+      };
+      if (customerId) { piParams.customer = customerId; piParams.setup_future_usage = 'off_session'; }
+
+      const result = await stripeRequest('/v1/payment_intents', 'POST', piParams);
 
       return {
         statusCode: 200,

@@ -939,7 +939,7 @@ async function loadUserAndLaunch(authUser){
     try {
       // Get tenant subscription status from DB
       const {data: tenantData} = await Promise.race([
-        sb.from('tenants').select('subscription_status,trial_ends_at,plan,voice_profile').eq('id', CU.tenantId).single(),
+        sb.from('tenants').select('subscription_status,trial_ends_at,plan,voice_profile,name').eq('id', CU.tenantId).single(),
         new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 8000))
       ]);
       
@@ -949,6 +949,7 @@ async function loadUserAndLaunch(authUser){
           CU.plan = tenantData.plan;
         }
         if (tenantData.voice_profile) { CU.voice = tenantData.voice_profile; }
+        if (tenantData.name) { CU.tenantName = tenantData.name; }
         
         const status = tenantData.subscription_status || 'trialing';
         const trialEnd = tenantData.trial_ends_at ? new Date(tenantData.trial_ends_at) : null;
@@ -987,6 +988,7 @@ async function loadUserAndLaunch(authUser){
   try { await loadAccountsFromDB(); } catch(e) { console.log('loadAccounts error:', e); }
   renderLiveTenant();
   init();
+  try{ populateEmailDropdown(); }catch(e){}
   try{ loadVoiceUI(); }catch(e){}
 }
 
@@ -1225,27 +1227,36 @@ function nAct(p){sv('negotiator',document.querySelectorAll('.nav-item')[3]);docu
 // ── OUTREACH ──────────────────────────────────────────────────────────
 let oTab='e';
 function setOT(t){oTab=t;document.getElementById('eCmp').style.display=t==='e'?'':'none';document.getElementById('sCmp').style.display=t==='s'?'':'none';document.getElementById('oTE').className='btn btn-sm'+(t==='e'?' btn-ink':'');document.getElementById('oTS').className='btn btn-sm'+(t==='s'?' btn-ink':'');if(t==='s')setTimeout(populateSmsDropdown,100);}
-function buildPayLink(co, am, dy) {
+function populateEmailDropdown(){
+  if(!CU?.tenantId||CU.tenantId==='demo')return;
+  const sel=document.getElementById('oTo'); if(!sel)return;
+  sel.innerHTML=ACCTS.map(a=>`<option value="${a.name}|${a.email||''}|${a.balance}|${a.days}|${a.id}">${a.name} — ${a.email||'no email'}</option>`).join('')||'<option value="">No accounts yet</option>';
+}
+function buildPayLink(co, am, dy, acctId) {
   const invoiceId = 'INV-' + Date.now().toString(36).toUpperCase().slice(-6);
   const accountId = localStorage.getItem('stripe_account_id') || '';
-  return `https://trycollectiq.com/pay?invoice=\${invoiceId}&amount=\${am}&debtor=\${encodeURIComponent(co)}&days=\${dy}\${accountId ? '&account=' + accountId : ''}`;
+  const cred = CU?.tenantName ? '&creditor='+encodeURIComponent(CU.tenantName) : '';
+  const cem  = CU?.email ? '&email='+encodeURIComponent(CU.email) : '';
+  const acct = acctId ? '&acct='+encodeURIComponent(acctId) : '';
+  const ten  = (CU?.tenantId && CU.tenantId!=='demo') ? '&tenant='+encodeURIComponent(CU.tenantId) : '';
+  return `https://trycollectiq.com/pay?invoice=\${invoiceId}&amount=\${am}&debtor=\${encodeURIComponent(co)}&days=\${dy}\${accountId ? '&account=' + accountId : ''}\${cred}\${cem}\${acct}\${ten}`;
 }
 
 function fTmpl(){
-  const to=(document.getElementById('oTo')?.value||'').split('|');const[co,,am,dy]=to;
+  const to=(document.getElementById('oTo')?.value||'').split('|');const[co,,am,dy,aid]=to;
   const t=document.getElementById('oTm')?.value||'reminder';
   const sj={reminder:'Overdue invoice — action required',final:'Final notice — immediate payment required',plan:'Payment plan offer',legal:'Pre-legal notice'};
   const bd={
-    reminder:`Dear ${co} Finance Team,\n\nI hope this message finds you well. I'm writing about your outstanding invoice of ${am?'$'+Number(am).toLocaleString():'the balance'}, now ${dy} days past due.\n\nWe'd like to resolve this promptly. Could we schedule a brief call this week?\n\nPay securely online: \${buildPayLink(co, am, dy)}\n\nPay securely online: \${buildPayLink(co, am, dy)}\n\nPay securely online: \${buildPayLink(co, am, dy)}\n\nPay securely online: \${buildPayLink(co, am, dy)}\n\nBest regards,\nJordan Rivera · CollectIQ`,
-    final:`Dear ${co} Finance Team,\n\nFinal notice: your balance of ${am?'$'+Number(am).toLocaleString():'the outstanding amount'} is ${dy} days overdue. Payment required within 5 business days to avoid legal escalation.\n\nCollectIQ Collections`,
-    plan:`Dear ${co} Finance Team,\n\nWe'd like to offer a structured payment plan for your balance of ${am?'$'+Number(am).toLocaleString():'the outstanding amount'}. Our AI has modeled a 6-month arrangement at no additional interest. Please reply to discuss.\n\nCollectIQ Collections`,
-    legal:`Dear ${co} Finance Team,\n\nDespite prior communications, your balance of ${am?'$'+Number(am).toLocaleString():'the outstanding amount'} remains unpaid after ${dy} days. If payment is not received within 72 hours, this will be referred to our legal team.\n\nCollectIQ Collections`
+    reminder:`Dear ${co} Finance Team,\n\nI hope this message finds you well. I'm writing about your outstanding invoice of ${am?'$'+Number(am).toLocaleString():'the balance'}, now ${dy} days past due.\n\nWe'd like to resolve this promptly. Could we schedule a brief call this week?\n\nPay securely online: \${buildPayLink(co, am, dy, aid)}\n\nBest regards,\nJordan Rivera · CollectIQ`,
+    final:`Dear ${co} Finance Team,\n\nFinal notice: your balance of ${am?'$'+Number(am).toLocaleString():'the outstanding amount'} is ${dy} days overdue. Payment required within 5 business days to avoid legal escalation.\n\nPay securely online: \${buildPayLink(co, am, dy, aid)}\n\nCollectIQ Collections`,
+    plan:`Dear ${co} Finance Team,\n\nWe'd like to offer a structured payment plan for your balance of ${am?'$'+Number(am).toLocaleString():'the outstanding amount'}. Our AI has modeled a 6-month arrangement at no additional interest. Please reply to discuss.\n\nPay securely online: \${buildPayLink(co, am, dy, aid)}\n\nCollectIQ Collections`,
+    legal:`Dear ${co} Finance Team,\n\nDespite prior communications, your balance of ${am?'$'+Number(am).toLocaleString():'the outstanding amount'} remains unpaid after ${dy} days. If payment is not received within 72 hours, this will be referred to our legal team.\n\nPay securely online: \${buildPayLink(co, am, dy, aid)}\n\nCollectIQ Collections`
   };
   if(document.getElementById('oSj'))document.getElementById('oSj').value=sj[t]||'';
   if(document.getElementById('oBd'))document.getElementById('oBd').value=bd[t]||'';
 }
 async function regenE(){
-  const to=(document.getElementById('oTo')?.value||'').split('|');const[co,,am,dy]=to;
+  const to=(document.getElementById('oTo')?.value||'').split('|');const[co,,am,dy,aid]=to;
   const t=document.getElementById('oTm')?.value||'reminder';
   document.getElementById('oBd').value='Generating with AI…';
   try{
