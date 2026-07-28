@@ -304,9 +304,9 @@ body { font-family: var(--ff-body); background: var(--soft); color: var(--ink); 
       <div>
         <div class="sender-name" id="senderName">NexaTech Solutions</div>
         <div class="sender-msg" id="senderMsg">You have an outstanding invoice. Please review the details below and select a payment option that works for you. We're happy to discuss a payment arrangement if needed.</div>
-        <a href="mailto:billing@nexatech.com" class="sender-contact">
+        <a href="mailto:billing@nexatech.com" class="sender-contact" id="senderContact">
           <svg viewBox="0 0 16 16"><path d="M2 3h12v8H2zM2 3l6 5 6-5"/></svg>
-          billing@nexatech.com
+          <span id="senderContactText">billing@nexatech.com</span>
         </a>
       </div>
     </div>
@@ -584,6 +584,10 @@ document.addEventListener('DOMContentLoaded', () => {
   if(senderMsg)  senderMsg.textContent  = `You have an outstanding invoice with ${PARAM_CREDITOR}. Please review the details below and select a payment option that works for you. We're happy to discuss a payment arrangement if needed.`;
   const topDispute = document.getElementById('topDisputeEmail');
   if(topDispute) topDispute.textContent = PARAM_EMAIL;
+  const sc = document.getElementById('senderContact');
+  if(sc) sc.href = 'mailto:' + PARAM_EMAIL;
+  const sct = document.getElementById('senderContactText');
+  if(sct) sct.textContent = PARAM_EMAIL;
   const achEmail=document.getElementById('achEmail');
   if(achEmail){achEmail.href='mailto:'+PARAM_EMAIL+'?subject='+encodeURIComponent('Remittance details — '+PARAM_INVOICE);achEmail.textContent=PARAM_EMAIL;}
   document.querySelectorAll('.achInv').forEach(e=>e.textContent=PARAM_INVOICE);
