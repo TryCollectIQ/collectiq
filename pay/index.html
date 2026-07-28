@@ -262,6 +262,7 @@ body { font-family: var(--ff-body); background: var(--soft); color: var(--ink); 
   .negotiate-card { padding: 16px 18px; }
   .field-row, .field-row-3 { grid-template-columns: 1fr; }
 }
+@media print{ body *{visibility:hidden;} .invoice-card,.invoice-card *{visibility:visible;} .invoice-card{position:absolute;left:0;top:0;width:100%;box-shadow:none;} }
 </style>
 <script src="https://js.stripe.com/v3/"></script>
 </head>
@@ -326,11 +327,11 @@ body { font-family: var(--ff-body); background: var(--soft); color: var(--ink); 
       <div class="invoice-details">
         <div>
           <div class="inv-detail-label">Invoice date</div>
-          <div class="inv-detail-value">October 15, 2024</div>
+          <div class="inv-detail-value" id="invDate">October 15, 2024</div>
         </div>
         <div>
           <div class="inv-detail-label">Due date</div>
-          <div class="inv-detail-value overdue">November 14, 2024</div>
+          <div class="inv-detail-value overdue" id="dueDate">November 14, 2024</div>
         </div>
         <div>
           <div class="inv-detail-label">Billed to</div>
@@ -338,11 +339,11 @@ body { font-family: var(--ff-body); background: var(--soft); color: var(--ink); 
         </div>
         <div>
           <div class="inv-detail-label">Reference</div>
-          <div class="inv-detail-value">CONTRACT-2024-ML-09</div>
+          <div class="inv-detail-value" id="refValue">CONTRACT-2024-ML-09</div>
         </div>
       </div>
       <div class="invoice-items">
-        <div class="item-row"><span class="item-name">Q3 2024 Service fees</span><span class="item-amount">$95,000.00</span></div>
+        <div class="item-row"><span class="item-name">Service fees</span><span class="item-amount">$95,000.00</span></div>
         <div class="item-row"><span class="item-name">Implementation services</span><span class="item-amount">$24,500.00</span></div>
         <div class="item-row"><span class="item-name">Support &amp; maintenance</span><span class="item-amount">$8,000.00</span></div>
       </div>
@@ -355,7 +356,14 @@ body { font-family: var(--ff-body); background: var(--soft); color: var(--ink); 
     <!-- PAYMENT OPTIONS -->
     <div class="options-card">
       <div class="options-head">
-        <div class="options-title">Choose how to pay</div>
+        <div style="display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin:-6px 0 16px;font-size:12px;color:var(--muted);">
+      <button class="dispute-btn" onclick="openDispute()">Believe this is an error? Dispute this invoice →</button>
+      <span>·</span>
+      <button class="dispute-btn" onclick="window.print()">Download invoice (PDF)</button>
+      <span>·</span>
+      <span>W-9 &amp; remittance details on request</span>
+    </div>
+    <div class="options-title">Choose how to pay</div>
         <div class="options-sub">Select the option that works best for your business right now</div>
       </div>
       <div class="option-list">
@@ -429,6 +437,10 @@ body { font-family: var(--ff-body); background: var(--soft); color: var(--ink); 
               </div>
             </div>
             <div class="plan-schedule" id="planSchedule" style="margin-top:12px;"></div>
+            <label style="display:flex;gap:8px;align-items:flex-start;margin-top:12px;font-size:11.5px;color:var(--muted);cursor:pointer;">
+              <input type="checkbox" id="planAgree" style="margin-top:2px;"/>
+              <span>I agree to the installment schedule shown above. I authorize charges on the listed dates until the total is paid. Missed installments may void plan discounts and reinstate the full balance as immediately due. A written copy of these terms will be emailed with my receipt.</span>
+            </label>
           </div>
         </div>
 
@@ -480,7 +492,7 @@ body { font-family: var(--ff-body); background: var(--soft); color: var(--ink); 
         </div>
         <button class="pay-btn" onclick="processPayment()" id="payBtn">
           <svg viewBox="0 0 16 16"><rect x="1" y="5" width="14" height="9" rx="1"/><path d="M1 8h14"/></svg>
-          <span id="payBtnText">Pay $21,250 now — first instalment</span>
+          <span id="payBtnText">Pay $21,250 now — first installment</span>
         </button>
         <div class="pay-trust">
           <div class="pay-trust-item"><svg viewBox="0 0 16 16"><rect x="3" y="7" width="10" height="7" rx="1"/><path d="M5 7V5a3 3 0 016 0v2"/></svg>256-bit SSL</div>
@@ -496,7 +508,7 @@ body { font-family: var(--ff-body); background: var(--soft); color: var(--ink); 
       <div class="neg-sub">If none of the options above work for your situation, explain your circumstances below. Our AI can propose custom arrangements and escalate to a human if needed.</div>
       <div class="neg-chat">
         <div class="neg-msgs" id="negMsgs">
-          <div class="neg-msg company">Hi — I'm the AI assistant for NexaTech's collections team. I can help find a payment arrangement that works for your business. What's your situation?</div>
+          <div class="neg-msg company">Hi — I'm the AI assistant for the collections team. I can help find a payment arrangement that works for your business, working within the approved settlement options shown above — anything beyond them, I escalate to a human decision-maker. What's your situation?</div>
         </div>
         <div class="neg-input-row">
           <input class="neg-input" id="negInput" type="text" placeholder="Explain your situation or counter-propose…" onkeydown="if(event.key==='Enter')sendNeg()"/>
@@ -505,6 +517,10 @@ body { font-family: var(--ff-body); background: var(--soft); color: var(--ink); 
       </div>
     </div>
 
+    
+    <div style="margin:14px 0 18px;padding:13px 15px;border:1px dashed rgba(28,24,20,.18);border-radius:10px;font-size:12.5px;color:var(--muted);background:rgba(28,24,20,.02);">
+      <strong style="color:var(--ink,#1c1814);">Prefer to pay by bank transfer (ACH/wire)?</strong> Many businesses do for larger amounts — no card limits, no card fees. Email <a id="achEmail" href="#">our billing team</a> with subject “Remittance details — <span class="achInv"></span>” and instructions will be sent same business day. Bank payments qualify for the same early-resolution discount if initiated within the offer window.
+    </div>
     <!-- DISPUTE -->
     <div class="dispute-link">
       <button class="dispute-btn" onclick="openDispute()">Dispute this invoice or report an error →</button>
@@ -525,7 +541,7 @@ const urlParams = new URLSearchParams(window.location.search);
 
 // Read all parameters from URL
 const PARAM_AMOUNT    = parseFloat(urlParams.get('amount'))    || 127500;
-const PARAM_INVOICE   = urlParams.get('invoice')               || 'INV-2024-0892';
+const PARAM_INVOICE   = urlParams.get('invoice')               || 'INV-2026-0892';
 const PARAM_DEBTOR    = urlParams.get('debtor')                || 'Meridian Logistics Inc.';
 const PARAM_CREDITOR  = urlParams.get('creditor')              || 'NexaTech Solutions';
 const PARAM_EMAIL     = urlParams.get('email')                 || 'billing@company.com';
@@ -558,6 +574,11 @@ document.addEventListener('DOMContentLoaded', () => {
   if(senderName) senderName.textContent = PARAM_CREDITOR;
   if(senderLogo) senderLogo.textContent = PARAM_CREDITOR.charAt(0).toUpperCase();
   if(senderMsg)  senderMsg.textContent  = `You have an outstanding invoice with ${PARAM_CREDITOR}. Please review the details below and select a payment option that works for you. We're happy to discuss a payment arrangement if needed.`;
+  const topDispute = document.getElementById('topDisputeEmail');
+  if(topDispute) topDispute.textContent = PARAM_EMAIL;
+  const achEmail=document.getElementById('achEmail');
+  if(achEmail){achEmail.href='mailto:'+PARAM_EMAIL+'?subject='+encodeURIComponent('Remittance details — '+PARAM_INVOICE);achEmail.textContent=PARAM_EMAIL;}
+  document.querySelectorAll('.achInv').forEach(e=>e.textContent=PARAM_INVOICE);
 
   // Invoice details
   const invNum    = document.getElementById('invoiceNumber');
@@ -571,6 +592,17 @@ document.addEventListener('DOMContentLoaded', () => {
   if(invTotal) invTotal.textContent = '$' + PARAM_AMOUNT.toLocaleString() + '.00';
   if(daysEl)   daysEl.textContent   = PARAM_DAYS + ' days overdue';
   if(debtorEl) debtorEl.textContent = PARAM_DEBTOR;
+
+  // Dynamic invoice/due dates derived from days overdue (always coherent)
+  const fmtDate = d => d.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+  const _due = new Date(); _due.setDate(_due.getDate() - PARAM_DAYS);
+  const _inv = new Date(_due); _inv.setDate(_inv.getDate() - 30);
+  const invDateEl = document.getElementById('invDate');
+  const dueDateEl = document.getElementById('dueDate');
+  const refEl     = document.getElementById('refValue');
+  if(invDateEl) invDateEl.textContent = fmtDate(_inv);
+  if(dueDateEl) dueDateEl.textContent = fmtDate(_due);
+  if(refEl && urlParams.get('ref')) refEl.textContent = PARAM_REF;
 
   // Payment options amounts
   document.querySelectorAll('.option-price-num').forEach((el, i) => {
@@ -652,7 +684,7 @@ function updatePayButton() {
   else if (selectedOption === 'settle') btn.textContent = `Pay $${Math.round(INVOICE_AMOUNT * SETTLE_MULT).toLocaleString()} — settlement`;
   else {
     const inst = calcInstalment();
-    btn.textContent = `Pay $${Math.round(inst).toLocaleString()} now — first instalment`;
+    btn.textContent = `Pay $${Math.round(inst).toLocaleString()} now — first installment`;
   }
 }
 
@@ -758,6 +790,10 @@ async function processPayment() {
   const email = document.getElementById('receiptEmail').value.trim();
   
   if (!name) { alert('Please enter your name.'); return; }
+  if (selectedOption === 'plan') {
+    const agree = document.getElementById('planAgree');
+    if (agree && !agree.checked) { alert('Please review and accept the installment agreement to continue.'); return; }
+  }
 
   const btn = document.getElementById('payBtn');
   btn.textContent = 'Processing…';
@@ -766,7 +802,7 @@ async function processPayment() {
 
   const params = new URLSearchParams(window.location.search);
   const connectedAccount = params.get('account') || localStorage.getItem('stripe_account_id');
-  const invoiceId = params.get('invoice') || 'INV-2024-0892';
+  const invoiceId = params.get('invoice') || 'INV-2026-0892';
   const amount = params.get('amount') || '127500';
 
   // If we have a connected account, process real payment
@@ -848,7 +884,7 @@ function showSuccess(email) {
   } else {
     const inst = calcInstalment();
     paymentAmt = '$' + Math.round(inst).toLocaleString() + '.00';
-    paymentDesc = `Payment plan — instalment 1 of ${planMonths}`;
+    paymentDesc = `Payment plan — installment 1 of ${planMonths}`;
     nextStep = `${planMonths - 1} more payments of $${Math.round(inst).toLocaleString()} to follow. Schedule sent to ${email}.`;
   }
   const now = new Date();
