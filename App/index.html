@@ -712,6 +712,20 @@ tbody tr:hover td{background:var(--bg);}
       <!-- INTEGRATIONS -->
       <div id="vw-integrations" class="view">
         <div class="ph"><div><div class="ph-t">Integrations</div><div class="ph-s">Connected services and API credentials</div></div></div>
+        <div class="card" style="margin-bottom:16px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><span style="font-size:16px;">\ud83c\udf99\ufe0f</span><div style="font-weight:700;font-size:13px;">AI Voice Training</div></div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:12px;">Paste 2\u20133 real emails you\u2019ve written to clients. The AI studies your tone, phrasing, and sign-off so every draft sounds like <em>you</em> \u2014 not a template. You always approve before anything sends.</div>
+          <div style="display:grid;gap:8px;">
+            <textarea id="vsN" placeholder="Optional style notes \u2014 e.g. \u2018always warm but direct, offer a payment plan before any firm language, sign off Best, Kinecia\u2019" style="width:100%;min-height:44px;padding:8px;border:1px solid var(--border);border-radius:var(--r);font-size:11px;font-family:inherit;background:var(--surface2);color:var(--ink);"></textarea>
+            <textarea id="vs1" placeholder="Sample email #1 \u2014 paste a real email you wrote to a client" style="width:100%;min-height:70px;padding:8px;border:1px solid var(--border);border-radius:var(--r);font-size:11px;font-family:inherit;background:var(--surface2);color:var(--ink);"></textarea>
+            <textarea id="vs2" placeholder="Sample email #2" style="width:100%;min-height:70px;padding:8px;border:1px solid var(--border);border-radius:var(--r);font-size:11px;font-family:inherit;background:var(--surface2);color:var(--ink);"></textarea>
+            <textarea id="vs3" placeholder="Sample email #3 (optional)" style="width:100%;min-height:70px;padding:8px;border:1px solid var(--border);border-radius:var(--r);font-size:11px;font-family:inherit;background:var(--surface2);color:var(--ink);"></textarea>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:10px;">
+            <button class="btn btn-ink btn-sm" onclick="saveVoice()">Save voice profile</button>
+            <span id="vsMsg" style="font-size:11px;color:var(--muted);"></span>
+          </div>
+        </div>
         <div class="g2">
           <div class="card cp">
             <div class="ct" style="margin-bottom:12px;">Communication</div>
@@ -925,7 +939,7 @@ async function loadUserAndLaunch(authUser){
     try {
       // Get tenant subscription status from DB
       const {data: tenantData} = await Promise.race([
-        sb.from('tenants').select('subscription_status,trial_ends_at,plan').eq('id', CU.tenantId).single(),
+        sb.from('tenants').select('subscription_status,trial_ends_at,plan,voice_profile').eq('id', CU.tenantId).single(),
         new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 8000))
       ]);
       
@@ -934,6 +948,7 @@ async function loadUserAndLaunch(authUser){
         if (tenantData.plan) {
           CU.plan = tenantData.plan;
         }
+        if (tenantData.voice_profile) { CU.voice = tenantData.voice_profile; }
         
         const status = tenantData.subscription_status || 'trialing';
         const trialEnd = tenantData.trial_ends_at ? new Date(tenantData.trial_ends_at) : null;
@@ -972,6 +987,7 @@ async function loadUserAndLaunch(authUser){
   try { await loadAccountsFromDB(); } catch(e) { console.log('loadAccounts error:', e); }
   renderLiveTenant();
   init();
+  try{ loadVoiceUI(); }catch(e){}
 }
 
 async function doLogin(){
@@ -1082,6 +1098,40 @@ function renderLiveTenant(){
   ACTIVE_PLANS.length=0; AUDIT.length=0;
 }
 
+
+// \u2500\u2500 VOICE TRAINING \u2500\u2500
+function voiceBlock(){
+  if(!CU?.voice) return '';
+  try{
+    const v=JSON.parse(CU.voice);
+    let b='';
+    if(v.notes) b+=' OWNER STYLE NOTES: '+v.notes;
+    if(v.samples&&v.samples.length) b+=' REAL EMAILS THE OWNER WROTE \u2014 study and match this exact voice, phrasing, and sign-off: '+v.samples.map((x,i)=>'[OWNER SAMPLE '+(i+1)+'] '+x).join(' ');
+    return b;
+  }catch(e){ return ' OWNER VOICE PROFILE: '+CU.voice; }
+}
+function loadVoiceUI(){
+  try{
+    if(!CU?.voice) return;
+    const v=JSON.parse(CU.voice);
+    if(v.notes) document.getElementById('vsN').value=v.notes;
+    (v.samples||[]).forEach((x,i)=>{const el=document.getElementById('vs'+(i+1)); if(el) el.value=x;});
+  }catch(e){ const n=document.getElementById('vsN'); if(n&&CU?.voice) n.value=CU.voice; }
+}
+async function saveVoice(){
+  const msg=document.getElementById('vsMsg');
+  if(!CU?.tenantId||CU.tenantId==='demo'){ if(msg)msg.textContent='Not available in demo mode.'; return; }
+  const samples=['vs1','vs2','vs3'].map(id=>document.getElementById(id).value.trim()).filter(Boolean);
+  const notes=document.getElementById('vsN').value.trim();
+  if(!notes&&samples.length===0){ if(msg)msg.textContent='Add style notes or at least one sample email.'; return; }
+  const profile=JSON.stringify({notes,samples});
+  try{
+    await sbFetch('tenants','PATCH',{voice_profile:profile},'id=eq.'+CU.tenantId);
+    CU.voice=profile;
+    if(msg){ msg.textContent='\u2713 Saved \u2014 all AI drafts will now match your voice.'; msg.style.color='var(--ok,#047857)'; }
+  }catch(e){ if(msg){ msg.textContent='Save failed: '+e.message; } }
+}
+
 async function saveAccountToDB(acct){
   if(!CU?.tenantId||CU.tenantId==='demo')return;
   try {
@@ -1160,7 +1210,7 @@ async function sendC(ctx){
   tp.innerHTML='<div class="mav">AI</div><div class="mb"><div class="typing-dots"><div class="td-"></div><div class="td-"></div><div class="td-"></div></div></div>';
   el.appendChild(tp);el.scrollTop=el.scrollHeight;
   try{
-    const res=await fetch('/.netlify/functions/ai-proxy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:600,system:'You are CollectIQ AI, a B2B collections strategy assistant. Help agents recover overdue invoices. Be concise (2-3 sentences), strategic and professional.',messages:hist.map(m=>({role:m.r==='ai'?'assistant':'user',content:m.t}))})});
+    const res=await fetch('/.netlify/functions/ai-proxy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:600,system:'You are CollectIQ AI, a B2B collections strategy assistant. Help agents recover overdue invoices. Be concise (2-3 sentences), strategic and professional.'+(CU?.voice?' When drafting any customer-facing outreach text, write it in the owner\'s voice.'+voiceBlock():''),messages:hist.map(m=>({role:m.r==='ai'?'assistant':'user',content:m.t}))})});
     const data=await res.json();
     document.getElementById('typ-'+ctx)?.remove();
     hist.push({r:'ai',t:data.content?.[0]?.text||'Let me analyze that for you.'});
@@ -1199,7 +1249,7 @@ async function regenE(){
   const t=document.getElementById('oTm')?.value||'reminder';
   document.getElementById('oBd').value='Generating with AI…';
   try{
-    const r=await fetch('/.netlify/functions/ai-proxy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:400,system:'Write concise professional B2B collection emails. Return only the email body under 100 words. No subject line.',messages:[{role:'user',content:`Write a ${t} collection email for ${co}, owed $${Number(am).toLocaleString()}, ${dy} days overdue.`}]})});
+    const r=await fetch('/.netlify/functions/ai-proxy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:400,system:'Write concise professional B2B collection emails. Return only the email body under 120 words. No subject line.'+(CU?.voice?' VOICE MATCHING (critical): Write this email in the exact voice of the business owner — mirror their tone, warmth, phrasing habits, and sign-off precisely. It must read as personally written by the owner.'+voiceBlock():''),messages:[{role:'user',content:`Write a ${t} collection email for ${co}, owed $${Number(am).toLocaleString()}, ${dy} days overdue.${CU?.voice?' Sign it as the owner per the voice profile.':''}`}]})});
     const d=await r.json();document.getElementById('oBd').value=d.content?.[0]?.text||'';
     addAudit('ai','AI',`Email regenerated for ${co} — ${t} template`);
   }catch{fTmpl();}
