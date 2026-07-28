@@ -1055,6 +1055,7 @@ async function loadUserAndLaunch(authUser){
   try{ populateEmailDropdown(); }catch(e){}
   try{ loadMfaStatus(); }catch(e){}
   try{ loadRemitUI(); }catch(e){}
+  try{ loadAuditFromDB(); }catch(e){}
   try{ loadVoiceUI(); }catch(e){}
 }
 
@@ -1290,6 +1291,24 @@ async function saveRemit(){
     CU.remit=profile;
     if(msg){msg.textContent='✓ Saved — debtors can now request the package from your payment portal.';}
   }catch(e){if(msg)msg.textContent='Save failed: '+e.message;}
+}
+
+
+// ── LOAD AUDIT LOG FROM DB (live tenants) ──
+async function loadAuditFromDB(){
+  if(!CU?.tenantId||CU.tenantId==='demo')return;
+  try{
+    const rows=await sbFetch('audit_log','GET',null,`tenant_id=eq.${CU.tenantId}&order=created_at.desc&limit=50`);
+    const rel=t=>{const d=(Date.now()-new Date(t).getTime())/1000;
+      if(d<60)return Math.max(1,Math.round(d))+'s ago';
+      if(d<3600)return Math.round(d/60)+'m ago';
+      if(d<86400)return Math.round(d/3600)+'h ago';
+      return Math.round(d/86400)+'d ago';};
+    const typeMap={payment:'ai',payment_failed:'ai',email:'email',sms:'sms',account:'import',import:'import',auth:'auth',ai:'ai'};
+    AUDIT.length=0;
+    (rows||[]).forEach(r=>AUDIT.push({time:rel(r.created_at),type:typeMap[r.action_type]||'ai',actor:r.actor||'System',txt:r.description||''}));
+    rAudit&&rAudit();rDashAudit&&rDashAudit();
+  }catch(e){console.log('loadAuditFromDB error:',e.message);}
 }
 
 async function saveAccountToDB(acct){
