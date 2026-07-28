@@ -1397,7 +1397,7 @@ function buildPayLink(co, am, dy, acctId) {
   const cem  = CU?.email ? '&email='+encodeURIComponent(CU.email) : '';
   const acct = acctId ? '&acct='+encodeURIComponent(acctId) : '';
   const ten  = (CU?.tenantId && CU.tenantId!=='demo') ? '&tenant='+encodeURIComponent(CU.tenantId) : '';
-  return `https://trycollectiq.com/pay?invoice=\${invoiceId}&amount=\${am}&debtor=\${encodeURIComponent(co)}&days=\${dy}\${accountId ? '&account=' + accountId : ''}\${cred}\${cem}\${acct}\${ten}`;
+  return `https://trycollectiq.com/pay?invoice=${invoiceId}&amount=${am}&debtor=${encodeURIComponent(co)}&days=${dy}${accountId ? '&account=' + accountId : ''}${cred}${cem}${acct}${ten}`;
 }
 
 function fTmpl(){
