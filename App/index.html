@@ -467,17 +467,17 @@ tbody tr:hover td{background:var(--bg);}
       <!-- DASHBOARD -->
       <div id="vw-dashboard" class="view on">
         <div class="ph">
-          <div><div class="ph-t">Good morning, <em id="dName">Jordan</em></div><div class="ph-s">PREMIUM plan · Demo tenant · AI scoring live</div></div>
+          <div><div class="ph-t">Good morning, <em id="dName">Jordan</em></div><div class="ph-s" id="dSub">PREMIUM plan · Demo tenant · AI scoring live</div></div>
           <div class="ph-a">
             <button class="btn" onclick="sv('import',document.querySelectorAll('.nav-item')[7])">Import data</button>
             <button class="btn btn-ink" onclick="document.getElementById('addModal').classList.add('open')">+ Add account</button>
           </div>
         </div>
         <div class="kgrid">
-          <div class="kpi"><div class="kpi-accent">$</div><div class="kpi-label">AR Outstanding</div><div class="kpi-val"><em>$4.2M</em></div><div class="kpi-delta kn">▼ 8.3% vs last month</div></div>
-          <div class="kpi"><div class="kpi-accent">✓</div><div class="kpi-label">Recovered This Month</div><div class="kpi-val"><em>$847K</em></div><div class="kpi-delta kp">▲ 22% vs last month</div></div>
+          <div class="kpi"><div class="kpi-accent">$</div><div class="kpi-label">AR Outstanding</div><div class="kpi-val"><em id="kAr">$4.2M</em></div><div class="kpi-delta kn" id="kArD">▼ 8.3% vs last month</div></div>
+          <div class="kpi"><div class="kpi-accent">✓</div><div class="kpi-label">Recovered This Month</div><div class="kpi-val"><em id="kRec">$847K</em></div><div class="kpi-delta kp" id="kRecD">▲ 22% vs last month</div></div>
           <div class="kpi"><div class="kpi-accent">✉</div><div class="kpi-label">Messages Sent</div><div class="kpi-val" id="kMsg">35</div><div class="kpi-delta kp">▲ 9 this week</div></div>
-          <div class="kpi"><div class="kpi-accent">%</div><div class="kpi-label">AI Recovery Rate</div><div class="kpi-val"><em>67%</em></div><div class="kpi-delta kp">▲ 11pts vs manual</div></div>
+          <div class="kpi"><div class="kpi-accent">%</div><div class="kpi-label">AI Recovery Rate</div><div class="kpi-val"><em id="kRate">67%</em></div><div class="kpi-delta kp" id="kRateD">▲ 11pts vs manual</div></div>
         </div>
         <div class="g2">
           <div class="card">
@@ -970,6 +970,7 @@ async function loadUserAndLaunch(authUser){
   document.getElementById('tPlan').className='plan-pill '+(CU.plan==='PREMIUM'?'pp-premium':'pp-growth');
   
   try { await loadAccountsFromDB(); } catch(e) { console.log('loadAccounts error:', e); }
+  renderLiveTenant();
   init();
 }
 
@@ -1050,12 +1051,35 @@ async function loadAccountsFromDB(){
   if(!CU?.tenantId||CU.tenantId==='demo')return;
   try {
     const data = await sbFetch('accounts', 'GET', null, `tenant_id=eq.${CU.tenantId}&order=risk_score.desc`);
-    if(data&&data.length>0) ACCTS=data.map(a=>({id:a.id,name:a.name,email:a.email||'',balance:a.balance,risk:a.risk_score,status:a.status,days:a.days_overdue}));
+    ACCTS=(data||[]).map(a=>({id:a.id,name:a.name,email:a.email||'',balance:a.balance,risk:a.risk_score,status:a.status,days:a.days_overdue}));
     console.log('Accounts loaded from DB:', data?.length);
     populateSmsDropdown();
   } catch(e) {
     console.log('loadAccountsFromDB error:', e.message);
   }
+}
+
+
+function renderLiveTenant(){
+  if(!CU?.tenantId||CU.tenantId==='demo')return;
+  // Honest header
+  const sub=document.getElementById('dSub'); if(sub) sub.textContent=(CU.plan||'')+' plan · Live workspace · AI scoring live';
+  // Honest KPIs computed from real data
+  const open=ACCTS.filter(a=>String(a.status).toUpperCase()!=='RECOVERED');
+  const rec=ACCTS.filter(a=>String(a.status).toUpperCase()==='RECOVERED');
+  const sum=x=>x.reduce((t,a)=>t+(Number(a.balance)||0),0);
+  const money=v=>v>=1e6?('$'+(v/1e6).toFixed(1)+'M'):v>=1e3?('$'+Math.round(v/1e3)+'K'):('$'+Math.round(v));
+  const set=(id,v)=>{const e=document.getElementById(id); if(e)e.textContent=v;};
+  set('kAr',money(sum(open))); set('kRec',money(sum(rec))); set('kMsg','0'); set('kRate','—');
+  ['kArD','kRecD','kMsgD','kRateD'].forEach(id=>{const e=document.getElementById(id); if(e)e.textContent='';});
+  // Honest pipeline from real accounts
+  const st=x=>String(x.status||'').toUpperCase();
+  const buckets=[['Identified',ACCTS],['Contacted',ACCTS.filter(a=>st(a)==='CONTACTED')],['Negotiating',ACCTS.filter(a=>st(a)==='NEGOTIATING')],['Payment plan',ACCTS.filter(a=>st(a)==='PLAN'||st(a)==='PAYMENT_PLAN')],['Recovered',rec]];
+  const cls=['#78716c','#b45309','#b45309','#0369a1','#047857'];
+  PIPE.length=0;
+  buckets.forEach(([lb,arr],i)=>PIPE.push({lb,ct:arr.length,am:money(sum(arr)),pc:ACCTS.length?Math.round(arr.length/ACCTS.length*100):0,cl:cls[i]}));
+  // Clear demo plans & audit for live tenants (real data loads separately when built)
+  ACTIVE_PLANS.length=0; AUDIT.length=0;
 }
 
 async function saveAccountToDB(acct){
@@ -1101,11 +1125,11 @@ function init(){
 function rDashTbl(){
   const t=document.getElementById('dTbl');if(!t)return;
   t.innerHTML='<thead><tr><th>Company</th><th>Balance</th><th>Risk score</th><th>Status</th></tr></thead><tbody>'+
-    ACCTS.slice(0,4).map(a=>`<tr><td><div class="tn">${a.name}</div><div class="ts-">${a.days}d overdue</div></td><td style="font-family:var(--ff-mono);font-size:11px;">${fmt(a.balance)}</td><td><div class="sw"><span class="sn" style="color:${rc(a.risk)}">${a.risk}</span><div class="sb"><div class="sf" style="width:${a.risk}%;background:${rc(a.risk)}"></div></div></div></td><td>${stTag(a.status)}</td></tr>`).join('')+'</tbody>';
+    (ACCTS.length===0?[{empty:true}]:ACCTS.slice(0,4)).map(a=>a.empty?'<tr><td colspan="4" style="text-align:center;padding:22px;color:var(--muted);font-size:12px;">No accounts yet — click “+ Add account” or “Import data” to get started.</td></tr>':`<tr><td><div class="tn">${a.name}</div><div class="ts-">${a.days}d overdue</div></td><td style="font-family:var(--ff-mono);font-size:11px;">${fmt(a.balance)}</td><td><div class="sw"><span class="sn" style="color:${rc(a.risk)}">${a.risk}</span><div class="sb"><div class="sf" style="width:${a.risk}%;background:${rc(a.risk)}"></div></div></div></td><td>${stTag(a.status)}</td></tr>`).join('')+'</tbody>';
 }
 function rPipe(){document.getElementById('dPipe').innerHTML=PIPE.map(p=>`<div class="prow"><div class="pdot" style="background:${p.cl}"></div><div class="plb">${p.lb}</div><div class="pct">${p.ct}</div><div class="pbb"><div class="pbf" style="width:${p.pc}%;background:${p.cl}"></div></div><div class="pam" style="color:${p.cl}">${p.am}</div></div>`).join('');}
-function rDashPlans(){document.getElementById('dPlans').innerHTML=ACTIVE_PLANS.map(p=>{const pp=pct(p.paid,p.total);return`<div style="padding:8px 0;border-bottom:1px solid var(--border2);"><div style="display:flex;justify-content:space-between;margin-bottom:3px;"><div style="font-size:12px;font-weight:600;">${p.name}</div><div style="font-size:11px;color:var(--muted);font-family:var(--ff-mono);">${fmt(p.inst)}/mo</div></div><div class="prog-bar"><div class="prog-fill" style="width:${pp}%"></div></div><div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted2);font-family:var(--ff-mono);""><span>${fmt(p.paid)} paid of ${fmt(p.total)}</span><span>Next: ${p.next}</span></div></div>`;}).join('');}
-function rDashAudit(){const el=document.getElementById('dAudit');if(el)el.innerHTML=AUDIT.slice(0,4).map(aRow).join('');}
+function rDashPlans(){const el=document.getElementById('dPlans'); if(ACTIVE_PLANS.length===0){el.innerHTML='<div style="padding:14px 0;color:var(--muted);font-size:12px;">No active payment plans yet.</div>';return;} el.innerHTML=ACTIVE_PLANS.map(p=>{const pp=pct(p.paid,p.total);return`<div style="padding:8px 0;border-bottom:1px solid var(--border2);"><div style="display:flex;justify-content:space-between;margin-bottom:3px;"><div style="font-size:12px;font-weight:600;">${p.name}</div><div style="font-size:11px;color:var(--muted);font-family:var(--ff-mono);">${fmt(p.inst)}/mo</div></div><div class="prog-bar"><div class="prog-fill" style="width:${pp}%"></div></div><div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted2);font-family:var(--ff-mono);""><span>${fmt(p.paid)} paid of ${fmt(p.total)}</span><span>Next: ${p.next}</span></div></div>`;}).join('');}
+function rDashAudit(){const el=document.getElementById('dAudit');if(!el)return; el.innerHTML=AUDIT.length===0?'<div style="padding:14px 0;color:var(--muted);font-size:12px;">Activity will appear here as the AI works your accounts.</div>':AUDIT.slice(0,4).map(aRow).join('');}
 
 // ── ACCOUNTS ──────────────────────────────────────────────────────────
 function fAccts(v){const d=v==='all'?ACCTS:v==='OVERDUE'?ACCTS.filter(a=>a.status==='OVERDUE'):v==='hot'?ACCTS.filter(a=>a.risk>=80):v==='warm'?ACCTS.filter(a=>a.risk>=55&&a.risk<80):ACCTS.filter(a=>a.risk<55);rAcctTbl(d);}
