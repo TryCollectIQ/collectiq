@@ -1394,7 +1394,9 @@ function buildPayLink(co, am, dy, acctId) {
   const invoiceId = 'INV-' + Date.now().toString(36).toUpperCase().slice(-6);
   const accountId = localStorage.getItem('stripe_account_id') || '';
   const cred = CU?.tenantName ? '&creditor='+encodeURIComponent(CU.tenantName) : '';
-  const cem  = CU?.email ? '&email='+encodeURIComponent(CU.email) : '';
+  let billEmail = CU?.email || '';
+  try { const rp = JSON.parse(CU?.remit || '{}'); if (rp.owner_email) billEmail = rp.owner_email; } catch(e) {}
+  const cem  = billEmail ? '&email='+encodeURIComponent(billEmail) : '';
   const acct = acctId ? '&acct='+encodeURIComponent(acctId) : '';
   const ten  = (CU?.tenantId && CU.tenantId!=='demo') ? '&tenant='+encodeURIComponent(CU.tenantId) : '';
   return `https://trycollectiq.com/pay?invoice=${invoiceId}&amount=${am}&debtor=${encodeURIComponent(co)}&days=${dy}${accountId ? '&account=' + accountId : ''}${cred}${cem}${acct}${ten}`;
