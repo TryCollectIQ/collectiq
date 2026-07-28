@@ -904,13 +904,31 @@ const addAudit=(type,actor,txt)=>AUDIT.unshift({time:'Just now',type,actor,txt})
 
 // ── SUPABASE AUTH STATE ────────────────────────────────────────────────
 let authLaunched = false;
+
+async function gateAndLaunch(user){
+  try{
+    const aal=await sb.auth.mfa.getAuthenticatorAssuranceLevel();
+    if(aal?.data && aal.data.nextLevel==='aal2' && aal.data.currentLevel!=='aal2'){
+      const fl=await sb.auth.mfa.listFactors();
+      const factor=fl?.data?.totp?.find(f=>f.status==='verified')||fl?.data?.all?.find(f=>f.factor_type==='totp'&&f.status==='verified');
+      if(factor){
+        window._mfaFactorId=factor.id;
+        const al=document.getElementById('authLoading'); if(al)al.style.display='none';
+        document.getElementById('loginF').style.display='none';
+        const rf=document.getElementById('registerF'); if(rf)rf.style.display='none';
+        document.getElementById('mfaF').style.display='';
+        document.getElementById('mfaCode')?.focus();
+        return; // launch resumes only after verifyMfaLogin()
+      }
+    }
+  }catch(e){console.log('MFA gate error:',e.message);}
+  if(!authLaunched){authLaunched=true;await loadUserAndLaunch(user);}
+}
+
 sb.auth.onAuthStateChange(async (event, session) => {
   document.getElementById('authLoading').style.display='none';
   if(session && session.user){
-    if(!authLaunched){
-      authLaunched = true;
-      await loadUserAndLaunch(session.user);
-    }
+    await gateAndLaunch(session.user);
   } else {
     authLaunched = false;
     document.getElementById('loginF').style.display='';
@@ -1033,27 +1051,7 @@ async function doLogin(){
     showAuthErr('authErr',error.message==='Invalid login credentials'?'Incorrect email or password.':error.message);
     return;
   }
-  // MFA gate: if the user has a verified TOTP factor, demand the code before launch
-  try{
-    const aal = await sb.auth.mfa.getAuthenticatorAssuranceLevel();
-    if (aal?.data && aal.data.nextLevel === 'aal2' && aal.data.nextLevel !== aal.data.currentLevel) {
-      const fl = await sb.auth.mfa.listFactors();
-      const factor = fl?.data?.totp?.find(f=>f.status==='verified') || fl?.data?.all?.find(f=>f.factor_type==='totp'&&f.status==='verified');
-      if (factor) {
-        window._mfaFactorId = factor.id;
-        document.getElementById('loginF').style.display='none';
-        document.getElementById('mfaF').style.display='';
-        document.getElementById('mfaCode').focus();
-        btn.textContent='Sign in →';btn.disabled=false;
-        return; // launch happens after verifyMfaLogin()
-      }
-    }
-  }catch(err){ console.log('MFA check error:', err.message); }
-  // Manually trigger launch since onAuthStateChange may not fire
-  if(data && data.user && !authLaunched){
-    authLaunched = true;
-    await loadUserAndLaunch(data.user);
-  }
+  if(data && data.user){ await gateAndLaunch(data.user); }
   btn.textContent='Sign in →';btn.disabled=false;
 }
 
@@ -1067,8 +1065,9 @@ async function verifyMfaLogin(){
     const vr=await sb.auth.mfa.verify({factorId:window._mfaFactorId,challengeId:ch.data.id,code});
     if(vr.error)throw vr.error;
     errEl.style.display='none';
+    document.getElementById('mfaF').style.display='none';
     const {data:ud}=await sb.auth.getUser();
-    if(ud?.user && !authLaunched){ authLaunched=true; await loadUserAndLaunch(ud.user); }
+    if(ud?.user){ await gateAndLaunch(ud.user); }
   }catch(e2){ errEl.textContent='Invalid code — try again.'; errEl.style.display=''; }
 }
 
