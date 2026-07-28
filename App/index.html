@@ -754,6 +754,23 @@ tbody tr:hover td{background:var(--bg);}
           </div>
           <div id="mfaMsg" style="font-size:11px;color:var(--muted);margin-top:8px;"></div>
         </div>
+        <div class="card" style="margin-bottom:16px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><span style="font-size:16px;">🏦</span><div style="font-weight:700;font-size:13px;">Remittance &amp; W-9 Package</div></div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:12px;">Debtors&rsquo; AP departments request bank details and a W-9 before paying larger invoices. Fill this in once — your payment portal will email the package to debtors automatically, on request, with a full audit trail.</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <input class="plan-input" id="rmBank" placeholder="Bank name" style="padding:8px;font-size:11px;"/>
+            <input class="plan-input" id="rmBankAddr" placeholder="Bank city/state" style="padding:8px;font-size:11px;"/>
+            <input class="plan-input" id="rmAch" placeholder="Routing # (ACH)" style="padding:8px;font-size:11px;"/>
+            <input class="plan-input" id="rmWire" placeholder="Routing # (Wire)" style="padding:8px;font-size:11px;"/>
+            <input class="plan-input" id="rmAcct" placeholder="Account #" style="padding:8px;font-size:11px;"/>
+            <input class="plan-input" id="rmOwnerEmail" placeholder="CC/reply email (yours)" style="padding:8px;font-size:11px;"/>
+          </div>
+          <input class="plan-input" id="rmW9" placeholder="W-9 link (optional — a shareable PDF link; leave blank to handle W-9s by reply)" style="width:100%;padding:8px;font-size:11px;margin-top:8px;"/>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:10px;">
+            <button class="btn btn-ink btn-sm" onclick="saveRemit()">Save remittance profile</button>
+            <span id="rmMsg" style="font-size:11px;color:var(--muted);"></span>
+          </div>
+        </div>
         <div class="g2">
           <div class="card cp">
             <div class="ct" style="margin-bottom:12px;">Communication</div>
@@ -985,7 +1002,7 @@ async function loadUserAndLaunch(authUser){
     try {
       // Get tenant subscription status from DB
       const {data: tenantData} = await Promise.race([
-        sb.from('tenants').select('subscription_status,trial_ends_at,plan,voice_profile,name').eq('id', CU.tenantId).single(),
+        sb.from('tenants').select('subscription_status,trial_ends_at,plan,voice_profile,name,remit_profile').eq('id', CU.tenantId).single(),
         new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 8000))
       ]);
       
@@ -996,6 +1013,7 @@ async function loadUserAndLaunch(authUser){
         }
         if (tenantData.voice_profile) { CU.voice = tenantData.voice_profile; }
         if (tenantData.name) { CU.tenantName = tenantData.name; }
+        if (tenantData.remit_profile) { CU.remit = tenantData.remit_profile; }
         
         const status = tenantData.subscription_status || 'trialing';
         const trialEnd = tenantData.trial_ends_at ? new Date(tenantData.trial_ends_at) : null;
@@ -1036,6 +1054,7 @@ async function loadUserAndLaunch(authUser){
   init();
   try{ populateEmailDropdown(); }catch(e){}
   try{ loadMfaStatus(); }catch(e){}
+  try{ loadRemitUI(); }catch(e){}
   try{ loadVoiceUI(); }catch(e){}
 }
 
@@ -1249,6 +1268,28 @@ async function disableMfa(){
     msg.textContent='2FA disabled.';
     try{await sbFetch('audit_log','POST',{tenant_id:CU.tenantId,actor:CU.name,action_type:'auth',description:'Two-factor authentication disabled'});}catch(e){}
   }catch(e){msg.textContent='Could not disable: '+e.message;}
+}
+
+
+// ── REMITTANCE PROFILE ──
+function loadRemitUI(){
+  try{
+    if(!CU?.remit) return;
+    const r=JSON.parse(CU.remit);
+    const map={rmBank:'bank',rmBankAddr:'bank_addr',rmAch:'ach',rmWire:'wire',rmAcct:'account',rmOwnerEmail:'owner_email',rmW9:'w9_url'};
+    for(const [id,k] of Object.entries(map)){const el=document.getElementById(id); if(el&&r[k]) el.value=r[k];}
+  }catch(e){}
+}
+async function saveRemit(){
+  const msg=document.getElementById('rmMsg');
+  if(!CU?.tenantId||CU.tenantId==='demo'){if(msg)msg.textContent='Not available in demo mode.';return;}
+  const g=id=>document.getElementById(id).value.trim();
+  const profile=JSON.stringify({bank:g('rmBank'),bank_addr:g('rmBankAddr'),ach:g('rmAch'),wire:g('rmWire'),account:g('rmAcct'),owner_email:g('rmOwnerEmail'),w9_url:g('rmW9'),acct_type:'Business Checking'});
+  try{
+    await sbFetch('tenants','PATCH',{remit_profile:profile},'id=eq.'+CU.tenantId);
+    CU.remit=profile;
+    if(msg){msg.textContent='✓ Saved — debtors can now request the package from your payment portal.';}
+  }catch(e){if(msg)msg.textContent='Save failed: '+e.message;}
 }
 
 async function saveAccountToDB(acct){
