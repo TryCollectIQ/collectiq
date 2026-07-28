@@ -336,6 +336,13 @@ tbody tr:hover td{background:var(--bg);}
         <div style="font-size:13px;color:var(--muted);">Loading…</div>
       </div>
       <!-- LOGIN -->
+      <div id="mfaF" style="display:none;">
+        <div style="font-weight:700;font-size:15px;margin-bottom:4px;">Two-factor authentication</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">Enter the 6-digit code from your authenticator app.</div>
+        <input id="mfaCode" inputmode="numeric" maxlength="6" placeholder="123456" style="width:100%;padding:11px 13px;border:1px solid var(--border);border-radius:var(--r);font-size:16px;letter-spacing:6px;text-align:center;font-family:var(--ff-mono);background:var(--surface2);color:var(--ink);margin-bottom:10px;" onkeydown="if(event.key==='Enter')verifyMfaLogin()"/>
+        <button class="auth-submit" onclick="verifyMfaLogin()">Verify →</button>
+        <div id="mfaErr" style="display:none;color:#b91c1c;font-size:12px;margin-top:8px;"></div>
+      </div>
       <div id="loginF" style="">
         <div class="auth-card-title">Welcome back</div>
         <div class="auth-card-sub">Sign in to your workspace</div>
@@ -726,6 +733,27 @@ tbody tr:hover td{background:var(--bg);}
             <span id="vsMsg" style="font-size:11px;color:var(--muted);"></span>
           </div>
         </div>
+        <div class="card" style="margin-bottom:16px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><span style="font-size:16px;">🔐</span><div style="font-weight:700;font-size:13px;">Two-Factor Authentication</div></div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:12px;">Add app-based 2FA (Google Authenticator, Authy, 1Password) to your sign-in. Available on every plan.</div>
+          <div id="mfaStatusOff">
+            <button class="btn btn-ink btn-sm" onclick="startMfaEnroll()">Enable 2FA</button>
+          </div>
+          <div id="mfaEnrollBox" style="display:none;">
+            <div style="font-size:11.5px;color:var(--muted);margin-bottom:8px;">1. Scan this QR code with your authenticator app (or enter the secret manually). 2. Enter the 6-digit code it shows.</div>
+            <div id="mfaQr" style="margin-bottom:8px;"></div>
+            <div style="font-size:10px;font-family:var(--ff-mono);color:var(--muted);word-break:break-all;margin-bottom:10px;">Secret: <span id="mfaSecret"></span></div>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <input id="mfaEnrollCode" inputmode="numeric" maxlength="6" placeholder="123456" style="width:120px;padding:8px;border:1px solid var(--border);border-radius:var(--r);font-size:14px;letter-spacing:4px;text-align:center;font-family:var(--ff-mono);background:var(--surface2);color:var(--ink);"/>
+              <button class="btn btn-ink btn-sm" onclick="confirmMfaEnroll()">Confirm & enable</button>
+            </div>
+          </div>
+          <div id="mfaStatusOn" style="display:none;">
+            <div style="font-size:12px;color:#047857;font-weight:600;margin-bottom:8px;">✓ 2FA is enabled on this account</div>
+            <button class="btn btn-sm" onclick="disableMfa()">Disable 2FA</button>
+          </div>
+          <div id="mfaMsg" style="font-size:11px;color:var(--muted);margin-top:8px;"></div>
+        </div>
         <div class="g2">
           <div class="card cp">
             <div class="ct" style="margin-bottom:12px;">Communication</div>
@@ -989,6 +1017,7 @@ async function loadUserAndLaunch(authUser){
   renderLiveTenant();
   init();
   try{ populateEmailDropdown(); }catch(e){}
+  try{ loadMfaStatus(); }catch(e){}
   try{ loadVoiceUI(); }catch(e){}
 }
 
@@ -1004,12 +1033,43 @@ async function doLogin(){
     showAuthErr('authErr',error.message==='Invalid login credentials'?'Incorrect email or password.':error.message);
     return;
   }
+  // MFA gate: if the user has a verified TOTP factor, demand the code before launch
+  try{
+    const aal = await sb.auth.mfa.getAuthenticatorAssuranceLevel();
+    if (aal?.data && aal.data.nextLevel === 'aal2' && aal.data.nextLevel !== aal.data.currentLevel) {
+      const fl = await sb.auth.mfa.listFactors();
+      const factor = fl?.data?.totp?.find(f=>f.status==='verified') || fl?.data?.all?.find(f=>f.factor_type==='totp'&&f.status==='verified');
+      if (factor) {
+        window._mfaFactorId = factor.id;
+        document.getElementById('loginF').style.display='none';
+        document.getElementById('mfaF').style.display='';
+        document.getElementById('mfaCode').focus();
+        btn.textContent='Sign in →';btn.disabled=false;
+        return; // launch happens after verifyMfaLogin()
+      }
+    }
+  }catch(err){ console.log('MFA check error:', err.message); }
   // Manually trigger launch since onAuthStateChange may not fire
   if(data && data.user && !authLaunched){
     authLaunched = true;
     await loadUserAndLaunch(data.user);
   }
   btn.textContent='Sign in →';btn.disabled=false;
+}
+
+async function verifyMfaLogin(){
+  const code=document.getElementById('mfaCode').value.trim();
+  const errEl=document.getElementById('mfaErr');
+  if(code.length!==6){errEl.textContent='Enter the 6-digit code.';errEl.style.display='';return;}
+  try{
+    const ch=await sb.auth.mfa.challenge({factorId:window._mfaFactorId});
+    if(ch.error)throw ch.error;
+    const vr=await sb.auth.mfa.verify({factorId:window._mfaFactorId,challengeId:ch.data.id,code});
+    if(vr.error)throw vr.error;
+    errEl.style.display='none';
+    const {data:ud}=await sb.auth.getUser();
+    if(ud?.user && !authLaunched){ authLaunched=true; await loadUserAndLaunch(ud.user); }
+  }catch(e2){ errEl.textContent='Invalid code — try again.'; errEl.style.display=''; }
 }
 
 async function doRegister(){
@@ -1132,6 +1192,64 @@ async function saveVoice(){
     CU.voice=profile;
     if(msg){ msg.textContent='✓ Saved — all AI drafts will now match your voice.'; msg.style.color='var(--ok,#047857)'; }
   }catch(e){ if(msg){ msg.textContent='Save failed: '+e.message; } }
+}
+
+
+// ── TWO-FACTOR AUTH (TOTP) ──
+let _enrollFactorId = null;
+async function loadMfaStatus(){
+  if(!CU?.tenantId||CU.tenantId==='demo')return;
+  try{
+    const fl=await sb.auth.mfa.listFactors();
+    const on=!!(fl?.data?.totp?.find(f=>f.status==='verified'));
+    document.getElementById('mfaStatusOff').style.display=on?'none':'';
+    document.getElementById('mfaStatusOn').style.display=on?'':'none';
+  }catch(e){}
+}
+async function startMfaEnroll(){
+  const msg=document.getElementById('mfaMsg');
+  if(!CU?.tenantId||CU.tenantId==='demo'){msg.textContent='Not available in demo mode.';return;}
+  try{
+    // Clean up any stale unverified factors first
+    const fl=await sb.auth.mfa.listFactors();
+    for(const f of (fl?.data?.all||[])){ if(f.factor_type==='totp'&&f.status==='unverified'){ try{await sb.auth.mfa.unenroll({factorId:f.id});}catch(e){} } }
+    const en=await sb.auth.mfa.enroll({factorType:'totp',friendlyName:'Authenticator app'});
+    if(en.error)throw en.error;
+    _enrollFactorId=en.data.id;
+    const qr=en.data.totp.qr_code;
+    document.getElementById('mfaQr').innerHTML = qr.startsWith('data:') ? `<img src="${qr}" style="width:150px;height:150px;"/>` : qr;
+    document.getElementById('mfaSecret').textContent=en.data.totp.secret;
+    document.getElementById('mfaStatusOff').style.display='none';
+    document.getElementById('mfaEnrollBox').style.display='';
+    msg.textContent='';
+  }catch(e){msg.textContent='Could not start enrollment: '+e.message;}
+}
+async function confirmMfaEnroll(){
+  const code=document.getElementById('mfaEnrollCode').value.trim();
+  const msg=document.getElementById('mfaMsg');
+  if(code.length!==6){msg.textContent='Enter the 6-digit code from your app.';return;}
+  try{
+    const ch=await sb.auth.mfa.challenge({factorId:_enrollFactorId});
+    if(ch.error)throw ch.error;
+    const vr=await sb.auth.mfa.verify({factorId:_enrollFactorId,challengeId:ch.data.id,code});
+    if(vr.error)throw vr.error;
+    document.getElementById('mfaEnrollBox').style.display='none';
+    document.getElementById('mfaStatusOn').style.display='';
+    msg.textContent='2FA enabled — you\'ll be asked for a code at every sign-in.';
+    try{await sbFetch('audit_log','POST',{tenant_id:CU.tenantId,actor:CU.name,action_type:'auth',description:'Two-factor authentication enabled'});}catch(e){}
+  }catch(e){msg.textContent='Code didn\'t verify — check your app and try again.';}
+}
+async function disableMfa(){
+  const msg=document.getElementById('mfaMsg');
+  try{
+    const fl=await sb.auth.mfa.listFactors();
+    const f=fl?.data?.totp?.find(x=>x.status==='verified');
+    if(f){const r=await sb.auth.mfa.unenroll({factorId:f.id}); if(r.error)throw r.error;}
+    document.getElementById('mfaStatusOn').style.display='none';
+    document.getElementById('mfaStatusOff').style.display='';
+    msg.textContent='2FA disabled.';
+    try{await sbFetch('audit_log','POST',{tenant_id:CU.tenantId,actor:CU.name,action_type:'auth',description:'Two-factor authentication disabled'});}catch(e){}
+  }catch(e){msg.textContent='Could not disable: '+e.message;}
 }
 
 async function saveAccountToDB(acct){
