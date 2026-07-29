@@ -187,7 +187,7 @@ nav {
 .feature-stat-num em { font-style: italic; color: rgba(200,75,31,0.9); }
 .feature-stat-label { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 4px; }
 
-.pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 56px; align-items: start; }
+.pricing-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-top: 56px; align-items: start; }
 .pricing-card {
   border: 1px solid var(--border); border-radius: 16px; padding: 36px;
   background: var(--white); position: relative; transition: transform .2s;
@@ -531,6 +531,23 @@ footer { background: var(--ink); color: var(--white); padding: 64px 48px 40px; }
   <h2 class="section-title">Simple, transparent <em>pricing</em></h2>
   <p class="section-sub">No setup fees. No per-seat surprises. Cancel anytime. Founding member offer teams lock in founding rates forever.</p>
   <div class="pricing-grid">
+    <div class="pricing-card reveal">
+      <div class="pricing-name">Solo</div>
+      <div class="pricing-price"><sup>$</sup>99</div>
+      <div class="pricing-period">per month · 1 agent</div>
+      <div class="pricing-divider"></div>
+      <ul class="pricing-features">
+        <li>Up to 75 active accounts</li>
+        <li>AI debtor scoring</li>
+        <li>Email outreach (SendGrid)</li>
+        <li>Debtor payment portal</li>
+        <li>SmartDiscount settlement engine</li>
+        <li>AI Voice Training</li>
+        <li>App-based 2FA</li>
+        <li>Email support</li>
+      </ul>
+      <button class="pricing-btn" onclick="window.open('https://buy.stripe.com/aFa28ta3D6JR6YG15g24004','_blank')">Start Free Trial→</button>
+    </div>
     <div class="pricing-card reveal">
       <div class="pricing-name">Starter</div>
       <div class="pricing-price"><sup>$</sup>299</div>
@@ -892,6 +909,7 @@ footer { background: var(--ink); color: var(--white); padding: 64px 48px 40px; }
     </select>
     <select class="wl-select" id="wlPlan">
       <option value="">Interested plan</option>
+      <option>Solo ($99/mo)</option>
       <option>Starter ($299/mo)</option>
       <option>Growth ($799/mo)</option>
       <option>Enterprise (custom)</option>
