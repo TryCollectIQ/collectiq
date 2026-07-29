@@ -568,8 +568,8 @@ const DISCOUNT_TIERS = [
 ];
 function getActiveTier(){ for (const t of DISCOUNT_TIERS){ if (PARAM_OFFER_DAYS <= t.withinDays) return t; } return null; }
 const SETTLE_TIER = getActiveTier();
-const SETTLE_PCT  = SETTLE_TIER ? SETTLE_TIER.pct : 0;
-const SETTLE_MULT = 1 - SETTLE_PCT / 100;
+let SETTLE_PCT  = SETTLE_TIER ? SETTLE_TIER.pct : 0;
+let SETTLE_MULT = 1 - SETTLE_PCT / 100;
 
 const INVOICE_AMOUNT = PARAM_AMOUNT;
 
@@ -636,24 +636,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (descEl) descEl.textContent = `Pay $${settleAmt.toLocaleString()} today to fully close the account`;
     if (badgeEl) badgeEl.textContent = `Save $${saveAmt.toLocaleString()}`;
 
-    // Build the decay ladder
+    // Build the decay ladder (clickable — selecting a tier sets today's settlement price)
     const ladder = document.createElement('div');
+    ladder.id = 'decayLadder';
     ladder.style.cssText = 'margin-top:12px;padding:12px 14px 8px;background:#f0faf5;border:1px solid #cde9d8;border-radius:10px;';
-    let rows = '<div style="font-size:10px;font-weight:700;color:#0f6b3e;letter-spacing:.08em;text-transform:uppercase;text-align:center;margin-bottom:2px;">Early resolution credit — decreases the longer you wait</div>';
-    DISCOUNT_TIERS.forEach(t => {
-      const amt = Math.round(PARAM_AMOUNT * (1 - t.pct / 100));
-      const state = PARAM_OFFER_DAYS > t.withinDays ? 'expired' : (t.withinDays === SETTLE_TIER.withinDays ? 'active' : 'future');
-      const rowStyle = state === 'active'
-        ? 'background:#fff;border:1.5px solid #0f6b3e;'
-        : (state === 'expired' ? 'opacity:.38;text-decoration:line-through;' : '');
-      const nowBadge = state === 'active' ? '<span style="background:#0f6b3e;color:#fff;font-size:8.5px;font-weight:800;letter-spacing:.06em;padding:2px 7px;border-radius:100px;margin-left:6px;vertical-align:middle;">NOW</span>' : '';
-      rows += `<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 10px;border-radius:7px;margin-top:4px;font-size:12.5px;${rowStyle}">` +
-        `<span style="font-weight:600;">${t.label}${nowBadge}</span>` +
-        `<span style="font-weight:800;color:${state === 'active' ? '#0f6b3e' : '#6b7b74'};">${t.pct}% off</span>` +
-        `<span style="font-weight:700;">$${amt.toLocaleString()}</span></div>`;
-    });
-    ladder.innerHTML = rows;
     settleOpt.appendChild(ladder);
+    renderLadder();
   }
 
   // Pre-fill company name and email in payment form
@@ -679,6 +667,46 @@ let planDown = 0;
 let negHistory = [];
 
 // ── OPTION SELECTION ───────────────────────────────────────────────────
+function renderLadder(){
+  const ladder=document.getElementById('decayLadder'); if(!ladder||!SETTLE_TIER)return;
+  let rows = '<div style="font-size:10px;font-weight:700;color:#0f6b3e;letter-spacing:.08em;text-transform:uppercase;text-align:center;margin-bottom:2px;">Early resolution credit — decreases the longer you wait</div>';
+  DISCOUNT_TIERS.forEach(t => {
+    const amt = Math.round(PARAM_AMOUNT * (1 - t.pct / 100));
+    const expired = PARAM_OFFER_DAYS > t.withinDays;
+    const selected = !expired && t.pct === SETTLE_PCT;
+    const isNow = !expired && SETTLE_TIER && t.withinDays === SETTLE_TIER.withinDays;
+    const rowStyle = selected
+      ? 'background:#fff;border:1.5px solid #0f6b3e;cursor:pointer;'
+      : (expired ? 'opacity:.38;text-decoration:line-through;' : 'cursor:pointer;border:1.5px solid transparent;');
+    const nowBadge = isNow ? '<span style="background:#0f6b3e;color:#fff;font-size:8.5px;font-weight:800;letter-spacing:.06em;padding:2px 7px;border-radius:100px;margin-left:6px;vertical-align:middle;">NOW</span>' : '';
+    const check = selected ? '<span style="color:#0f6b3e;font-weight:800;margin-right:5px;">✓</span>' : '';
+    const click = expired ? '' : ` onclick="selectTier(${t.pct});event.stopPropagation();"`;
+    rows += `<div${click} style="display:flex;justify-content:space-between;align-items:center;padding:7px 10px;border-radius:7px;margin-top:4px;font-size:12.5px;${rowStyle}">` +
+      `<span style="font-weight:600;">${check}${t.label}${nowBadge}</span>` +
+      `<span style="font-weight:800;color:${selected ? '#0f6b3e' : '#6b7b74'};">${t.pct}% off</span>` +
+      `<span style="font-weight:700;">$${amt.toLocaleString()}</span></div>`;
+  });
+  rows += '<div style="font-size:10px;color:#5f6f68;text-align:center;margin-top:6px;">Tap an available tier to lock that amount for today\'s payment.</div>';
+  ladder.innerHTML = rows;
+}
+
+function selectTier(pct){
+  SETTLE_PCT = pct;
+  SETTLE_MULT = 1 - pct / 100;
+  const settleAmt = Math.round(PARAM_AMOUNT * SETTLE_MULT);
+  const saveAmt = PARAM_AMOUNT - settleAmt;
+  const nameEl = document.getElementById('settleName');
+  const descEl = document.getElementById('settleDesc');
+  const badgeEl = document.getElementById('settleBadge');
+  if (nameEl) nameEl.textContent = `Early settlement — ${pct}% off`;
+  if (descEl) descEl.textContent = `Pay $${settleAmt.toLocaleString()} today to fully close the account`;
+  if (badgeEl) badgeEl.textContent = `Save $${saveAmt.toLocaleString()}`;
+  const priceEl = document.querySelector('#opt-settle .option-price em') || document.querySelectorAll('.option-price em')[1];
+  if (priceEl) priceEl.textContent = '$' + settleAmt.toLocaleString();
+  renderLadder();
+  selectOption('settle');
+}
+
 function selectOption(opt) {
   selectedOption = opt;
   ['full','settle','plan'].forEach(o => {
