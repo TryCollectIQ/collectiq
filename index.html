@@ -530,11 +530,17 @@ footer { background: var(--ink); color: var(--white); padding: 64px 48px 40px; }
   <div class="section-label">Pricing</div>
   <h2 class="section-title">Simple, transparent <em>pricing</em></h2>
   <p class="section-sub">No setup fees. No per-seat surprises. Cancel anytime. Founding member offer teams lock in founding rates forever.</p>
+  <div style="display:flex;justify-content:center;align-items:center;gap:0;margin-top:36px;">
+    <div style="display:inline-flex;background:var(--surface2,#f0ece5);border:1px solid var(--border,#ddd);border-radius:100px;padding:4px;">
+      <button id="btMonthly" onclick="setBilling('m')" style="border:none;border-radius:100px;padding:9px 22px;font-size:13px;font-weight:600;cursor:pointer;background:var(--ink,#1c1814);color:#fff;font-family:inherit;">Monthly</button>
+      <button id="btAnnual" onclick="setBilling('a')" style="border:none;border-radius:100px;padding:9px 22px;font-size:13px;font-weight:600;cursor:pointer;background:transparent;color:var(--ink,#1c1814);font-family:inherit;">Annual <span style="font-size:10.5px;font-weight:700;color:#0f6b3e;">· 2 months free</span></button>
+    </div>
+  </div>
   <div class="pricing-grid">
     <div class="pricing-card reveal">
       <div class="pricing-name">Solo</div>
-      <div class="pricing-price"><sup>$</sup>99</div>
-      <div class="pricing-period">per month · 1 agent</div>
+      <div class="pricing-price" id="prSolo"><sup>$</sup>99</div>
+      <div class="pricing-period" id="pdSolo">per month · 1 agent</div>
       <div class="pricing-divider"></div>
       <ul class="pricing-features">
         <li>Up to 75 active accounts</li>
@@ -546,12 +552,12 @@ footer { background: var(--ink); color: var(--white); padding: 64px 48px 40px; }
         <li>App-based 2FA</li>
         <li>Email support</li>
       </ul>
-      <button class="pricing-btn" onclick="window.open('https://buy.stripe.com/aFa28ta3D6JR6YG15g24004','_blank')">Start Free Trial→</button>
+      <button class="pricing-btn" onclick="openCheckout('solo')">Start Free Trial→</button>
     </div>
     <div class="pricing-card reveal">
       <div class="pricing-name">Starter</div>
-      <div class="pricing-price"><sup>$</sup>299</div>
-      <div class="pricing-period">per month · up to 3 agents</div>
+      <div class="pricing-price" id="prStarter"><sup>$</sup>299</div>
+      <div class="pricing-period" id="pdStarter">per month · up to 3 agents</div>
       <div class="pricing-divider"></div>
       <ul class="pricing-features">
         <li>Up to 250 debtor accounts</li>
@@ -568,8 +574,8 @@ footer { background: var(--ink); color: var(--white); padding: 64px 48px 40px; }
     <div class="pricing-card popular reveal">
       <div class="popular-badge">MOST POPULAR</div>
       <div class="pricing-name">Growth</div>
-      <div class="pricing-price"><sup>$</sup>799</div>
-      <div class="pricing-period">per month · up to 10 agents</div>
+      <div class="pricing-price" id="prGrowth"><sup>$</sup>799</div>
+      <div class="pricing-period" id="pdGrowth">per month · up to 10 agents</div>
       <div class="pricing-divider"></div>
       <ul class="pricing-features">
         <li>Unlimited debtor accounts</li>
@@ -1172,6 +1178,30 @@ function submitWaitlist() {
   document.getElementById('wlCount').innerHTML = '<strong>Live now</strong> — onboarding new teams daily';
 }const obs = new IntersectionObserver(entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }), { threshold: 0.1 });
 document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+</script>
+
+<script>
+const PLANS={
+  solo:   {m:{p:'99',  per:'per month · 1 agent',        url:'https://buy.stripe.com/aFa28ta3D6JR6YG15g24004'}, a:{p:'990',  per:'per year · 1 agent',        url:'https://buy.stripe.com/fZubJ38Zz1px1EmdS224005'}},
+  starter:{m:{p:'299', per:'per month · up to 3 agents', url:'https://buy.stripe.com/eVqeVfb7H0ltgzgaFQ24003'}, a:{p:'2,990',per:'per year · up to 3 agents', url:'https://buy.stripe.com/5kQbJ3a3Decj3Mu29k24002'}},
+  growth: {m:{p:'799', per:'per month · up to 10 agents',url:'https://buy.stripe.com/9B64gBcbL9W3aaS4hs24000'}, a:{p:'7,990',per:'per year · up to 10 agents',url:'https://buy.stripe.com/4gM4gBejT2tBbeWeW624001'}}
+};
+let BILLING='m';
+function setBilling(mode){
+  BILLING=mode;
+  const on='background:var(--ink,#1c1814);color:#fff;';
+  const off='background:transparent;color:var(--ink,#1c1814);';
+  const base='border:none;border-radius:100px;padding:9px 22px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;';
+  document.getElementById('btMonthly').style.cssText=base+(mode==='m'?on:off);
+  document.getElementById('btAnnual').style.cssText=base+(mode==='a'?on:off);
+  for(const [k,v] of Object.entries(PLANS)){
+    const id=k.charAt(0).toUpperCase()+k.slice(1);
+    const pr=document.getElementById('pr'+id), pd=document.getElementById('pd'+id);
+    if(pr) pr.innerHTML='<sup>$</sup>'+v[mode].p;
+    if(pd) pd.textContent=v[mode].per+(mode==='a'?' · 2 months free':'');
+  }
+}
+function openCheckout(tier){ window.open(PLANS[tier][BILLING].url,'_blank'); }
 </script>
 </body>
 </html>
