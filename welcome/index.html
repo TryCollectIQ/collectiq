@@ -124,5 +124,16 @@ footer a{color:var(--accent);text-decoration:none;}
   <a href="https://trycollectiq.com">← Back to trycollectiq.com</a> &nbsp;·&nbsp; © 2026 CollectIQ Technologies LLC
 </footer>
 
+
+<script>
+(function(){
+  var sid=sessionStorage.getItem('ciq_sid')||Math.random().toString(36).slice(2)+Date.now().toString(36);
+  sessionStorage.setItem('ciq_sid',sid);
+  var payload=JSON.stringify({event:'welcome_view',props:{},page:'/welcome',ref:document.referrer||'',sid:sid,
+    utm_source:sessionStorage.getItem('ciq_utm_source')||'',utm_medium:sessionStorage.getItem('ciq_utm_medium')||'',utm_campaign:sessionStorage.getItem('ciq_utm_campaign')||''});
+  if(navigator.sendBeacon){navigator.sendBeacon('/.netlify/functions/track',new Blob([payload],{type:'application/json'}));}
+  else{fetch('/.netlify/functions/track',{method:'POST',headers:{'Content-Type':'application/json'},body:payload,keepalive:true});}
+})();
+</script>
 </body>
 </html>

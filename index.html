@@ -1398,13 +1398,50 @@ async function sendRoiResults(){
   try{
     var r=await fetch('/.netlify/functions/roi-results',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
     if(!r.ok)throw new Error('send failed');
-    msg.textContent='✅ Sent! Check your inbox (and spam folder, just in case).';msg.style.color='var(--green)';
+    msg.textContent='✅ Sent! Check your inbox (and spam folder, just in case).';try{ciqTrack('roi_lead',{})}catch(e){};msg.style.color='var(--green)';
     btn.textContent='Sent ✓';
   }catch(e){
     msg.textContent='Hmm, that didn\u2019t send — try again or email hello@trycollectiq.com directly.';msg.style.color='#c00';
     btn.disabled=false;btn.textContent='Send my numbers \u2192';
   }
 }
+</script>
+
+<script>
+/* CollectIQ first-party analytics — no cookies, no third parties */
+(function(){
+  var qs=new URLSearchParams(location.search);
+  var sid=sessionStorage.getItem('ciq_sid');
+  if(!sid){sid=Math.random().toString(36).slice(2)+Date.now().toString(36);sessionStorage.setItem('ciq_sid',sid);}
+  ['utm_source','utm_medium','utm_campaign'].forEach(function(k){var v=qs.get(k);if(v)sessionStorage.setItem('ciq_'+k,v);});
+  window.ciqTrack=function(evt,props){
+    try{
+      var payload=JSON.stringify({event:evt,props:props||{},page:location.pathname+location.hash,
+        ref:document.referrer||'',sid:sid,
+        utm_source:sessionStorage.getItem('ciq_utm_source')||'',
+        utm_medium:sessionStorage.getItem('ciq_utm_medium')||'',
+        utm_campaign:sessionStorage.getItem('ciq_utm_campaign')||''});
+      if(navigator.sendBeacon){navigator.sendBeacon('/.netlify/functions/track',new Blob([payload],{type:'application/json'}));}
+      else{fetch('/.netlify/functions/track',{method:'POST',headers:{'Content-Type':'application/json'},body:payload,keepalive:true});}
+    }catch(e){}
+  };
+  ciqTrack('page_view');
+  // CTA click instrumentation
+  document.addEventListener('click',function(e){
+    var a=e.target.closest('a,button'); if(!a)return;
+    if(a.classList.contains('nav-cta'))ciqTrack('cta_click',{loc:'nav'});
+    else if(a.classList.contains('btn-primary'))ciqTrack('cta_click',{loc:'hero'});
+    else if(a.classList.contains('sc-btn'))ciqTrack('cta_click',{loc:'sticky_mobile'});
+    else if(a.classList.contains('roi-cta-btn'))ciqTrack('cta_click',{loc:'roi'});
+    else if(a.classList.contains('btn-secondary')&&/demo/i.test(a.textContent))ciqTrack('demo_click',{loc:'hero'});
+  },{passive:true});
+  // wrap checkout + billing toggle + waitlist once they exist
+  addEventListener('load',function(){
+    if(window.openCheckout){var _oc=window.openCheckout;window.openCheckout=function(t){try{ciqTrack('checkout_click',{tier:t,cycle:(typeof BILLING!=='undefined'?BILLING:'m')});}catch(e){};_oc(t);};}
+    if(window.setBilling){var _sb=window.setBilling;window.setBilling=function(m){try{ciqTrack('billing_toggle',{to:m});}catch(e){};_sb(m);};}
+    if(window.submitWaitlist){var _sw=window.submitWaitlist;window.submitWaitlist=function(){try{ciqTrack('demo_request');}catch(e){};_sw();};}
+  });
+})();
 </script>
 </body>
 </html>
