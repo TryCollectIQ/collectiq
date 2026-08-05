@@ -916,6 +916,14 @@ nav, .nav{backdrop-filter:blur(14px) saturate(1.4);-webkit-backdrop-filter:blur(
       <div class="roi-cta-box">
         <div class="roi-cta-text" id="roiCtaText">Recover <strong id="roiCtaNum">$234,000</strong> more this year — your first recovered invoice covers the entire annual plan.</div>
         <a href="#pricing" class="roi-cta-btn">Claim your founding rate →</a>
+        <div id="roiEmailBox" style="margin-top:18px;padding:16px;background:rgba(26,102,68,.06);border:1px solid rgba(26,102,68,.2);border-radius:12px;">
+          <div style="font-size:13px;font-weight:600;margin-bottom:9px;">📧 Email me these results</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <input type="email" id="roiEmail" placeholder="you@company.com" style="flex:1;min-width:180px;padding:11px 14px;border:1px solid var(--border);border-radius:9px;font-family:inherit;font-size:14px;"/>
+            <button id="roiEmailBtn" onclick="sendRoiResults()" style="background:var(--green);color:#fff;border:none;border-radius:9px;padding:11px 20px;font-weight:600;font-size:14px;cursor:pointer;font-family:inherit;">Send my numbers →</button>
+          </div>
+          <div id="roiEmailMsg" style="font-size:12px;margin-top:8px;color:var(--muted);">Your exact calculation, in your inbox — plus what to do about it.</div>
+        </div>
       </div>
 
       <div class="roi-industry-note" id="roiIndustryNote">Based on staffing industry averages · industry benchmark data</div>
@@ -1370,6 +1378,33 @@ function openCheckout(tier){ window.open(PLANS[tier][BILLING].url,'_blank'); }
     });
   }
 })();
+</script>
+
+<script>
+async function sendRoiResults(){
+  var em=document.getElementById('roiEmail').value.trim();
+  var msg=document.getElementById('roiEmailMsg');
+  var btn=document.getElementById('roiEmailBtn');
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){msg.textContent='Please enter a valid email address.';msg.style.color='#c00';return;}
+  btn.disabled=true;btn.textContent='Sending…';
+  var g=function(id){var el=document.getElementById(id);return el?el.textContent.trim():'';};
+  var payload={
+    email:em,
+    inputs:{ar:g('arLabel'),days:g('daysLabel'),rate:g('rateLabel'),accounts:g('acctLabel'),
+      industry:(function(){var sel=document.getElementById('industrySelect');return sel?sel.options[sel.selectedIndex].text:'';})()},
+    results:{bigNum:g('roiBigNum'),without:g('roiWithout'),withAI:g('roiWith'),cost:g('roiCost'),
+      roi:g('roiROI'),payback:g('roiPayback'),hours:g('roiHours')}
+  };
+  try{
+    var r=await fetch('/.netlify/functions/roi-results',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    if(!r.ok)throw new Error('send failed');
+    msg.textContent='✅ Sent! Check your inbox (and spam folder, just in case).';msg.style.color='var(--green)';
+    btn.textContent='Sent ✓';
+  }catch(e){
+    msg.textContent='Hmm, that didn\u2019t send — try again or email hello@trycollectiq.com directly.';msg.style.color='#c00';
+    btn.disabled=false;btn.textContent='Send my numbers \u2192';
+  }
+}
 </script>
 </body>
 </html>
