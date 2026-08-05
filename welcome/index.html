@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="robots" content="noindex"/>
+<title>Welcome to CollectIQ — You're In!</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --black:#0a0a0a;--cream:#f4f0e8;--ink:#1a1a18;--muted:#6b6b67;
+  --border:rgba(26,26,24,.1);--accent:#c84b1f;--accent-light:#f5ede8;
+  --green:#1a6644;--green-light:#e8f4ee;--gold:#b8860b;
+  --serif:'Instrument Serif',Georgia,serif;--sans:'Geist',system-ui,sans-serif;--mono:'Geist Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:var(--sans);background:var(--cream);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased;}
+
+/* dark hero band — brand-matched */
+.hero{background:#0c0c0b;position:relative;overflow:hidden;padding:90px 24px 70px;text-align:center;}
+.hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(244,240,232,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(244,240,232,.045) 1px,transparent 1px);background-size:56px 56px;mask-image:radial-gradient(ellipse 90% 80% at 50% 40%,black 30%,transparent 75%);pointer-events:none;}
+.hero::after{content:'';position:absolute;width:480px;height:480px;border-radius:50%;filter:blur(90px);opacity:.4;background:radial-gradient(circle,#c84b1f55,transparent 65%);top:-160px;right:-100px;animation:drift 14s ease-in-out infinite alternate;}
+@keyframes drift{to{transform:translate(-40px,30px) scale(1.12);}}
+.hero>*{position:relative;z-index:2;}
+.check{width:72px;height:72px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;margin:0 auto 26px;box-shadow:0 0 0 10px rgba(26,102,68,.18),0 0 40px rgba(26,102,68,.35);animation:pop .5s cubic-bezier(.2,1.4,.4,1) both;}
+@keyframes pop{from{transform:scale(.4);opacity:0;}to{transform:scale(1);opacity:1;}}
+.check svg{width:34px;height:34px;stroke:#fff;stroke-width:3;fill:none;}
+.hero h1{font-family:var(--serif);font-size:clamp(38px,6vw,64px);font-weight:400;color:var(--cream);letter-spacing:-.02em;margin-bottom:14px;}
+.hero h1 em{font-style:italic;background:linear-gradient(120deg,var(--accent),#e8763f,var(--gold));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{color:#b9b4a8;font-size:17px;max-width:560px;margin:0 auto;font-weight:300;}
+.hero .chip{display:inline-flex;align-items:center;gap:8px;margin-top:24px;background:rgba(244,240,232,.06);border:1px solid rgba(244,240,232,.16);border-radius:99px;padding:7px 16px;font-family:var(--mono);font-size:11.5px;color:#d8d2c4;letter-spacing:.05em;}
+.chip .dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 1.8s ease-in-out infinite;}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(26,102,68,.5);}50%{box-shadow:0 0 0 7px rgba(26,102,68,0);}}
+
+.wrap{max-width:760px;margin:0 auto;padding:64px 24px 40px;}
+.step{display:flex;gap:20px;margin-bottom:34px;}
+.step-num{flex-shrink:0;width:44px;height:44px;border-radius:12px;background:var(--ink);color:var(--cream);font-family:var(--mono);font-size:15px;display:flex;align-items:center;justify-content:center;font-weight:500;}
+.step.done .step-num{background:var(--green);}
+.step h3{font-size:17px;font-weight:600;margin-bottom:5px;}
+.step p{font-size:14.5px;color:var(--muted);font-weight:300;}
+.step .eta{display:inline-block;margin-top:7px;font-family:var(--mono);font-size:11px;color:var(--accent);background:var(--accent-light);border-radius:6px;padding:3px 10px;letter-spacing:.04em;}
+.section-label{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:10px;}
+.section-label::before{content:'▸ ';}
+h2{font-family:var(--serif);font-size:clamp(26px,4vw,36px);font-weight:400;margin-bottom:28px;letter-spacing:-.01em;}
+h2 em{font-style:italic;color:var(--accent);}
+
+.prep{background:#fff;border:1px solid var(--border);border-radius:16px;padding:28px;margin:10px 0 40px;}
+.prep h3{font-size:16px;margin-bottom:14px;}
+.prep li{list-style:none;display:flex;gap:11px;font-size:14.5px;color:var(--muted);margin-bottom:11px;font-weight:300;align-items:flex-start;}
+.prep li::before{content:'✓';color:var(--green);font-weight:700;flex-shrink:0;}
+.prep li strong{color:var(--ink);font-weight:600;}
+
+.contact{background:var(--ink);border-radius:16px;padding:30px;text-align:center;color:var(--cream);margin-bottom:40px;}
+.contact h3{font-family:var(--serif);font-size:24px;font-weight:400;margin-bottom:8px;}
+.contact p{font-size:14px;color:#b9b4a8;font-weight:300;margin-bottom:16px;}
+.contact a.btn{display:inline-block;background:var(--accent);color:#fff;text-decoration:none;border-radius:10px;padding:12px 26px;font-weight:600;font-size:14.5px;transition:transform .2s,box-shadow .2s;}
+.contact a.btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px -8px rgba(200,75,31,.5);}
+.contact .alt{margin-top:12px;font-family:var(--mono);font-size:12px;color:#8f8a7e;}
+.contact .alt a{color:#d8d2c4;}
+
+footer{text-align:center;padding:30px 24px 46px;font-size:12.5px;color:var(--muted);font-weight:300;}
+footer a{color:var(--accent);text-decoration:none;}
+@media(max-width:600px){.step{gap:14px;}.wrap{padding-top:48px;}}
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="check"><svg viewBox="0 0 24 24"><path d="M4 12.5l5.5 5.5L20 6.5"/></svg></div>
+  <h1>You're in. <em>Welcome to CollectIQ.</em></h1>
+  <p>Your 30-day free trial has started — payment details confirmed, founding rate locked. Here's exactly what happens next.</p>
+  <div class="chip"><span class="dot"></span>TRIAL ACTIVE · FOUNDING RATE LOCKED FOR LIFE</div>
+</section>
+
+<div class="wrap">
+  <div class="section-label">Next steps</div>
+  <h2>From here to your first <em>recovered invoice</em></h2>
+
+  <div class="step done">
+    <div class="step-num">✓</div>
+    <div><h3>Trial started</h3>
+    <p>Your subscription is registered and your 30-day free trial is live. You won't be charged until the trial ends — and you can cancel anytime before then in two clicks.</p></div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">2</div>
+    <div><h3>Your account gets provisioned — personally</h3>
+    <p>I set up every founding account myself: your secure workspace, agent configuration, and debtor portal. You'll receive your login credentials by email from <strong>hello@trycollectiq.com</strong>.</p>
+    <span class="eta">WITHIN 24 HOURS — USUALLY MUCH FASTER</span></div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">3</div>
+    <div><h3>Import your accounts &amp; train your voice</h3>
+    <p>Upload your overdue accounts (CSV or QuickBooks), then paste 2–3 emails you've written into AI Voice Training — from that moment, every message the AI drafts sounds like you wrote it.</p></div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">4</div>
+    <div><h3>First outreach goes live</h3>
+    <p>Review the AI-drafted follow-ups, approve, and send. Your debtors get a professional payment portal with settlement discounts and installment plans — and you watch recovery happen on your dashboard.</p></div>
+  </div>
+
+  <div class="section-label">While you wait</div>
+  <h2>Get a <em>head start</em></h2>
+  <div class="prep">
+    <h3>Three things to gather before your credentials arrive:</h3>
+    <ul>
+      <li><strong>Your overdue accounts list</strong>&nbsp;— a CSV export or your QuickBooks login (debtor name, email, invoice #, amount, days overdue)</li>
+      <li><strong>2–3 emails you've written</strong>&nbsp;— any professional emails in your natural style, for AI Voice Training</li>
+      <li><strong>Your remittance details</strong>&nbsp;— bank/ACH info for the payment portal's wire-transfer option (optional at start)</li>
+    </ul>
+  </div>
+
+  <div class="contact">
+    <h3>Questions before your credentials arrive?</h3>
+    <p>You're a founding customer — you get the founder. Reply to any email or reach out directly, and you'll hear back same-day.</p>
+    <a class="btn" href="mailto:hello@trycollectiq.com?subject=New%20founding%20customer%20question">Email me directly →</a>
+    <div class="alt">or call/text <a href="tel:+19542701678">(954) 270-1678</a> · Kinecia Wheeler, Founder</div>
+  </div>
+</div>
+
+<footer>
+  <a href="https://trycollectiq.com">← Back to trycollectiq.com</a> &nbsp;·&nbsp; © 2026 CollectIQ Technologies LLC
+</footer>
+
+</body>
+</html>
