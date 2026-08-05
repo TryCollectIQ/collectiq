@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="description" content="CollectIQ recovers your unpaid B2B invoices automatically. AI agents follow up in your voice, debtors get a payment portal with discounts and plans, and you keep 100% of what's recovered. $99/mo — 30-day free trial, no card required."/>
 <title>CollectIQ — AI-Powered B2B Revenue Recovery</title>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
@@ -367,6 +368,82 @@ footer { background: var(--ink); color: var(--white); padding: 64px 48px 40px; }
   .roi-wrap { grid-template-columns: 1fr; }
 }
 </style>
+
+<style>
+.sticky-cta{display:none;}
+@media(max-width:768px){
+  .sticky-cta{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:999;background:var(--ink,#1c1814);padding:10px 16px calc(10px + env(safe-area-inset-bottom));align-items:center;justify-content:space-between;gap:12px;box-shadow:0 -4px 20px rgba(0,0,0,.25);}
+  .sticky-cta .sc-txt{color:#f3efe6;font-size:12.5px;line-height:1.3;}
+  .sticky-cta .sc-btn{background:#c2410c;color:#fff;border:none;border-radius:8px;padding:10px 18px;font-weight:700;font-size:14px;white-space:nowrap;text-decoration:none;}
+}
+</style>
+
+<style id="futura-layer">
+/* smooth scroll + reveal animations */
+html{scroll-behavior:smooth;}
+.rv{opacity:0;transform:translateY(26px);transition:opacity .7s cubic-bezier(.2,.6,.2,1),transform .7s cubic-bezier(.2,.6,.2,1);}
+.rv.in{opacity:1;transform:none;}
+@media (prefers-reduced-motion: reduce){.rv{opacity:1;transform:none;transition:none;}}
+
+/* glassmorphism sticky nav */
+nav, .nav{backdrop-filter:blur(14px) saturate(1.4);-webkit-backdrop-filter:blur(14px) saturate(1.4);background:rgba(250,250,248,.72)!important;border-bottom:1px solid rgba(26,26,24,.07);}
+
+/* hero aurora — animated accent glow */
+.hero-glow{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0;}
+.hero-glow::before,.hero-glow::after{content:'';position:absolute;border-radius:50%;filter:blur(90px);opacity:.35;animation:drift 16s ease-in-out infinite alternate;}
+.hero-glow::before{width:520px;height:520px;background:radial-gradient(circle,#c84b1f55,transparent 65%);top:-140px;right:-80px;}
+.hero-glow::after{width:420px;height:420px;background:radial-gradient(circle,#1a664455,transparent 65%);bottom:-160px;left:-60px;animation-delay:-8s;}
+@keyframes drift{from{transform:translate(0,0) scale(1);}to{transform:translate(-50px,40px) scale(1.15);}}
+
+/* card lift + accent edge on hover */
+.how-card,.testimonial-card,.faq-item,.metric-item,.feature-card{transition:transform .35s cubic-bezier(.2,.6,.2,1),box-shadow .35s,border-color .35s;}
+.how-card:hover,.testimonial-card:hover,.feature-card:hover{transform:translateY(-6px);box-shadow:0 18px 44px -18px rgba(26,26,24,.28);border-color:var(--accent)!important;}
+.metric-item:hover{transform:translateY(-4px);}
+
+/* button sheen micro-interaction */
+.btn-primary,.nav-cta,.wl-btn,.roi-cta-btn,.pricing-btn{position:relative;overflow:hidden;transition:transform .25s,box-shadow .25s;}
+.btn-primary:hover,.nav-cta:hover,.wl-btn:hover,.roi-cta-btn:hover,.pricing-btn:hover{transform:translateY(-2px);box-shadow:0 12px 28px -10px rgba(200,75,31,.45);}
+.btn-primary::after,.wl-btn::after{content:'';position:absolute;top:0;left:-80%;width:60%;height:100%;background:linear-gradient(105deg,transparent,rgba(255,255,255,.35),transparent);transform:skewX(-20deg);transition:left .6s;}
+.btn-primary:hover::after,.wl-btn:hover::after{left:130%;}
+
+/* metric numbers get the accent treatment while counting */
+.metric-num.counting{color:var(--accent);}
+</style>
+
+<style id="hyperdrive-layer">
+/* ── scroll progress bar ── */
+#scrollbar-x{position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,var(--accent),var(--gold));z-index:1001;transition:width .1s linear;box-shadow:0 0 12px rgba(200,75,31,.6);}
+
+/* ── DARK CINEMATIC HERO ── */
+.hero .hero-bg{display:none !important;}
+.hero{background:#0c0c0b !important;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(244,240,232,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(244,240,232,.045) 1px,transparent 1px);background-size:56px 56px;mask-image:radial-gradient(ellipse 90% 80% at 50% 40%,black 30%,transparent 75%);pointer-events:none;}
+#heroNet{position:absolute;inset:0;z-index:0;pointer-events:none;}
+.hero>*:not(#heroNet):not(.hero-glow):not(.hero-bg){position:relative;z-index:2;}
+.hero .hero-headline{color:#f4f0e8 !important;}
+.hero .hero-headline em{background:linear-gradient(120deg,var(--accent) 0%,#e8763f 40%,var(--gold) 70%,var(--accent) 100%);background-size:250% auto;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:shimmer 5s linear infinite;font-style:italic;}
+@keyframes shimmer{to{background-position:250% center;}}
+.hero .hero-sub{color:#b9b4a8 !important;}
+.hero .hero-eyebrow{color:#d8d2c4 !important;border-color:rgba(244,240,232,.18) !important;background:rgba(244,240,232,.05);backdrop-filter:blur(6px);}
+.hero .eyebrow-dot{animation:pulse-dot 1.8s ease-in-out infinite;}
+@keyframes pulse-dot{0%,100%{box-shadow:0 0 0 0 rgba(26,102,68,.55);}50%{box-shadow:0 0 0 7px rgba(26,102,68,0);}}
+.hero .btn-secondary{color:#f4f0e8 !important;border-color:rgba(244,240,232,.3) !important;}
+.hero .btn-secondary:hover{border-color:var(--accent) !important;background:rgba(200,75,31,.12);}
+.hero .hero-social-label,.hero .hero-stat{color:#b9b4a8 !important;}
+.hero .hero-stat strong{color:#f4f0e8 !important;}
+.hero div[style*="margin-top:14px"]{color:#8f8a7e !important;}
+.hero-glow::before{opacity:.5;}
+.hero-glow::after{opacity:.5;}
+
+/* ── 3D tilt cards ── */
+.tilt{transform-style:preserve-3d;will-change:transform;}
+.tilt:hover{z-index:3;}
+
+/* ── section-label tech ticks ── */
+.section-label{letter-spacing:.14em;}
+.section-label::before{content:'▸ ';color:var(--accent);}
+@media (prefers-reduced-motion: reduce){.hero .hero-headline em{animation:none;}#heroNet{display:none;}}
+</style>
 </head>
 <body>
 
@@ -380,14 +457,14 @@ footer { background: var(--ink); color: var(--white); padding: 64px 48px 40px; }
      <a href="/capital.html">Get Capital</a>
     <a href="/litready.html">LitReady</a>
     <a href="#faq">FAQ</a>
-  <a href="#waitlist" class="nav-cta">Start Free Trial→</a>
+  <a href="#pricing" class="nav-cta">Start Free Trial→</a>
 </nav>
 
-<section class="hero">
+<section class="hero"><canvas id="heroNet"></canvas><div class="hero-glow"></div>
   <div class="hero-bg"></div>
   <div class="hero-eyebrow">
     <span class="eyebrow-dot"></span>
-    AI-powered B2B collections — now in Founding member offer
+    AI-powered B2B collections — live now · founding rates open
   </div>
   <h1 class="hero-headline">
     Recover overdue revenue.<br><em>Automatically.</em>
@@ -396,12 +473,13 @@ footer { background: var(--ink); color: var(--white); padding: 64px 48px 40px; }
     CollectIQ uses AI to score, prioritize, and negotiate with debtors — so your team collects more, faster, with less effort.
   </p>
   <div class="hero-actions">
-    <a href="#waitlist" class="btn-primary">
+    <a href="#pricing" class="btn-primary">
       Start Free Trial
       <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
     </a>
-    <a href="#how" class="btn-secondary">See how it works</a>
+    <a href="#waitlist" class="btn-secondary">Schedule a demo</a>
   </div>
+  <div style="margin-top:14px;font-size:13px;color:var(--muted,#78716c);">30-day free trial · No credit card required · Cancel anytime</div>
   <div class="hero-social">
     <div>
       <div class="hero-social-label">Live now — founding member offer open</div>
@@ -837,7 +915,7 @@ footer { background: var(--ink); color: var(--white); padding: 64px 48px 40px; }
 
       <div class="roi-cta-box">
         <div class="roi-cta-text" id="roiCtaText">Recover <strong id="roiCtaNum">$234,000</strong> more this year — your first recovered invoice covers the entire annual plan.</div>
-        <a href="#waitlist" class="roi-cta-btn">Claim your founding rate →</a>
+        <a href="#pricing" class="roi-cta-btn">Claim your founding rate →</a>
       </div>
 
       <div class="roi-industry-note" id="roiIndustryNote">Based on staffing industry averages · industry benchmark data</div>
@@ -889,7 +967,7 @@ footer { background: var(--ink); color: var(--white); padding: 64px 48px 40px; }
 <section class="section waitlist-section" id="waitlist">
   <div class="section-label" style="justify-content:center;">Founding member offer</div>
   <h2 class="section-title">We're live.<br>Lock in your <em>founding rate.</em></h2>
-  <p class="section-sub">For a limited time, founding customers get 40% off Growth — locked in forever. Start your 30-day free trial today.</p>
+  <p class="section-sub">Start instantly above — every plan has a 30-day free trial, no card required. Prefer to see it first? Schedule a free live demo — I'll walk you through the platform on your own numbers, then set your account up with you.</p>
   <div id="wlForm" class="waitlist-form">
     <div class="waitlist-row">
       <input class="wl-input" id="wlFirst" type="text" placeholder="First name"/>
@@ -911,7 +989,7 @@ footer { background: var(--ink); color: var(--white); padding: 64px 48px 40px; }
       <option>Growth ($799/mo)</option>
       <option>Enterprise (custom)</option>
     </select>
-    <button class="wl-btn" onclick="submitWaitlist()">Claim founding rate →</button>
+    <button class="wl-btn" onclick="submitWaitlist()">Schedule my demo →</button>
     <div style="font-size:11px;color:var(--muted);text-align:center;">No credit card required · Cancel anytime · GDPR compliant</div>
   </div>
   <div class="wl-success" id="wlSuccess">
@@ -919,10 +997,10 @@ footer { background: var(--ink); color: var(--white); padding: 64px 48px 40px; }
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1a6644" stroke-width="2.5"><path d="M5 12l5 5L20 7"/></svg>
     </div>
     <div class="wl-success-title">You're on the list!</div>
-    <div class="wl-success-sub" id="wlMsg">We'll reach out within 2 business days with your Founding member offer invite and founding rate. Questions? <a href="mailto:hello@trycollectiq.com" style="color:var(--accent);">hello@trycollectiq.com</a></div>
+    <div class="wl-success-sub" id="wlMsg">You're booked-in! I'll reach out within 1 business day to schedule your live demo. Questions? <a href="mailto:hello@trycollectiq.com" style="color:var(--accent);">hello@trycollectiq.com</a></div>
   </div>
   <div class="waitlist-perks">
-    <div class="waitlist-perk"><span class="perk-dot"></span>40% off Growth — forever</div>
+    <div class="waitlist-perk"><span class="perk-dot"></span>Founding rates locked forever</div>
     <div class="waitlist-perk"><span class="perk-dot"></span>Free onboarding call</div>
     <div class="waitlist-perk"><span class="perk-dot"></span>30-day free trial</div>
     <div class="waitlist-perk"><span class="perk-dot"></span>Founding rates — limited time</div>
@@ -969,6 +1047,18 @@ footer { background: var(--ink); color: var(--white); padding: 64px 48px 40px; }
       <div class="faq-q" onclick="toggleFaq(this)">How long does onboarding take?<svg class="faq-chevron" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div>
       <div class="faq-a">Most teams are live within 24 hours. CSV import takes minutes. ERP integrations typically take 30–60 minutes including field mapping. Growth and Enterprise customers receive a dedicated onboarding call to configure templates, scoring thresholds, and automation rules.</div>
     </div>
+<div class="faq-item">
+  <button class="faq-q" onclick="this.parentElement.classList.toggle('open')">Do I need a credit card to start?<span>+</span></button>
+  <div class="faq-a">No. Every plan starts with a 30-day free trial with no credit card required. You only add payment details if you decide to continue after seeing what it recovers.</div>
+</div>
+<div class="faq-item">
+  <button class="faq-q" onclick="this.parentElement.classList.toggle('open')">Is CollectIQ a collection agency?<span>+</span></button>
+  <div class="faq-a">No — and that's the point. Collection agencies take 25–40% of what they recover and burn your customer relationships. CollectIQ is software you own: outreach goes out under your name, in your voice, and 100% of recovered revenue stays yours.</div>
+</div>
+<div class="faq-item">
+  <button class="faq-q" onclick="this.parentElement.classList.toggle('open')">Can I cancel anytime?<span>+</span></button>
+  <div class="faq-a">Yes. No contracts, no cancellation fees. Cancel in two clicks from your dashboard — though founding-rate pricing is only guaranteed while your subscription stays active.</div>
+</div>
   </div>
 </section>
 <!-- ============ FREE TOOLS SECTION ============ -->
@@ -1006,7 +1096,7 @@ footer { background: var(--ink); color: var(--white); padding: 64px 48px 40px; }
     </div>
     <div>
       <div class="footer-col-title">Product</div>
-      <ul class="footer-links"><li><a href="#how">How it works</a></li><li><a href="#features">Features</a></li><li><a href="#pricing">Pricing</a></li><li><a href="#waitlist">Founding member offer</a></li></ul>
+      <ul class="footer-links"><li><a href="#how">How it works</a></li><li><a href="#features">Features</a></li><li><a href="#pricing">Pricing</a></li><li><a href="#waitlist">Schedule a demo</a></li></ul>
     </div>
     <div>
       <div class="footer-col-title">Company</div>
@@ -1193,6 +1283,93 @@ function setBilling(mode){
   }
 }
 function openCheckout(tier){ window.open(PLANS[tier][BILLING].url,'_blank'); }
+</script>
+
+<div class="sticky-cta"><div class="sc-txt"><strong>$99/mo founding rate</strong><br>30-day trial · no card</div><a href="#pricing" class="sc-btn">Start Free →</a></div>
+
+<script>
+(function(){
+  // scroll-reveal: tag cards + section headers
+  var sel='.how-card,.testimonial-card,.metric-item,.faq-item,.section-title,.section-label,.feature-stat-item,.feature-card,.pricing-card';
+  document.querySelectorAll(sel).forEach(function(el,i){el.classList.add('rv');el.style.transitionDelay=(i%4)*70+'ms';});
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.12});
+  document.querySelectorAll('.rv').forEach(function(el){io.observe(el);});
+
+  // animated metric counters (respects text like "24hr","100%","20-40%","$99/mo")
+  function animateNum(el){
+    var txt=el.textContent, m=txt.match(/(\d+)/);
+    if(!m) return;
+    var target=parseInt(m[1],10), start=0, dur=1100, t0=null;
+    el.classList.add('counting');
+    function step(t){
+      if(!t0)t0=t; var p=Math.min((t-t0)/dur,1);
+      var eased=1-Math.pow(1-p,3);
+      el.textContent=txt.replace(m[1], String(Math.round(target*eased)));
+      if(p<1)requestAnimationFrame(step); else el.classList.remove('counting');
+    }
+    requestAnimationFrame(step);
+  }
+  var io2=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){animateNum(e.target);io2.unobserve(e.target);}});},{threshold:.6});
+  document.querySelectorAll('.metric-num').forEach(function(el){io2.observe(el);});
+})();
+</script>
+
+<script>
+(function(){
+  // scroll progress bar
+  var bar=document.createElement('div');bar.id='scrollbar-x';document.body.appendChild(bar);
+  addEventListener('scroll',function(){var h=document.documentElement;bar.style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%';},{passive:true});
+
+  // AI particle network in hero
+  var cv=document.getElementById('heroNet');
+  if(cv && !matchMedia('(prefers-reduced-motion: reduce)').matches){
+    var ctx=cv.getContext('2d'),hero=cv.parentElement,P=[],mx=-999,my=-999,run=true;
+    function size(){cv.width=hero.offsetWidth;cv.height=hero.offsetHeight;}
+    size();addEventListener('resize',size);
+    var N=Math.min(70,Math.floor(cv.width/16));
+    for(var i=0;i<N;i++)P.push({x:Math.random()*cv.width,y:Math.random()*cv.height,vx:(Math.random()-.5)*.45,vy:(Math.random()-.5)*.45,r:Math.random()*1.6+.6});
+    hero.addEventListener('pointermove',function(e){var b=cv.getBoundingClientRect();mx=e.clientX-b.left;my=e.clientY-b.top;});
+    hero.addEventListener('pointerleave',function(){mx=-999;my=-999;});
+    new IntersectionObserver(function(es){run=es[0].isIntersecting;}).observe(hero);
+    (function draw(){
+      requestAnimationFrame(draw);
+      if(!run)return;
+      ctx.clearRect(0,0,cv.width,cv.height);
+      for(var i=0;i<P.length;i++){
+        var p=P[i];
+        p.x+=p.vx;p.y+=p.vy;
+        if(p.x<0||p.x>cv.width)p.vx*=-1;
+        if(p.y<0||p.y>cv.height)p.vy*=-1;
+        var dxm=p.x-mx,dym=p.y-my,dm=Math.sqrt(dxm*dxm+dym*dym);
+        if(dm<140){p.x+=dxm/dm*1.2;p.y+=dym/dm*1.2;}
+        ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,6.283);
+        ctx.fillStyle='rgba(232,118,63,.55)';ctx.fill();
+        for(var j=i+1;j<P.length;j++){
+          var q=P[j],dx=p.x-q.x,dy=p.y-q.y,d=dx*dx+dy*dy;
+          if(d<15000){
+            ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);
+            ctx.strokeStyle='rgba(244,240,232,'+(0.14*(1-d/15000))+')';
+            ctx.lineWidth=.7;ctx.stroke();
+          }
+        }
+      }
+    })();
+  }
+
+  // 3D tilt on cards (desktop pointers only)
+  if(matchMedia('(pointer:fine)').matches && !matchMedia('(prefers-reduced-motion: reduce)').matches){
+    document.querySelectorAll('.feature-card,.pricing-card,.how-card,.testimonial-card').forEach(function(card){
+      card.classList.add('tilt');
+      card.addEventListener('pointermove',function(e){
+        var b=card.getBoundingClientRect();
+        var rx=((e.clientY-b.top)/b.height-.5)*-7;
+        var ry=((e.clientX-b.left)/b.width-.5)*7;
+        card.style.transform='perspective(900px) rotateX('+rx+'deg) rotateY('+ry+'deg) translateY(-4px)';
+      });
+      card.addEventListener('pointerleave',function(){card.style.transform='';});
+    });
+  }
+})();
 </script>
 </body>
 </html>
