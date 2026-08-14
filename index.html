@@ -354,9 +354,18 @@ footer { background: var(--ink); color: var(--white); padding: 64px 48px 40px; }
 .roi-disclaimer { font-size: 11px; color: rgba(255,255,255,0.25); text-align: center; margin-top: 20px; line-height: 1.5; }
 .roi-industry-note { font-size: 12px; color: rgba(255,255,255,0.35); font-family: var(--font-mono); text-align: center; margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.06); }
 
+.nav-toggle { display: none; background: none; border: none; font-size: 26px; line-height: 1; cursor: pointer; color: #1c1814; padding: 4px 10px; }
 @media (max-width: 900px) {
   nav { padding: 14px 24px; }
+  .nav-toggle { display: block; }
   .nav-links { display: none; }
+  .nav-links.open {
+    display: flex; flex-direction: column; position: fixed;
+    top: 64px; left: 0; right: 0; bottom: 0;
+    background: #1c1814; padding: 32px 24px; gap: 20px;
+    z-index: 1000; overflow-y: auto;
+  }
+  .nav-links.open a { color: #f3efe6; font-size: 17px; }
   .hero { padding: 100px 24px 60px; }
   .metrics-strip { grid-template-columns: 1fr 1fr; padding: 32px 24px; }
   .metric-item { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.1); padding: 16px 0; }
@@ -448,8 +457,9 @@ nav, .nav{backdrop-filter:blur(14px) saturate(1.4);-webkit-backdrop-filter:blur(
 <body>
 
 <nav>
-  <a href="https://trycollectiq.com" class="nav-logo">Collect<em>IQ</em></a>
-  <div class="nav-links">
+<a href="https://trycollectiq.com" class="nav-logo">Collect<em>IQ</em></a>
+  <button class="nav-toggle" onclick="var m=document.querySelector('.nav-links');m.classList.toggle('open');this.innerHTML=m.classList.contains('open')?'&#10005;':'&#9776;';">&#9776;</button>
+  <div class="nav-links" onclick="if(event.target.tagName==='A'){this.classList.remove('open');document.querySelector('.nav-toggle').innerHTML='&#9776;';}">
     <a href="#how">How it works</a>
     <a href="#features">Features</a>
     <a href="#pricing">Pricing</a>
