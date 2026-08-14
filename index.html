@@ -366,6 +366,7 @@ footer { background: var(--ink); color: var(--white); padding: 64px 48px 40px; }
     z-index: 1000; overflow-y: auto;
   }
   .nav-links.open a { color: #f3efe6; font-size: 17px; }
+nav.menu-open { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
   .hero { padding: 100px 24px 60px; }
   .metrics-strip { grid-template-columns: 1fr 1fr; padding: 32px 24px; }
   .metric-item { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.1); padding: 16px 0; }
@@ -458,8 +459,8 @@ nav, .nav{backdrop-filter:blur(14px) saturate(1.4);-webkit-backdrop-filter:blur(
 
 <nav>
 <a href="https://trycollectiq.com" class="nav-logo">Collect<em>IQ</em></a>
-  <button class="nav-toggle" onclick="var m=document.querySelector('.nav-links');m.classList.toggle('open');this.innerHTML=m.classList.contains('open')?'&#10005;':'&#9776;';">&#9776;</button>
-  <div class="nav-links" onclick="if(event.target.tagName==='A'){this.classList.remove('open');document.querySelector('.nav-toggle').innerHTML='&#9776;';}">
+<button class="nav-toggle" onclick="var m=document.querySelector('.nav-links');var n=document.querySelector('nav');m.classList.toggle('open');n.classList.toggle('menu-open');this.innerHTML=m.classList.contains('open')?'&#10005;':'&#9776;';">&#9776;</button>
+ <div class="nav-links" onclick="if(event.target.tagName==='A'){this.classList.remove('open');document.querySelector('nav').classList.remove('menu-open');document.querySelector('.nav-toggle').innerHTML='&#9776;';}">
     <a href="#how">How it works</a>
     <a href="#features">Features</a>
     <a href="#pricing">Pricing</a>
