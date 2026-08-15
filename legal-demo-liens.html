@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>The Frevola Law Firm — Medical Lien Management | CollectIQ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600&family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0E151E; --panel:#151F2B; --panel2:#1B2735; --rule:#263444;
+  --tx:#E4EAF1; --tx2:#8B99A9; --tx3:#5E6C7C;
+  --accent:#C84B1F; --blue:#4E9CD1; --green:#4E9E76; --gold:#D9A441; --red:#E06C5F;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0}
+body{background:var(--bg);color:var(--tx);font-family:"Barlow",system-ui,sans-serif;font-size:14.5px;line-height:1.55;padding:18px 14px 70px;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1200px;margin:0 auto}
+.mono{font-family:"IBM Plex Mono",monospace}
+.demo-flag{background:rgba(217,164,65,.1);border:1px solid rgba(217,164,65,.4);border-radius:3px;padding:9px 13px;font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:18px;text-align:center}
+header{border-bottom:1px solid var(--rule);padding-bottom:16px;margin-bottom:20px}
+.firm{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:clamp(22px,4.5vw,30px);letter-spacing:.02em;text-transform:uppercase;line-height:1.05}
+.kick{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--tx2);margin-bottom:6px}
+.sub{color:var(--tx2);font-size:13.5px;margin-top:6px;font-weight:300}
+h2{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--tx2);font-weight:400;margin:26px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--rule)}
+/* waterfall */
+.fall{background:var(--panel);border:1px solid var(--rule);border-radius:3px;padding:18px 16px 14px;margin-bottom:8px}
+.fallbar{display:flex;height:34px;border-radius:3px;overflow:hidden;margin-bottom:12px;background:var(--rule)}
+.fallbar div{display:flex;align-items:center;justify-content:center;font-family:"IBM Plex Mono",monospace;font-size:10px;font-weight:500;color:#0B1219;white-space:nowrap;overflow:hidden}
+.fallkey{display:flex;flex-wrap:wrap;gap:16px;font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--tx2)}
+.fallkey span{display:flex;align-items:center;gap:6px}
+.fallkey i{width:10px;height:10px;border-radius:2px;display:block}
+.alert{background:rgba(224,108,95,.09);border:1px solid rgba(224,108,95,.45);border-radius:3px;padding:13px 15px;margin-bottom:18px}
+.alert b{color:var(--red)}
+.alert .fix{color:var(--tx2);font-size:13px;margin-top:5px;font-weight:300}
+/* kpi */
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+@media(min-width:700px){.kpis{grid-template-columns:repeat(4,1fr)}}
+.kpi{background:var(--panel);border:1px solid var(--rule);border-left:3px solid var(--blue);border-radius:3px;padding:12px 13px}
+.kpi.warn{border-left-color:var(--red)} .kpi.good{border-left-color:var(--green)}
+.kpi .k{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--tx2);line-height:1.35}
+.kpi .v{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:28px;line-height:1.05;margin-top:4px}
+.kpi.warn .v{color:var(--red)} .kpi.good .v{color:var(--green)}
+.kpi .s{font-family:"IBM Plex Mono",monospace;font-size:10px;color:var(--tx3);margin-top:3px}
+/* table */
+.tblwrap{background:var(--panel);border:1px solid var(--rule);border-radius:3px;overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:840px}
+th{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--tx2);font-weight:500;text-align:left;padding:11px 12px;border-bottom:1px solid var(--rule);white-space:nowrap}
+td{padding:12px;border-bottom:1px solid rgba(38,52,68,.55);font-size:13.5px;vertical-align:top}
+tr:last-child td{border-bottom:none}
+td.num{font-family:"IBM Plex Mono",monospace;text-align:right;white-space:nowrap}
+.prov{font-weight:500}
+.prov small{display:block;color:var(--tx3);font-size:11px;font-weight:400;margin-top:2px;font-family:"IBM Plex Mono",monospace}
+.pill{font-family:"IBM Plex Mono",monospace;font-size:9px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;border-radius:3px;padding:3px 8px;white-space:nowrap;display:inline-block}
+.p-agreed{background:rgba(78,158,118,.16);color:var(--green)}
+.p-pending{background:rgba(217,164,65,.16);color:var(--gold)}
+.p-sent{background:rgba(78,156,209,.14);color:var(--blue)}
+.p-none{background:rgba(139,153,169,.13);color:var(--tx2)}
+.age{font-family:"IBM Plex Mono",monospace;font-size:12px}
+.age.hot{color:var(--red)}
+.cut{color:var(--tx3);text-decoration:line-through;font-size:11.5px}
+tfoot td{border-top:1px solid var(--rule);font-weight:600;background:rgba(27,39,53,.6)}
+/* pipeline */
+.pipe{display:flex;gap:0;overflow-x:auto;background:var(--panel);border:1px solid var(--rule);border-radius:3px;padding:14px 12px}
+.stage{flex:1;min-width:118px;padding-right:10px}
+.stage .bar{height:4px;border-radius:2px;background:var(--rule);margin-bottom:8px}
+.stage.done .bar{background:var(--green)}
+.stage.now .bar{background:var(--gold)}
+.stage .nm{font-family:"Barlow Condensed",sans-serif;font-weight:600;font-size:12.5px;letter-spacing:.03em;text-transform:uppercase;line-height:1.2}
+.stage.done .nm{color:var(--green)} .stage.now .nm{color:var(--gold)} .stage:not(.done):not(.now) .nm{color:var(--tx3)}
+.stage .dt{font-family:"IBM Plex Mono",monospace;font-size:9.5px;color:var(--tx3);margin-top:3px}
+/* two col */
+.cols{display:grid;grid-template-columns:1fr;gap:16px}
+@media(min-width:900px){.cols{grid-template-columns:1fr 1fr}}
+.card{background:var(--panel);border:1px solid var(--rule);border-radius:3px;padding:16px}
+.letter{background:#0B1219;border:1px solid var(--rule);border-radius:3px;padding:15px;font-size:12.5px;line-height:1.7;color:var(--tx2);max-height:330px;overflow-y:auto}
+.letter b{color:var(--tx);font-weight:500}
+.letter .var{color:var(--blue);font-family:"IBM Plex Mono",monospace;font-size:11.5px}
+.docs li{list-style:none;display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px dotted var(--rule);font-size:13px}
+.docs li:last-child{border-bottom:none}
+.docs .ic{font-size:15px;flex:none}
+.docs .meta{margin-left:auto;font-family:"IBM Plex Mono",monospace;font-size:10px;color:var(--tx3);text-align:right;flex:none}
+.docs ul{margin:0;padding:0}
+footer{margin-top:26px;border-top:1px solid var(--rule);padding-top:14px;font-size:12px;color:var(--tx3);line-height:1.65}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="demo-flag">Demonstration Environment · CollectIQ Legal Collections Module · All figures notional</div>
+
+  <header>
+    <div class="kick">Medical Lien Management</div>
+    <div class="firm">The Frevola Law Firm PLLC</div>
+    <div class="sub">Case #FLF-2026-0417 · Motor Vehicle Accident · Client: R. Delgado · Attorney of Record: Albert L. Frevola, Jr.</div>
+  </header>
+
+  <h2>Settlement Waterfall</h2>
+  <div class="fall">
+    <div class="fallbar">
+      <div style="width:33.3%;background:#4E9CD1">Attorney fee $50,000</div>
+      <div style="width:5.7%;background:#8E86C9">Costs</div>
+      <div style="width:64.1%;background:#E06C5F">Medical liens $96,200</div>
+      <div style="width:0%;background:#4E9E76"></div>
+    </div>
+    <div class="fallkey">
+      <span><i style="background:#4E9CD1"></i>Attorney fee 33.3% — $50,000</span>
+      <span><i style="background:#8E86C9"></i>Case costs — $8,500</span>
+      <span><i style="background:#E06C5F"></i>Medical liens as billed — $96,200</span>
+      <span><i style="background:#4E9E76"></i>Client net — $0</span>
+    </div>
+  </div>
+
+  <div class="alert">
+    <b>⚠ Settlement does not clear.</b> At billed lien amounts, disbursement exceeds the $150,000 settlement by <b>$4,700</b> and the client nets nothing.
+    <div class="fix">To net the client $25,000, medical liens must be reduced from $96,200 to <b style="color:var(--green)">$66,500</b> — a <b style="color:var(--green)">30.9%</b> aggregate reduction across five providers.</div>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi"><div class="k">Settlement</div><div class="v">$150,000</div><div class="s">offer accepted 08 Aug 2026</div></div>
+    <div class="kpi warn"><div class="k">Liens outstanding</div><div class="v">$96,200</div><div class="s">5 providers · as billed</div></div>
+    <div class="kpi good"><div class="k">Reductions agreed</div><div class="v">$45,658</div><div class="s">3 of 5 providers</div></div>
+    <div class="kpi warn"><div class="k">Still to negotiate</div><div class="v">$29,700</div><div class="s">2 providers pending</div></div>
+  </div>
+
+  <h2>Case Lifecycle</h2>
+  <div class="pipe">
+    <div class="stage done"><div class="bar"></div><div class="nm">LOP Signed</div><div class="dt">14 Feb 2026</div></div>
+    <div class="stage done"><div class="bar"></div><div class="nm">Treating</div><div class="dt">Feb – Jun 2026</div></div>
+    <div class="stage done"><div class="bar"></div><div class="nm">MMI Reached</div><div class="dt">22 Jun 2026</div></div>
+    <div class="stage done"><div class="bar"></div><div class="nm">Demand Packet</div><div class="dt">06 Jul 2026</div></div>
+    <div class="stage done"><div class="bar"></div><div class="nm">Offer Received</div><div class="dt">08 Aug 2026</div></div>
+    <div class="stage now"><div class="bar"></div><div class="nm">Reduction Phase</div><div class="dt">in progress</div></div>
+    <div class="stage"><div class="bar"></div><div class="nm">IOLTA Disbursement</div><div class="dt">pending</div></div>
+    <div class="stage"><div class="bar"></div><div class="nm">Ledgers Closed</div><div class="dt">pending</div></div>
+  </div>
+
+  <h2>Provider Liens — Reduction Status</h2>
+  <div class="tblwrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Provider</th><th>Service dates</th><th class="num">Billed</th>
+          <th class="num">Requested</th><th class="num">Agreed</th><th class="num">Aging</th><th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="prov">Broward Orthopedic Associates<small>Arthroscopic surgery · CPT 29881</small></td>
+          <td>18 Mar – 04 May 2026</td>
+          <td class="num">$42,800</td>
+          <td class="num">$29,586</td>
+          <td class="num" style="color:var(--green)">$29,586</td>
+          <td class="num age">181 d</td>
+          <td><span class="pill p-agreed">Agreed</span></td>
+        </tr>
+        <tr>
+          <td class="prov">Coastal Imaging Center<small>MRI lumbar, cervical, shoulder</small></td>
+          <td>21 Feb – 09 Apr 2026</td>
+          <td class="num">$18,600</td>
+          <td class="num">$12,858</td>
+          <td class="num" style="color:var(--green)">$12,858</td>
+          <td class="num age">206 d</td>
+          <td><span class="pill p-agreed">Agreed</span></td>
+        </tr>
+        <tr>
+          <td class="prov">Atlantic Physical Therapy<small>36 sessions · CPT 97110, 97140</small></td>
+          <td>02 Mar – 22 Jun 2026</td>
+          <td class="num">$21,400</td>
+          <td class="num">$14,793</td>
+          <td class="num" style="color:var(--gold)">—</td>
+          <td class="num age hot">197 d</td>
+          <td><span class="pill p-sent">Request sent</span></td>
+        </tr>
+        <tr>
+          <td class="prov">Emergency Physicians of South FL<small>ED evaluation · date of loss</small></td>
+          <td>12 Feb 2026</td>
+          <td class="num">$9,200</td>
+          <td class="num">$6,360</td>
+          <td class="num" style="color:var(--gold)">—</td>
+          <td class="num age hot">215 d</td>
+          <td><span class="pill p-pending">Awaiting response</span></td>
+        </tr>
+        <tr>
+          <td class="prov">Sunrise Anesthesia Group<small>Surgical anesthesia · 18 Mar</small></td>
+          <td>18 Mar 2026</td>
+          <td class="num">$4,200</td>
+          <td class="num">$2,903</td>
+          <td class="num" style="color:var(--green)">$3,214</td>
+          <td class="num age">181 d</td>
+          <td><span class="pill p-agreed">Agreed</span></td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td>TOTAL — 5 providers</td><td></td>
+          <td class="num">$96,200</td>
+          <td class="num">$66,500</td>
+          <td class="num" style="color:var(--green)">$45,658</td>
+          <td class="num">—</td>
+          <td><span class="pill p-pending">2 open</span></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <div class="cols" style="margin-top:20px">
+    <div class="card">
+      <h2 style="margin-top:0">Reduction Request — Auto-Generated</h2>
+      <div class="letter">
+        <b>THE FREVOLA LAW FIRM PLLC</b><br>
+        Re: <span class="var">R. Delgado</span> · Case No. <span class="var">FLF-2026-0417</span><br>
+        Date of Loss: <span class="var">12 February 2026</span><br><br>
+
+        To: <b>Atlantic Physical Therapy</b><br>
+        Attn: Billing Department<br><br>
+
+        This firm represents the above-referenced client with respect to injuries sustained in a motor vehicle accident. Your facility rendered treatment pursuant to a Letter of Protection executed <span class="var">14 February 2026</span>, with charges totaling <span class="var">$21,400.00</span> across <span class="var">36</span> sessions of care.<br><br>
+
+        The matter has resolved for <span class="var">$150,000.00</span>. After attorney's fees and case costs, the funds remaining for medical liens and our client total <span class="var">$91,500.00</span>, against aggregate provider charges of <span class="var">$96,200.00</span>.<br><br>
+
+        We are requesting a pro rata reduction of <span class="var">30.9%</span>, which would resolve your lien at <b><span class="var">$14,793.00</span></b>. The same reduction has been requested of all five treating providers so that no facility bears a disproportionate share.<br><br>
+
+        Upon your written agreement, payment will issue directly from this firm's trust account within <span class="var">10</span> business days of disbursement.<br><br>
+
+        Respectfully,<br>
+        <b>Albert L. Frevola, Jr.</b>
+      </div>
+      <div class="mono" style="font-size:10px;color:var(--tx3);margin-top:11px;line-height:1.6">
+        Merged from case ledger · Attorney review required before transmission · Generated 14 Aug 2026 09:41 ET
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 style="margin-top:0">Case Document Repository</h2>
+      <ul class="docs">
+        <li><span class="ic">📄</span> Letter of Protection — executed<span class="meta">14 Feb 2026<br>signed PDF</span></li>
+        <li><span class="ic">🧾</span> CMS-1500 · Broward Orthopedic<span class="meta">08 Jul 2026</span></li>
+        <li><span class="ic">🧾</span> CMS-1500 · Coastal Imaging<span class="meta">08 Jul 2026</span></li>
+        <li><span class="ic">🧾</span> CMS-1500 · Atlantic PT<span class="meta">09 Jul 2026</span></li>
+        <li><span class="ic">📋</span> Itemized ledgers — all providers<span class="meta">09 Jul 2026</span></li>
+        <li><span class="ic">📁</span> Medical records — complete set<span class="meta">06 Jul 2026<br>412 pages</span></li>
+        <li><span class="ic">✉️</span> Demand letter to carrier<span class="meta">06 Jul 2026</span></li>
+        <li><span class="ic">✅</span> Reduction agreement — Broward Ortho<span class="meta">11 Aug 2026<br>countersigned</span></li>
+        <li><span class="ic">✅</span> Reduction agreement — Coastal Imaging<span class="meta">12 Aug 2026<br>countersigned</span></li>
+        <li><span class="ic">✅</span> Reduction agreement — Sunrise Anesthesia<span class="meta">13 Aug 2026<br>countersigned</span></li>
+      </ul>
+      <div class="mono" style="font-size:10px;color:var(--tx3);margin-top:12px;line-height:1.6">
+        Every document access, transmission, and status change is timestamped to the Case #FLF-2026-0417 audit trail.
+      </div>
+    </div>
+  </div>
+
+  <h2>Disbursement Preview — IOLTA</h2>
+  <div class="tblwrap">
+    <table style="min-width:640px">
+      <thead><tr><th>Payee</th><th>Basis</th><th class="num">Amount</th></tr></thead>
+      <tbody>
+        <tr><td>The Frevola Law Firm PLLC</td><td>Attorney fee — 33 1/3% contingency</td><td class="num">$50,000.00</td></tr>
+        <tr><td>Case costs</td><td>Filing, records, expert review, service</td><td class="num">$8,500.00</td></tr>
+        <tr><td>Broward Orthopedic Associates</td><td>Lien satisfaction — reduced <span class="cut">$42,800</span></td><td class="num">$29,586.00</td></tr>
+        <tr><td>Coastal Imaging Center</td><td>Lien satisfaction — reduced <span class="cut">$18,600</span></td><td class="num">$12,858.00</td></tr>
+        <tr><td>Sunrise Anesthesia Group</td><td>Lien satisfaction — reduced <span class="cut">$4,200</span></td><td class="num">$3,214.00</td></tr>
+        <tr><td>Atlantic Physical Therapy</td><td>Pending reduction agreement</td><td class="num" style="color:var(--gold)">$14,793.00*</td></tr>
+        <tr><td>Emergency Physicians of South FL</td><td>Pending reduction agreement</td><td class="num" style="color:var(--gold)">$6,360.00*</td></tr>
+        <tr><td><b>R. Delgado — client net</b></td><td>Balance after fees, costs, and liens</td><td class="num" style="color:var(--green)"><b>$24,689.00</b></td></tr>
+      </tbody>
+      <tfoot><tr><td>SETTLEMENT TOTAL</td><td></td><td class="num">$150,000.00</td></tr></tfoot>
+    </table>
+  </div>
+  <div class="mono" style="font-size:10.5px;color:var(--tx3);margin-top:10px">
+    * Projected at requested reduction. Disbursement is held until all reduction agreements are countersigned and filed to the case record.
+  </div>
+
+  <footer>
+    Demonstration environment prepared for The Frevola Law Firm PLLC. All parties, figures, providers, and dates are notional.
+    CollectIQ assembles drafts and tracks lien status from data entered by the firm; all correspondence, reductions, and disbursements
+    require attorney review and authorization. Nothing in this module constitutes legal advice or replaces professional judgment.
+    <br><br>Powered by <b style="color:var(--tx2)">CollectIQ</b> · trycollectiq.com
+  </footer>
+</div>
+</body>
+</html>
