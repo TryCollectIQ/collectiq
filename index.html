@@ -539,8 +539,6 @@ nav, .nav{backdrop-filter:blur(14px) saturate(1.4);-webkit-backdrop-filter:blur(
     </div>
   </div>
 </section>
-
-
   </div>
 </section>
 
@@ -744,82 +742,94 @@ nav, .nav{backdrop-filter:blur(14px) saturate(1.4);-webkit-backdrop-filter:blur(
       <button id="btAnnual" onclick="setBilling('a')" style="border:none;border-radius:100px;padding:9px 22px;font-size:13px;font-weight:600;cursor:pointer;background:transparent;color:var(--ink,#1c1814);font-family:inherit;">Annual <span style="font-size:10.5px;font-weight:700;color:#0f6b3e;">· 2 months free</span></button>
     </div>
   </div>
-  <div class="pricing-grid">
-    <div class="pricing-card reveal">
-      <div class="pricing-name">Solo</div>
-      <div class="pricing-price" id="prSolo"><sup>$</sup>99</div>
-      <div class="pricing-period" id="pdSolo">per month · 1 agent</div>
-      <div class="pricing-divider"></div>
-      <ul class="pricing-features">
-        <li>Up to 75 active accounts</li>
-        <li>AI debtor scoring</li>
-        <li>Email outreach (SendGrid)</li>
-        <li>Debtor payment portal</li>
-        <li>SmartDiscount settlement engine</li>
-        <li>AI Voice Training</li>
-        <li>App-based 2FA</li>
-        <li>Email support</li>
-      </ul>
-      <button class="pricing-btn" onclick="openCheckout('solo')">Start Free Trial→</button>
-    </div>
-    <div class="pricing-card reveal">
-      <div class="pricing-name">Starter</div>
-      <div class="pricing-price" id="prStarter"><sup>$</sup>299</div>
-      <div class="pricing-period" id="pdStarter">per month · up to 3 agents</div>
-      <div class="pricing-divider"></div>
-      <ul class="pricing-features">
-        <li>Up to 250 debtor accounts</li>
-        <li>AI debtor scoring</li>
-        <li>Email outreach (SendGrid)</li>
-        <li>CSV import</li>
-        <li>Payment plan configurator</li>
-        <li>Audit log (30 days)</li>
-       <li>LitReady™ case files (add-on)</li>
- <li>Email support</li>
-      </ul>
-      <button class="pricing-btn" onclick="openCheckout('starter')">Start Free Trial→</button>
-    </div>
-    <div class="pricing-card popular reveal">
-      <div class="popular-badge">MOST POPULAR</div>
-      <div class="pricing-name">Growth</div>
-      <div class="pricing-price" id="prGrowth"><sup>$</sup>799</div>
-      <div class="pricing-period" id="pdGrowth">per month · up to 10 agents</div>
-      <div class="pricing-divider"></div>
-      <ul class="pricing-features">
-        <li>Unlimited debtor accounts</li>
-        <li>Full AI negotiator</li>
-        <li>Email + SMS outreach</li>
-        <li>ERP integrations (QB, Xero)</li>
-        <li>Dispute management</li>
-        <li>Audit log (1 year)</li>
-        <li>LitReady™ case files (add-on)</li>
-<li>Priority support + onboarding</li>
-      </ul>
-      <button class="pricing-btn" onclick="openCheckout('growth')">Start Free Trial→</button>
-    </div>
-    <div class="pricing-card reveal" style="border-color:var(--ink);border-width:2px;">
-      <div class="pricing-name">Enterprise</div>
-      <div class="pricing-price" style="font-size:38px;">From $1,500</div>
-      <div class="pricing-period">per month · custom pricing</div>
-      <div class="pricing-divider"></div>
-      <ul class="pricing-features">
-        <li>500+ debtor accounts</li>
-        <li>Unlimited agents & users</li>
-        <li>White-label & custom branding</li>
-        <li>Custom domain</li>
-        <li>SAP / NetSuite / custom ERP</li>
-        <li>Custom AI tone & compliance rules</li>
-        <li>SSO / SAML authentication</li>
-        <li>API access for integrations</li>
-        <li>Dedicated success manager</li>
-        <li>SLA guarantee (99.9% uptime)</li>
-        <li>Legal review support</li>
-        <li>LitReady™ court-ready case files — included</li>
-<li>Custom implementation support</li>
-      </ul>
-      <button class="pricing-btn" style="background:var(--ink);color:#fff;border-color:var(--ink);" onclick="document.getElementById('enterprise-form').scrollIntoView({behavior:'smooth'})">Talk to sales →</button>
-    </div>
+ <div class="pricing-grid">
+  <div class="pricing-card reveal">
+    <div class="pricing-name">Solo</div>
+    <div style="font-size:12.5px;color:var(--muted);margin-top:2px;">Best for freelancers sending under 30 invoices/mo</div>
+    <div class="pricing-price" id="prSolo"><sup>$</sup>99</div>
+    <div class="pricing-period" id="pdSolo">per month · 1 agent</div>
+    <div style="font-family:var(--font-mono);font-size:11.5px;background:var(--green-light);color:var(--green);padding:8px 10px;border-radius:8px;margin:14px 0;">Pays for itself if you recover just one $100 invoice this month.</div>
+    <div class="pricing-divider"></div>
+    <ul class="pricing-features">
+      <li>Up to 75 active accounts</li>
+      <li>AI debtor scoring</li>
+      <li>Email outreach (SendGrid)</li>
+      <li>Debtor payment portal</li>
+      <li>SmartDiscount settlement engine</li>
+      <li>AI Voice Training</li>
+      <li>App-based 2FA</li>
+      <li>Email support</li>
+    </ul>
+    <button class="pricing-btn" onclick="openCheckout('solo')">Keep 100% Of Your Cash →</button>
+    <div style="font-size:11px;color:var(--muted);margin-top:10px;text-align:center;">✓ Enterprise-grade 2FA account protection</div>
   </div>
+  <div class="pricing-card reveal">
+    <div class="pricing-name">Starter</div>
+    <div style="font-size:12.5px;color:var(--muted);margin-top:2px;">Best for growing teams managing 50–250 active accounts</div>
+    <div class="pricing-price" id="prStarter"><sup>$</sup>299</div>
+    <div class="pricing-period" id="pdStarter">per month · up to 3 agents</div>
+    <div style="font-family:var(--font-mono);font-size:11.5px;background:var(--green-light);color:var(--green);padding:8px 10px;border-radius:8px;margin:14px 0;">Pays for itself if you recover just one $300 invoice this month.</div>
+    <div class="pricing-divider"></div>
+    <ul class="pricing-features">
+      <li>Up to 250 debtor accounts</li>
+      <li>AI debtor scoring</li>
+      <li>Email outreach (SendGrid)</li>
+      <li>CSV import</li>
+      <li>Payment plan configurator</li>
+      <li>Audit log (30 days)</li>
+      <li>LitReady™ case files (add-on)</li>
+      <li>Email support</li>
+    </ul>
+    <button class="pricing-btn" onclick="openCheckout('starter')">Stop Agency Fees Now →</button>
+    <div style="font-size:11px;color:var(--muted);margin-top:10px;text-align:center;">✓ Enterprise-grade 2FA account protection</div>
+  </div>
+  <div class="pricing-card popular reveal">
+    <div class="popular-badge">MOST POPULAR</div>
+    <div class="pricing-name">Growth</div>
+    <div style="font-size:12.5px;color:var(--muted);margin-top:2px;">Best for mid-sized orgs with dedicated finance or ops teams</div>
+    <div class="pricing-price" id="prGrowth"><sup>$</sup>799</div>
+    <div class="pricing-period" id="pdGrowth">per month · up to 10 agents</div>
+    <div style="font-family:var(--font-mono);font-size:11.5px;background:var(--green-light);color:var(--green);padding:8px 10px;border-radius:8px;margin:14px 0;">Pays for itself if you recover just $800 in overdue cash this month.</div>
+    <div class="pricing-divider"></div>
+    <ul class="pricing-features">
+      <li>Unlimited debtor accounts</li>
+      <li>Full AI negotiator</li>
+      <li>Email + SMS outreach</li>
+      <li>ERP integrations (QB, Xero)</li>
+      <li>Dispute management</li>
+      <li>Audit log (1 year)</li>
+      <li>LitReady™ case files (add-on)</li>
+      <li>Priority support + onboarding</li>
+    </ul>
+    <button class="pricing-btn" onclick="openCheckout('growth')">Scale Without The Fees →</button>
+    <div style="font-size:11px;color:var(--muted);margin-top:10px;text-align:center;">✓ Enterprise-grade 2FA account protection</div>
+  </div>
+  <div class="pricing-card reveal" style="border-color:var(--ink);border-width:2px;">
+    <div class="pricing-name">Enterprise</div>
+    <div style="font-size:12.5px;color:var(--muted);margin-top:2px;">Replaces a full-time collections team at scale</div>
+    <div class="pricing-price" style="font-size:38px;">From $1,500</div>
+    <div class="pricing-period">per month · custom pricing</div>
+    <div style="font-family:var(--font-mono);font-size:11.5px;background:var(--green-light);color:var(--green);padding:8px 10px;border-radius:8px;margin:14px 0;">Replace outsourced collections at scale with custom automation.</div>
+    <div class="pricing-divider"></div>
+    <ul class="pricing-features">
+      <li>500+ debtor accounts</li>
+      <li>Unlimited agents & users</li>
+      <li>White-label & custom branding</li>
+      <li>Custom domain</li>
+      <li>SAP / NetSuite / custom ERP</li>
+      <li>Custom AI tone & compliance rules</li>
+      <li>SSO / SAML authentication</li>
+      <li>API access for integrations</li>
+      <li>Dedicated success manager</li>
+      <li>SLA guarantee (99.9% uptime)</li>
+      <li>Legal review support</li>
+      <li>LitReady™ court-ready case files — included</li>
+      <li>Custom implementation support</li>
+    </ul>
+    <button class="pricing-btn" style="background:var(--ink);color:#fff;border-color:var(--ink);" onclick="document.getElementById('enterprise-form').scrollIntoView({behavior:'smooth'})">Eliminate Agency Reliance →</button>
+    <div style="font-size:11px;color:var(--muted);margin-top:10px;text-align:center;">✓ Enterprise-grade 2FA account protection</div>
+  </div>
+</div>
   <p class="pricing-note">All plans include a 30-day free trial. No credit card required to start.</p>
 </section>
 
